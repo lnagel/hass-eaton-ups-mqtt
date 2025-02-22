@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_PORT, CONF_HOST
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from slugify import slugify
@@ -15,8 +15,27 @@ from .api import (
     IntegrationBlueprintApiClientCommunicationError,
     IntegrationBlueprintApiClientError,
 )
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, DEFAULT_PORT, CONF_SERVER_CERT, CONF_CLIENT_CERT, CONF_CLIENT_KEY
 
+HOST_SELECTOR = selector.TextSelector(
+    selector.TextSelectorConfig(
+        type=selector.TextSelectorType.TEXT,
+    ),
+)
+PORT_SELECTOR = vol.All(
+    selector.NumberSelector(selector.NumberSelectorConfig(mode=selector.NumberSelectorMode.BOX, min=1, max=65535)),
+    vol.Coerce(int),
+)
+PEM_CERT_SELECTOR = selector.TextSelector(
+    selector.TextSelectorConfig(
+        multiline=True, type=selector.TextSelectorType.TEXT,
+    ),
+)
+PEM_KEY_SELECTOR = selector.TextSelector(
+    selector.TextSelectorConfig(
+        multiline=True, type=selector.TextSelectorType.TEXT,
+    ),
+)
 
 class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
@@ -32,8 +51,11 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 await self._test_credentials(
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
+                    host=user_input[CONF_HOST],
+                    port=user_input[CONF_PORT],
+                    server_cert=user_input[CONF_SERVER_CERT],
+                    client_cert=user_input[CONF_CLIENT_CERT],
+                    client_key=user_input[CONF_CLIENT_KEY],
                 )
             except IntegrationBlueprintApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
@@ -49,11 +71,11 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ## Do NOT use this in production code
                     ## The unique_id should never be something that can change
                     ## https://developers.home-assistant.io/docs/config_entries_config_flow_handler#unique-ids
-                    unique_id=slugify(user_input[CONF_USERNAME])
+                    unique_id=slugify(user_input[CONF_HOST])
                 )
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=user_input[CONF_USERNAME],
+                    title=user_input[CONF_HOST],
                     data=user_input,
                 )
 
@@ -62,28 +84,38 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_USERNAME,
-                        default=(user_input or {}).get(CONF_USERNAME, vol.UNDEFINED),
-                    ): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.TEXT,
-                        ),
-                    ),
-                    vol.Required(CONF_PASSWORD): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.PASSWORD,
-                        ),
-                    ),
+                        CONF_HOST,
+                        default=(user_input or {}).get(CONF_HOST, vol.UNDEFINED),
+                    ): HOST_SELECTOR,
+                    vol.Required(
+                        CONF_PORT,
+                        default=(user_input or {}).get(CONF_PORT, DEFAULT_PORT)
+                    ): PORT_SELECTOR,
+                    vol.Required(
+                        CONF_SERVER_CERT,
+                        default=(user_input or {}).get(CONF_SERVER_CERT, vol.UNDEFINED),
+                    ): PEM_CERT_SELECTOR,
+                    vol.Required(
+                        CONF_CLIENT_CERT,
+                        default=(user_input or {}).get(CONF_CLIENT_CERT, vol.UNDEFINED),
+                    ): PEM_CERT_SELECTOR,
+                    vol.Required(
+                        CONF_CLIENT_KEY,
+                        default=(user_input or {}).get(CONF_CLIENT_KEY, vol.UNDEFINED),
+                    ): PEM_KEY_SELECTOR,
                 },
             ),
             errors=_errors,
         )
 
-    async def _test_credentials(self, username: str, password: str) -> None:
+    async def _test_credentials(self, host: str, port: str, server_cert: str, client_cert: str, client_key: str) -> None:
         """Validate credentials."""
         client = IntegrationBlueprintApiClient(
-            username=username,
-            password=password,
+            host=host,
+            port=port,
+            server_cert=server_cert,
+            client_cert=client_cert,
+            client_key=client_key,
             session=async_create_clientsession(self.hass),
         )
         await client.async_get_data()
