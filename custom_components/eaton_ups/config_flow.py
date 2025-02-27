@@ -2,8 +2,16 @@
 
 from __future__ import annotations
 
+import logging
+import os
+import queue
+import tempfile
+import uuid
+from typing import Any
+
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import SOURCE_RECONFIGURE
 from homeassistant.const import CONF_PORT, CONF_HOST
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
@@ -15,7 +23,10 @@ from .api import (
     IntegrationBlueprintApiClientCommunicationError,
     IntegrationBlueprintApiClientError,
 )
-from .const import DOMAIN, LOGGER, DEFAULT_PORT, CONF_SERVER_CERT, CONF_CLIENT_CERT, CONF_CLIENT_KEY
+from .const import DOMAIN, LOGGER, DEFAULT_PORT, CONF_SERVER_CERT, CONF_CLIENT_CERT, CONF_CLIENT_KEY, MQTT_TIMEOUT
+
+logger = logging.getLogger(__name__)
+
 
 HOST_SELECTOR = selector.TextSelector(
     selector.TextSelectorConfig(
@@ -48,6 +59,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> config_entries.ConfigFlowResult:
         """Handle a flow initialized by the user."""
         _errors = {}
+
         if user_input is not None:
             try:
                 await self._test_credentials(
@@ -108,6 +120,61 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
+    async def async_step_reconfigure(
+        self,
+        user_input: dict | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Handle reconfigure flow initialized by the user."""
+
+        if is_reconfigure := (self.source == SOURCE_RECONFIGURE):
+            reconfigure_entry = self._get_reconfigure_entry()
+
+        _errors = {}
+        if user_input is not None:
+            can_connect = await self.hass.async_add_executor_job(
+                try_connection,
+                user_input,
+            )
+
+            if can_connect:
+                return self.async_create_entry(
+                    title=user_input[CONF_HOST],
+                    data=user_input,
+                )
+
+            _errors["base"] = "cannot_connect"
+
+        current_state = user_input or (reconfigure_entry.data if is_reconfigure else {})
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HOST,
+                        default=current_state.get(CONF_HOST, vol.UNDEFINED),
+                    ): HOST_SELECTOR,
+                    vol.Required(
+                        CONF_PORT,
+                        default=current_state.get(CONF_PORT, DEFAULT_PORT)
+                    ): PORT_SELECTOR,
+                    vol.Required(
+                        CONF_SERVER_CERT,
+                        default=current_state.get(CONF_SERVER_CERT, vol.UNDEFINED),
+                    ): PEM_CERT_SELECTOR,
+                    vol.Required(
+                        CONF_CLIENT_CERT,
+                        default=current_state.get(CONF_CLIENT_CERT, vol.UNDEFINED),
+                    ): PEM_CERT_SELECTOR,
+                    vol.Required(
+                        CONF_CLIENT_KEY,
+                        default=current_state.get(CONF_CLIENT_KEY, vol.UNDEFINED),
+                    ): PEM_KEY_SELECTOR,
+                },
+            ),
+            errors=_errors,
+        )
+
     async def _test_credentials(self, host: str, port: str, server_cert: str, client_cert: str, client_key: str) -> None:
         """Validate credentials."""
         client = IntegrationBlueprintApiClient(
@@ -119,3 +186,79 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             session=async_create_clientsession(self.hass),
         )
         await client.async_get_data()
+
+
+def try_connection(
+    user_input: dict[str, Any],
+) -> bool:
+    """Test if we can connect to an MQTT broker."""
+    # We don't import on the top because some integrations
+    # should be able to optionally rely on MQTT.
+    import paho.mqtt.client as mqtt  # pylint: disable=import-outside-toplevel
+    from homeassistant.components.mqtt.async_client import AsyncMQTTClient
+
+    client_id = mqtt.base62(uuid.uuid4().int, padding=22)
+    client = AsyncMQTTClient(client_id,
+        protocol=mqtt.MQTTv31,
+        reconnect_on_failure=False,
+     )
+
+    result: queue.Queue[bool] = queue.Queue(maxsize=1)
+
+    def on_connect(
+        client_: mqtt.Client,
+        userdata: None,
+        flags: dict[str, Any],
+        result_code: int,
+        properties: mqtt.Properties | None = None,
+    ) -> None:
+        """Handle connection result."""
+        result.put(result_code == mqtt.CONNACK_ACCEPTED)
+
+    client.on_connect = on_connect
+
+    def on_connect_fail(
+        client_: mqtt.Client,
+        userdata: None,
+    ) -> None:
+        """Handle connection result."""
+        result.put(False)
+
+    client.on_connect_fail = on_connect_fail
+
+    # Write PEM strings to temporary files
+    with tempfile.NamedTemporaryFile(delete=False) as server_cert_file:
+        server_cert_file.write(user_input[CONF_SERVER_CERT].encode())
+    with tempfile.NamedTemporaryFile(delete=False) as client_cert_file:
+        client_cert_file.write(user_input[CONF_CLIENT_CERT].encode())
+    with tempfile.NamedTemporaryFile(delete=False) as client_key_file:
+        client_key_file.write(user_input[CONF_CLIENT_KEY].encode())
+
+    try:
+        # Set up TLS/SSL certificates
+        client.tls_set(
+            ca_certs=server_cert_file.name,
+            certfile=client_cert_file.name,
+            keyfile=client_key_file.name,
+
+        )
+        client.tls_insecure_set(False)
+        client.enable_logger(logger)
+
+        # client.connect(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
+        client.connect_async(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
+        client.loop_start()
+
+        try:
+            return result.get(timeout=MQTT_TIMEOUT)
+        except queue.Empty:
+            return False
+        finally:
+            client.disconnect()
+            client.loop_stop()
+
+    finally:
+        # Clean up temporary files
+        os.remove(server_cert_file.name)
+        os.remove(client_cert_file.name)
+        os.remove(client_key_file.name)

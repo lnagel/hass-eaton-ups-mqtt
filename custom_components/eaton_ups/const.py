@@ -12,4 +12,6 @@ CONF_SERVER_CERT: Final = "server_cert"
 CONF_CLIENT_KEY: Final = "client_key"
 CONF_CLIENT_CERT: Final = "client_cert"
 
-DEFAULT_PORT = 1883
+DEFAULT_PORT = 8883
+
+MQTT_TIMEOUT = 5
