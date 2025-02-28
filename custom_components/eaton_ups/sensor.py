@@ -127,7 +127,7 @@ ENTITY_DESCRIPTIONS = (
         key="outputs/1/measures/cumulatedEnergy",
         name="Output Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
@@ -277,7 +277,7 @@ ENTITY_DESCRIPTIONS = (
         key="outputs/1/outlets/1/measures/cumulatedEnergy",
         name="Outlet 1 Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
@@ -287,7 +287,7 @@ ENTITY_DESCRIPTIONS = (
         key="outputs/1/outlets/2/measures/cumulatedEnergy",
         name="Outlet 2 Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
@@ -297,57 +297,7 @@ ENTITY_DESCRIPTIONS = (
         key="outputs/1/outlets/3/measures/cumulatedEnergy",
         name="Outlet 3 Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    
-    # Outlet 4 Energy
-    SensorEntityDescription(
-        key="outputs/1/outlets/4/measures/cumulatedEnergy",
-        name="Outlet 4 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    
-    # Outlet 5 Energy
-    SensorEntityDescription(
-        key="outputs/1/outlets/5/measures/cumulatedEnergy",
-        name="Outlet 5 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    
-    # Outlet 6 Energy
-    SensorEntityDescription(
-        key="outputs/1/outlets/6/measures/cumulatedEnergy",
-        name="Outlet 6 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    
-    # Outlet 7 Energy
-    SensorEntityDescription(
-        key="outputs/1/outlets/7/measures/cumulatedEnergy",
-        name="Outlet 7 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    
-    # Outlet 8 Energy
-    SensorEntityDescription(
-        key="outputs/1/outlets/8/measures/cumulatedEnergy",
-        name="Outlet 8 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
