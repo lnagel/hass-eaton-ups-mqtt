@@ -31,9 +31,9 @@ if TYPE_CHECKING:
     from .coordinator import EatonUPSDataUpdateCoordinator
     from .data import EatonUpsConfigEntry
 
-# Define entity descriptions for common UPS metrics
+# Define entity descriptions grouped according to MQTT API structure
 ENTITY_DESCRIPTIONS = (
-    # Identification
+    # Power Distribution Identification
     SensorEntityDescription(
         key="identification/model",
         name="UPS Model",
@@ -50,7 +50,7 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:information-outline",
     ),
     
-    # Input metrics
+    # Power Distribution Input Measures
     SensorEntityDescription(
         key="inputs/1/measures/voltage",
         name="Input Voltage",
@@ -76,7 +76,7 @@ ENTITY_DESCRIPTIONS = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     
-    # Output metrics
+    # Power Distribution Output Measures
     SensorEntityDescription(
         key="outputs/1/measures/voltage",
         name="Output Voltage",
@@ -155,7 +155,7 @@ ENTITY_DESCRIPTIONS = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     
-    # Status
+    # Power Distribution Status
     SensorEntityDescription(
         key="status/operating",
         name="UPS Operating Status",
@@ -172,7 +172,7 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:power-settings",
     ),
     
-    # Battery measures
+    # Backup System - Power Bank Measures
     SensorEntityDescription(
         key="backupSystem/powerBank/measures/remainingTime",
         name="Backup Remaining Time",
@@ -198,7 +198,7 @@ ENTITY_DESCRIPTIONS = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
 
-    # Battery settings
+    # Backup System - Power Bank Settings
     SensorEntityDescription(
         key="backupSystem/powerBank/settings/lowRuntimeThreshold",
         name="Backup Low Runtime Threshold",
@@ -213,7 +213,7 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=PERCENTAGE,
     ),
 
-    # Battery specifications
+    # Backup System - Power Bank Specifications
     SensorEntityDescription(
         key="backupSystem/powerBank/specifications/externalCount",
         name="Backup External Count",
@@ -238,7 +238,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.VOLTAGE,
     ),
 
-    # Battery status
+    # Backup System - Power Bank Status
     SensorEntityDescription(
         key="backupSystem/powerBank/status/operating",
         name="Backup Operating Status",
@@ -273,7 +273,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.TIMESTAMP,
     ),
 
-    # Charger status
+    # Backup System - Charger Status
     SensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/operating",
         name="Charger Operating Status",
@@ -295,7 +295,7 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:battery-charging-high",
     ),
     
-    # Settings
+    # Power Distribution Settings
     SensorEntityDescription(
         key="settings/audibleAlarm",
         name="Audible Alarm",
@@ -321,7 +321,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.VOLTAGE,
     ),
     
-    # Outlet 1 measures
+    # Power Distribution - Outlet 1 Measures
     SensorEntityDescription(
         key="outlets/1/measures/cumulatedEnergy",
         name="Outlet 1 Energy",
@@ -399,7 +399,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.DURATION,
     ),
     
-    # Outlet 2 measures
+    # Power Distribution - Outlet 2 Measures
     SensorEntityDescription(
         key="outlets/2/measures/cumulatedEnergy",
         name="Outlet 2 Energy",
@@ -477,7 +477,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.DURATION,
     ),
     
-    # Outlet 3 measures
+    # Power Distribution - Outlet 3 Measures
     SensorEntityDescription(
         key="outlets/3/measures/cumulatedEnergy",
         name="Outlet 3 Energy",
@@ -555,7 +555,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.DURATION,
     ),
     
-    # Outlet Status
+    # Power Distribution - Outlet Status
     SensorEntityDescription(
         key="outlets/1/status/operating",
         name="Outlet 1 Operating Status",
