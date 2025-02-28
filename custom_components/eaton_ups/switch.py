@@ -16,21 +16,7 @@ if TYPE_CHECKING:
     from .data import EatonUpsConfigEntry
 
 ENTITY_DESCRIPTIONS = (
-    SwitchEntityDescription(
-        key="control/outlet1",
-        name="Outlet 1",
-        icon="mdi:power-socket",
-    ),
-    SwitchEntityDescription(
-        key="control/outlet2",
-        name="Outlet 2",
-        icon="mdi:power-socket",
-    ),
-    SwitchEntityDescription(
-        key="control/test",
-        name="Battery Test",
-        icon="mdi:battery-check",
-    ),
+    # UPS Control
 )
 
 
