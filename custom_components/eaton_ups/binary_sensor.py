@@ -292,10 +292,6 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
             else:
                 return False
 
-        # Special handling for supplierPowerQuality
-        if key_parts[-1] == "supplierPowerQuality":
-            return value == "protecting" if isinstance(value, str) else False
-
         # Convert to boolean
         if isinstance(value, bool):
             return value

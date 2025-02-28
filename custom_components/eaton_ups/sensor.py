@@ -464,6 +464,23 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
     ),
+    
+    # Outlet Power Quality
+    SensorEntityDescription(
+        key="outlets/1/status/supplierPowerQuality",
+        name="Outlet 1 Power Quality",
+        icon="mdi:power-plug",
+    ),
+    SensorEntityDescription(
+        key="outlets/2/status/supplierPowerQuality", 
+        name="Outlet 2 Power Quality",
+        icon="mdi:power-plug",
+    ),
+    SensorEntityDescription(
+        key="outlets/3/status/supplierPowerQuality",
+        name="Outlet 3 Power Quality",
+        icon="mdi:power-plug",
+    ),
 )
 
 
