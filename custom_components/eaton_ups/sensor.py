@@ -321,7 +321,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.VOLTAGE,
     ),
     
-    # Outlet 1 metrics
+    # Outlet 1 measures
     SensorEntityDescription(
         key="outlets/1/measures/cumulatedEnergy",
         name="Outlet 1 Energy",
@@ -399,7 +399,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.DURATION,
     ),
     
-    # Outlet 2 metrics
+    # Outlet 2 measures
     SensorEntityDescription(
         key="outlets/2/measures/cumulatedEnergy",
         name="Outlet 2 Energy",
@@ -477,7 +477,7 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.DURATION,
     ),
     
-    # Outlet 3 metrics
+    # Outlet 3 measures
     SensorEntityDescription(
         key="outlets/3/measures/cumulatedEnergy",
         name="Outlet 3 Energy",
@@ -567,6 +567,11 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:heart-pulse",
     ),
     SensorEntityDescription(
+        key="outlets/1/status/supplierPowerQuality",
+        name="Outlet 1 Power Quality",
+        icon="mdi:power-plug",
+    ),
+    SensorEntityDescription(
         key="outlets/2/status/operating",
         name="Outlet 2 Operating Status",
         icon="mdi:power-settings",
@@ -575,6 +580,11 @@ ENTITY_DESCRIPTIONS = (
         key="outlets/2/status/health",
         name="Outlet 2 Health",
         icon="mdi:heart-pulse",
+    ),
+    SensorEntityDescription(
+        key="outlets/2/status/supplierPowerQuality",
+        name="Outlet 2 Power Quality",
+        icon="mdi:power-plug",
     ),
     SensorEntityDescription(
         key="outlets/3/status/operating",
@@ -586,23 +596,12 @@ ENTITY_DESCRIPTIONS = (
         name="Outlet 3 Health",
         icon="mdi:heart-pulse",
     ),
-    
-    # Outlet Power Quality
-    SensorEntityDescription(
-        key="outlets/1/status/supplierPowerQuality",
-        name="Outlet 1 Power Quality",
-        icon="mdi:power-plug",
-    ),
-    SensorEntityDescription(
-        key="outlets/2/status/supplierPowerQuality", 
-        name="Outlet 2 Power Quality",
-        icon="mdi:power-plug",
-    ),
     SensorEntityDescription(
         key="outlets/3/status/supplierPowerQuality",
         name="Outlet 3 Power Quality",
         icon="mdi:power-plug",
     ),
+
 )
 
 
