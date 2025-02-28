@@ -104,7 +104,7 @@ class EatonUpsMqttClient:
             )
 
         # Subscribe to the topics
-        self._mqtt_client.subscribe("ups/#")
+        self._mqtt_client.subscribe("mbdetnrs/1.0/powerDistributions/+/#")
 
     def _setup_tls(self, ca_certs, certfile, keyfile):
         """Set up TLS with certificates - runs in executor."""
@@ -130,7 +130,7 @@ class EatonUpsMqttClient:
 
         # This is a placeholder for actual command sending
         # In a real implementation, you would publish to a specific topic
-        self._mqtt_client.publish("ups/command", json.dumps({"command": value}))
+        self._mqtt_client.publish("mbdetnrs/1.0/powerDistributions/1/command", json.dumps({"command": value}))
         return {"success": True}
 
     async def async_disconnect(self) -> None:
@@ -182,17 +182,40 @@ class EatonUpsMqttClient:
 
             # Store in the data dictionary
             topic_parts = topic.split("/")
-            if len(topic_parts) > 1:
-                category = topic_parts[1]
-                if len(topic_parts) > 2:
-                    key = "/".join(topic_parts[2:])
-                    if category not in self._mqtt_data:
-                        self._mqtt_data[category] = {}
-                    self._mqtt_data[category][key] = data
-                else:
-                    self._mqtt_data[category] = data
+            
+            # Skip the prefix parts (mbdetnrs/1.0)
+            if len(topic_parts) > 2 and topic_parts[0] == "mbdetnrs" and topic_parts[1] == "1.0":
+                # Extract the relevant parts of the topic
+                if topic_parts[2] == "powerDistributions" and len(topic_parts) > 3:
+                    # Skip the powerDistribution ID
+                    relevant_parts = topic_parts[4:]
+                    
+                    # Build the key path
+                    if len(relevant_parts) > 0:
+                        key_path = "/".join(relevant_parts)
+                        
+                        # Store the data at the appropriate path
+                        current_dict = self._mqtt_data
+                        for i, part in enumerate(relevant_parts[:-1]):
+                            if part not in current_dict:
+                                current_dict[part] = {}
+                            current_dict = current_dict[part]
+                        
+                        # Store the actual data at the leaf node
+                        current_dict[relevant_parts[-1]] = data
             else:
-                self._mqtt_data[topic] = data
+                # Fallback for other topics
+                if len(topic_parts) > 1:
+                    category = topic_parts[1]
+                    if len(topic_parts) > 2:
+                        key = "/".join(topic_parts[2:])
+                        if category not in self._mqtt_data:
+                            self._mqtt_data[category] = {}
+                        self._mqtt_data[category][key] = data
+                    else:
+                        self._mqtt_data[category] = data
+                else:
+                    self._mqtt_data[topic] = data
 
         except Exception as e:
             # Just log the error and continue
