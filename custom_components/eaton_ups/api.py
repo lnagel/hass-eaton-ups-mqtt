@@ -10,6 +10,7 @@ import tempfile
 import os
 import uuid
 from typing import Any, Callable, Dict, Optional
+from functools import partial
 
 import aiohttp
 import async_timeout
@@ -74,13 +75,17 @@ class EatonUpsMqttClient:
         # Create temporary certificate files
         self._temp_files = await self._create_temp_cert_files()
 
-        # Set up TLS/SSL certificates
-        self._mqtt_client.tls_set(
-            ca_certs=self._temp_files[0],
-            certfile=self._temp_files[1],
-            keyfile=self._temp_files[2],
+        # Set up TLS/SSL certificates in the executor to avoid blocking the event loop
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(
+            None,
+            partial(
+                self._setup_tls,
+                self._temp_files[0],
+                self._temp_files[1],
+                self._temp_files[2]
+            )
         )
-        self._mqtt_client.tls_insecure_set(False)
 
         # Connect to MQTT broker
         self._mqtt_client.connect_async(host=self._host, port=self._port)
@@ -100,6 +105,15 @@ class EatonUpsMqttClient:
 
         # Subscribe to the topics
         self._mqtt_client.subscribe("ups/#")
+
+    def _setup_tls(self, ca_certs, certfile, keyfile):
+        """Set up TLS with certificates - runs in executor."""
+        self._mqtt_client.tls_set(
+            ca_certs=ca_certs,
+            certfile=certfile,
+            keyfile=keyfile,
+        )
+        self._mqtt_client.tls_insecure_set(False)
 
     async def async_get_data(self) -> Dict[str, Any]:
         """Get data from the MQTT broker."""
@@ -190,7 +204,7 @@ class EatonUpsMqttClient:
     async def _create_temp_cert_files(self) -> list[str]:
         """Create temporary certificate files and return their paths."""
         # Create temp files in the executor to avoid blocking
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         return await loop.run_in_executor(None, self._create_temp_files)
 
     def _create_temp_files(self) -> list[str]:
