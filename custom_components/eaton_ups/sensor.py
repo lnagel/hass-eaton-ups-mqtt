@@ -274,7 +274,7 @@ ENTITY_DESCRIPTIONS = (
     
     # Outlet 1 Energy
     SensorEntityDescription(
-        key="outputs/1/outlets/1/measures/cumulatedEnergy",
+        key="outlets/1/measures/cumulatedEnergy",
         name="Outlet 1 Energy",
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
@@ -284,7 +284,7 @@ ENTITY_DESCRIPTIONS = (
     
     # Outlet 2 Energy
     SensorEntityDescription(
-        key="outputs/1/outlets/2/measures/cumulatedEnergy",
+        key="outlets/2/measures/cumulatedEnergy",
         name="Outlet 2 Energy",
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
@@ -294,7 +294,7 @@ ENTITY_DESCRIPTIONS = (
     
     # Outlet 3 Energy
     SensorEntityDescription(
-        key="outputs/1/outlets/3/measures/cumulatedEnergy",
+        key="outlets/3/measures/cumulatedEnergy",
         name="Outlet 3 Energy",
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
