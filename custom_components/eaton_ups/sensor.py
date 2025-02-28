@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from datetime import datetime
+import re
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -307,6 +309,21 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
             if isinstance(value, dict) and part in value:
                 value = value[part]
             else:
+                return None
+
+        # Convert string timestamps to datetime objects if this is a timestamp sensor
+        if (
+            self.entity_description.device_class == SensorDeviceClass.TIMESTAMP
+            and isinstance(value, str)
+        ):
+            try:
+                # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
+                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
+                    return datetime.fromisoformat(value.replace('Z', '+00:00'))
+                # Handle other potential timestamp formats as needed
+                return None
+            except (ValueError, TypeError):
+                # If conversion fails, return None instead of the string
                 return None
 
         return value
