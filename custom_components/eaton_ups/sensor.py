@@ -19,6 +19,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfElectricCurrent,
     UnitOfFrequency,
+    UnitOfEnergy,
 )
 
 from .entity import EatonUpsEntity
@@ -120,6 +121,15 @@ ENTITY_DESCRIPTIONS = (
         name="Output Power Factor",
         icon="mdi:sine-wave",
         state_class=SensorStateClass.MEASUREMENT,
+    ),
+    # Output Energy
+    SensorEntityDescription(
+        key="outputs/1/measures/cumulatedEnergy",
+        name="Output Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
     ),
     
     # Status
@@ -260,6 +270,86 @@ ENTITY_DESCRIPTIONS = (
         key="backupSystem/powerBank/chargers/1/status/mode",
         name="Charger Mode",
         icon="mdi:battery-charging-high",
+    ),
+    
+    # Outlet 1 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/1/measures/cumulatedEnergy",
+        name="Outlet 1 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 2 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/2/measures/cumulatedEnergy",
+        name="Outlet 2 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 3 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/3/measures/cumulatedEnergy",
+        name="Outlet 3 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 4 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/4/measures/cumulatedEnergy",
+        name="Outlet 4 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 5 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/5/measures/cumulatedEnergy",
+        name="Outlet 5 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 6 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/6/measures/cumulatedEnergy",
+        name="Outlet 6 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 7 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/7/measures/cumulatedEnergy",
+        name="Outlet 7 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    
+    # Outlet 8 Energy
+    SensorEntityDescription(
+        key="outputs/1/outlets/8/measures/cumulatedEnergy",
+        name="Outlet 8 Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
     ),
 )
 
