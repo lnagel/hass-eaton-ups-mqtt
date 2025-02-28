@@ -7,7 +7,6 @@ https://github.com/lnagel/hass-eaton-ups
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
@@ -41,7 +40,6 @@ async def async_setup_entry(
         hass=hass,
         logger=LOGGER,
         name=DOMAIN,
-        update_interval=timedelta(hours=1),
     )
     entry.runtime_data = EatonUpsData(
         client=EatonUpsMqttClient(
@@ -56,8 +54,8 @@ async def async_setup_entry(
         coordinator=coordinator,
     )
 
-    # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
-    await coordinator.async_config_entry_first_refresh()
+    # Set up the push-based coordinator
+    await coordinator.async_setup()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))

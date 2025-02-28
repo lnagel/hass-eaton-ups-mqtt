@@ -57,6 +57,21 @@ class EatonUpsMqttClient:
         self._mqtt_connected = False
         self._mqtt_data = {}
         self._temp_files = []
+        self._update_callbacks = []  # Add this line to store callbacks
+
+    def subscribe_to_updates(self, callback: Callable[[dict], None]) -> Callable[[], None]:
+        """Subscribe to data updates.
+        
+        Returns a function that can be called to unsubscribe.
+        """
+        self._update_callbacks.append(callback)
+        
+        def unsubscribe() -> None:
+            """Unsubscribe from updates."""
+            if callback in self._update_callbacks:
+                self._update_callbacks.remove(callback)
+        
+        return unsubscribe
 
     async def async_setup(self) -> None:
         """Set up the MQTT client connection."""
@@ -216,6 +231,10 @@ class EatonUpsMqttClient:
                         self._mqtt_data[category] = data
                 else:
                     self._mqtt_data[topic] = data
+
+            # Notify all callbacks about the updated data
+            for callback in self._update_callbacks:
+                callback(self._mqtt_data)
 
         except Exception as e:
             # Just log the error and continue
