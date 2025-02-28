@@ -1,3 +1,159 @@
+# Managers
+
+There is 1 manager with prefix `mbdetnrs/1.0/managers/{managerId}`.
+
+Topic `mbdetnrs/1.0/managers/1/identification` contains the following:
+
+```json
+{
+	"firmwareVersion": "3.1.15",
+	"physicalName": "Eaton Gigabit Network Card",
+	"uuid": "9c7ee7d3-d046-5120-a766-b2c11ce7fafa",
+	"vendor": "Eaton",
+	"product": "Gigabit Network Card",
+	"serialNumber": "G312N07BB4",
+	"type": "management card",
+	"partNumber": "744-A3983-02",
+	"hwVersion": "0",
+	"name": "Eaton5PX",
+	"contact": "",
+	"location": "",
+	"firmwareInstallationDate": 1738146293,
+	"firmwareActivationDate": 1738146605,
+	"firmwareDate": 1726232600,
+	"firmwareSha": "f21a1ed",
+	"bootloaderVersion": "3.0.2",
+	"manufacturer": "Eaton",
+	"macAddress": "00:20:85:D2:23:E8"
+}
+```
+
+# Sensors
+
+To be documented.
+
+# Protection services
+
+To be documented.
+
+# Alarm services
+
+To be documented.
+
+# Power Services
+
+## Suppliers
+
+There are 1..n powerService suppliers with prefix `mbdetnrs/1.0/powerService/suppliers/{supplierId}`.
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/controllers` contains the following:
+
+```json
+{
+  "members@count": 4,
+  "members":
+  [
+    {
+      "@id": "mbdetnrs/1.0/scheduleService/schedulers/6gwp94ddUAGpoYYtmAzyCQ"
+    },
+    {
+      "@id": "mbdetnrs/1.0/protectionService/suppliers/KW7cx1fhUim8rQyhkeS48A/triggers/power"
+    },
+    {
+      "@id": "mbdetnrs/1.0/powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA"
+    },
+    {
+      "@id": "mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg"
+    }
+  ]
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/identification` contains the following:
+
+```json
+{
+  "uuid": "69c58f49-4771-5a64-b12f-87fce3d511ae",
+  "manufacturer": "Eaton",
+  "model": "Power Supplier",
+  "serial": "",
+  "physicalName": "PRIMARY",
+  "name": "PRIMARY",
+  "interface": "mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg",
+  "version": "01.00.0000",
+  "location": "",
+  "contact": ""
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/configuration` contains the following:
+
+```json
+{
+  "canProtect": true,
+  "canSelfProtect": true,
+  "connectorType": "unknown",
+  "isControllable": true,
+  "isSwitchable": true,
+  "automaticSwitchOnEnabled": true,
+  "automaticSwitchOnDelay": 0,
+  "nominalActivePower": 1.50000000e+03,
+  "nominalApparentPower": 1.50000000e+03,
+  "nominalCurrent": 6.52173901e+00,
+  "nominalFrequency": 5.00000000e+01,
+  "nominalVoltage": 2.30000000e+02,
+  "powerCycleDuration": 10
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/summary` contains the following:
+
+```json
+{
+  "mode": 4,
+  "quality": 4,
+  "poweringFor": -1,
+  "estimatedPoweringFor": -1,
+  "protectingFor": 18971,
+  "loadPercent": 1.50000000e+01,
+  "protectionCapacityPercent": 1.00000000e+02,
+  "protectionLowCapacityAlarm": false,
+  "protectionCapacityRuntime": 18971
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/schedule` contains the following:
+
+```json
+{
+  "delayBeforePowerDown": -1,
+  "delayBeforePowerUp": -1
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/powerDownMinimumDurations` contains the following:
+
+```json
+{
+  "normal": 0,
+  "critical": 0,
+  "emergency": 0
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/measures` contains the following:
+
+```json
+{
+  "activePower": 8.80000000e+01,
+  "apparentPower": 1.61000000e+02,
+  "current": 5.00000000e-01,
+  "frequency": 4.99000015e+01,
+  "powerFactor": 5.40000021e-01,
+  "voltage": 2.32900009e+02
+}
+```
+
 # Power Distributions
 
 There are 1..n powerDistributions with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/`.
@@ -197,6 +353,13 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outlets/1/status` contains the followin
 	"supplierPowerQuality": "protecting"
 }
 ```
+
+There are also the actions possible for each outlet. For example, for outlet 1:
+
+MQTT topic for cancelSwitchOff: `mbdetnrs/1.0/powerDistributions/1/outlets/1/actions/cancelSwitchOff`
+MQTT topic for cancelSwitchOn: `mbdetnrs/1.0/powerDistributions/1/outlets/1/actions/cancelSwitchOn`
+MQTT topic for switchOff: `mbdetnrs/1.0/powerDistributions/1/outlets/1/actions/switchOff`
+MQTT topic for switchOn: `mbdetnrs/1.0/powerDistributions/1/outlets/1/actions/switchOn`
 
 ## Outputs
 
