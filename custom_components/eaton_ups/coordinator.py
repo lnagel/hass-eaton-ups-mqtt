@@ -54,6 +54,8 @@ class EatonUPSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             @callback
             def handle_mqtt_update(data: dict[str, Any]) -> None:
                 """Handle MQTT data updates."""
+                # Use async_set_updated_data which is safe to call from any thread
+                # as it will schedule the update on the event loop
                 self.async_set_updated_data(data)
             
             # Store the callback reference for later cleanup

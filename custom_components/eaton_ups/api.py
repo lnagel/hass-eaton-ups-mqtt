@@ -58,6 +58,7 @@ class EatonUpsMqttClient:
         self._mqtt_data = {}
         self._temp_files = []
         self._update_callbacks = []  # Add this line to store callbacks
+        self._loop = None  # Store the event loop
 
     def subscribe_to_updates(self, callback: Callable[[dict], None]) -> Callable[[], None]:
         """Subscribe to data updates.
@@ -77,6 +78,9 @@ class EatonUpsMqttClient:
         """Set up the MQTT client connection."""
         if self._mqtt_client is not None:
             return
+
+        # Store the event loop for later use
+        self._loop = asyncio.get_running_loop()
 
         # Create the MQTT client
         client_id = f"hass-eaton-ups-{mqtt.base62(uuid.uuid4().int, padding=10)}"
@@ -232,9 +236,10 @@ class EatonUpsMqttClient:
                 else:
                     self._mqtt_data[topic] = data
 
-            # Notify all callbacks about the updated data
-            for callback in self._update_callbacks:
-                callback(self._mqtt_data)
+            # Use the event loop to safely notify callbacks
+            if self._loop and self._update_callbacks:
+                for callback in self._update_callbacks:
+                    self._loop.call_soon_threadsafe(lambda cb=callback: cb(self._mqtt_data))
 
         except Exception as e:
             # Just log the error and continue
