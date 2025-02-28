@@ -86,7 +86,6 @@ ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="inputs/1/status/supplied",
         name="Input Supplied",
-        device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
         key="inputs/1/status/supply",
@@ -138,12 +137,11 @@ ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/status/supplied",
         name="Battery Supplied",
-        device_class=BinarySensorDeviceClass.BATTERY,
     ),
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/status/supply",
         name="Battery Supply",
-        device_class=BinarySensorDeviceClass.BATTERY,
+        device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/status/testFailed",
@@ -160,12 +158,10 @@ ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/enabled",
         name="Charger Enabled",
-        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
     ),
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/installed",
         name="Charger Installed",
-        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
     ),
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/internalFailure",
@@ -175,7 +171,7 @@ ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/supply",
         name="Charger Supply",
-        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
+        device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/voltageTooHigh",
