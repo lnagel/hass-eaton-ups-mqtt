@@ -23,7 +23,15 @@ from .api import (
     EatonUpsClientCommunicationError,
     EatonUpsClientError,
 )
-from .const import DOMAIN, LOGGER, DEFAULT_PORT, CONF_SERVER_CERT, CONF_CLIENT_CERT, CONF_CLIENT_KEY, MQTT_TIMEOUT
+from .const import (
+    DOMAIN,
+    LOGGER,
+    DEFAULT_PORT,
+    CONF_SERVER_CERT,
+    CONF_CLIENT_CERT,
+    CONF_CLIENT_KEY,
+    MQTT_TIMEOUT,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,19 +42,26 @@ HOST_SELECTOR = selector.TextSelector(
     ),
 )
 PORT_SELECTOR = vol.All(
-    selector.NumberSelector(selector.NumberSelectorConfig(mode=selector.NumberSelectorMode.BOX, min=1, max=65535)),
+    selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            mode=selector.NumberSelectorMode.BOX, min=1, max=65535
+        )
+    ),
     vol.Coerce(int),
 )
 PEM_CERT_SELECTOR = selector.TextSelector(
     selector.TextSelectorConfig(
-        multiline=True, type=selector.TextSelectorType.TEXT,
+        multiline=True,
+        type=selector.TextSelectorType.TEXT,
     ),
 )
 PEM_KEY_SELECTOR = selector.TextSelector(
     selector.TextSelectorConfig(
-        multiline=True, type=selector.TextSelectorType.TEXT,
+        multiline=True,
+        type=selector.TextSelectorType.TEXT,
     ),
 )
+
 
 class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
@@ -101,7 +116,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): HOST_SELECTOR,
                     vol.Required(
                         CONF_PORT,
-                        default=(user_input or {}).get(CONF_PORT, DEFAULT_PORT)
+                        default=(user_input or {}).get(CONF_PORT, DEFAULT_PORT),
                     ): PORT_SELECTOR,
                     vol.Required(
                         CONF_SERVER_CERT,
@@ -155,8 +170,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         default=current_state.get(CONF_HOST, vol.UNDEFINED),
                     ): HOST_SELECTOR,
                     vol.Required(
-                        CONF_PORT,
-                        default=current_state.get(CONF_PORT, DEFAULT_PORT)
+                        CONF_PORT, default=current_state.get(CONF_PORT, DEFAULT_PORT)
                     ): PORT_SELECTOR,
                     vol.Required(
                         CONF_SERVER_CERT,
@@ -175,7 +189,9 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_credentials(self, host: str, port: str, server_cert: str, client_cert: str, client_key: str) -> None:
+    async def _test_credentials(
+        self, host: str, port: str, server_cert: str, client_cert: str, client_key: str
+    ) -> None:
         """Validate credentials."""
         client = EatonUpsMqttClient(
             host=host,
@@ -198,10 +214,11 @@ def try_connection(
     from homeassistant.components.mqtt.async_client import AsyncMQTTClient
 
     client_id = mqtt.base62(uuid.uuid4().int, padding=22)
-    client = AsyncMQTTClient(client_id,
+    client = AsyncMQTTClient(
+        client_id,
         protocol=mqtt.MQTTv31,
         reconnect_on_failure=False,
-     )
+    )
 
     result: queue.Queue[bool] = queue.Queue(maxsize=1)
 
@@ -240,7 +257,6 @@ def try_connection(
             ca_certs=server_cert_file.name,
             certfile=client_cert_file.name,
             keyfile=client_key_file.name,
-
         )
         client.tls_insecure_set(False)
         client.enable_logger(logger)

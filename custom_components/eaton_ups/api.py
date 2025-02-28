@@ -83,8 +83,8 @@ class EatonUpsMqttClient:
                 self._setup_tls,
                 self._temp_files[0],
                 self._temp_files[1],
-                self._temp_files[2]
-            )
+                self._temp_files[2],
+            ),
         )
 
         # Connect to MQTT broker
@@ -167,15 +167,12 @@ class EatonUpsMqttClient:
         self._mqtt_connected = False
 
     def _on_message(
-        self,
-        client: mqtt.Client,
-        userdata: Any,
-        msg: mqtt.MQTTMessage
+        self, client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage
     ) -> None:
         """Handle incoming messages."""
         try:
             topic = msg.topic
-            payload = msg.payload.decode('utf-8')
+            payload = msg.payload.decode("utf-8")
 
             # Try to parse as JSON if possible
             try:
@@ -184,11 +181,11 @@ class EatonUpsMqttClient:
                 data = payload
 
             # Store in the data dictionary
-            topic_parts = topic.split('/')
+            topic_parts = topic.split("/")
             if len(topic_parts) > 1:
                 category = topic_parts[1]
                 if len(topic_parts) > 2:
-                    key = '/'.join(topic_parts[2:])
+                    key = "/".join(topic_parts[2:])
                     if category not in self._mqtt_data:
                         self._mqtt_data[category] = {}
                     self._mqtt_data[category][key] = data

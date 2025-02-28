@@ -27,7 +27,7 @@ class EatonUPSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             # Ensure MQTT connection is established
             client = self.config_entry.runtime_data.client
-            if not hasattr(client, '_mqtt_connected') or not client._mqtt_connected:
+            if not hasattr(client, "_mqtt_connected") or not client._mqtt_connected:
                 await client.async_setup()
 
             # Get the current data from the MQTT client

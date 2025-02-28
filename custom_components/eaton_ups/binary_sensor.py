@@ -79,7 +79,9 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
         """Initialize the binary_sensor class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        )
 
     @property
     def is_on(self) -> bool:
@@ -88,7 +90,7 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
             return False
 
         # Parse the key path
-        key_parts = self.entity_description.key.split('/')
+        key_parts = self.entity_description.key.split("/")
 
         # Navigate through the data structure
         value = self.coordinator.data
