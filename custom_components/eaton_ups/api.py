@@ -1,12 +1,20 @@
-"""Sample API Client."""
+"""API Client for Eaton UPS MQTT Communication."""
 
 from __future__ import annotations
 
+import asyncio
+import json
 import socket
-from typing import Any
+import ssl
+import tempfile
+import os
+import uuid
+from typing import Any, Callable, Dict, Optional
 
 import aiohttp
 import async_timeout
+import paho.mqtt.client as mqtt
+from paho.mqtt.client import MQTTv31
 
 
 class IntegrationBlueprintApiClientError(Exception):
@@ -25,18 +33,8 @@ class IntegrationBlueprintApiClientAuthenticationError(
     """Exception to indicate an authentication error."""
 
 
-def _verify_response_or_raise(response: aiohttp.ClientResponse) -> None:
-    """Verify that the response is valid."""
-    if response.status in (401, 403):
-        msg = "Invalid credentials"
-        raise IntegrationBlueprintApiClientAuthenticationError(
-            msg,
-        )
-    response.raise_for_status()
-
-
 class IntegrationBlueprintApiClient:
-    """Sample API Client."""
+    """Eaton UPS MQTT API Client."""
 
     def __init__(
         self,
@@ -47,61 +45,183 @@ class IntegrationBlueprintApiClient:
         client_key: str,
         session: aiohttp.ClientSession,
     ) -> None:
-        """Sample API Client."""
+        """Initialize Eaton UPS MQTT client."""
         self._host = host
-        self._port = port
+        self._port = int(port)
         self._server_cert = server_cert
         self._client_cert = client_cert
         self._client_key = client_key
         self._session = session
+        self._mqtt_client = None
+        self._mqtt_connected = False
+        self._mqtt_data = {}
+        self._temp_files = []
 
-    async def async_get_data(self) -> Any:
-        """Get data from the API."""
-        return await self._api_wrapper(
-            method="get",
-            url="https://jsonplaceholder.typicode.com/posts/1",
+    async def async_setup(self) -> None:
+        """Set up the MQTT client connection."""
+        if self._mqtt_client is not None:
+            return
+
+        # Create the MQTT client
+        client_id = f"hass-eaton-ups-{mqtt.base62(uuid.uuid4().int, padding=10)}"
+        self._mqtt_client = mqtt.Client(client_id=client_id, protocol=MQTTv31)
+
+        # Set up callbacks
+        self._mqtt_client.on_connect = self._on_connect
+        self._mqtt_client.on_message = self._on_message
+        self._mqtt_client.on_disconnect = self._on_disconnect
+
+        # Create temporary certificate files
+        self._temp_files = await self._create_temp_cert_files()
+
+        # Set up TLS/SSL certificates
+        self._mqtt_client.tls_set(
+            ca_certs=self._temp_files[0],
+            certfile=self._temp_files[1],
+            keyfile=self._temp_files[2],
         )
+        self._mqtt_client.tls_insecure_set(False)
+
+        # Connect to MQTT broker
+        self._mqtt_client.connect_async(host=self._host, port=self._port)
+        self._mqtt_client.loop_start()
+
+        # Wait for connection to establish
+        attempts = 0
+        while not self._mqtt_connected and attempts < 10:
+            await asyncio.sleep(1)
+            attempts += 1
+
+        if not self._mqtt_connected:
+            self._cleanup_temp_files()
+            raise IntegrationBlueprintApiClientCommunicationError(
+                f"Failed to connect to MQTT broker at {self._host}:{self._port}"
+            )
+
+        # Subscribe to the topics
+        self._mqtt_client.subscribe("ups/#")
+
+    async def async_get_data(self) -> Dict[str, Any]:
+        """Get data from the MQTT broker."""
+        if not self._mqtt_connected:
+            await self.async_setup()
+
+        # Return the current data
+        return self._mqtt_data
 
     async def async_set_title(self, value: str) -> Any:
-        """Get data from the API."""
-        return await self._api_wrapper(
-            method="patch",
-            url="https://jsonplaceholder.typicode.com/posts/1",
-            data={"title": value},
-            headers={"Content-type": "application/json; charset=UTF-8"},
-        )
+        """Set a value via MQTT (placeholder for now)."""
+        if not self._mqtt_connected:
+            await self.async_setup()
 
-    async def _api_wrapper(
+        # This is a placeholder for actual command sending
+        # In a real implementation, you would publish to a specific topic
+        self._mqtt_client.publish("ups/command", json.dumps({"command": value}))
+        return {"success": True}
+
+    async def async_disconnect(self) -> None:
+        """Disconnect from the MQTT broker."""
+        if self._mqtt_client is not None:
+            self._mqtt_client.disconnect()
+            self._mqtt_client.loop_stop()
+            self._mqtt_client = None
+            self._mqtt_connected = False
+            self._cleanup_temp_files()
+
+    def _on_connect(
         self,
-        method: str,
-        url: str,
-        data: dict | None = None,
-        headers: dict | None = None,
-    ) -> Any:
-        """Get information from the API."""
-        try:
-            async with async_timeout.timeout(10):
-                response = await self._session.request(
-                    method=method,
-                    url=url,
-                    headers=headers,
-                    json=data,
-                )
-                _verify_response_or_raise(response)
-                return await response.json()
+        client: mqtt.Client,
+        userdata: Any,
+        flags: Dict[str, int],
+        rc: int,
+        properties: mqtt.Properties | None = None,
+    ) -> None:
+        """Handle connection callback."""
+        if rc == 0:
+            self._mqtt_connected = True
+        else:
+            self._mqtt_connected = False
 
-        except TimeoutError as exception:
-            msg = f"Timeout error fetching information - {exception}"
-            raise IntegrationBlueprintApiClientCommunicationError(
-                msg,
-            ) from exception
-        except (aiohttp.ClientError, socket.gaierror) as exception:
-            msg = f"Error fetching information - {exception}"
-            raise IntegrationBlueprintApiClientCommunicationError(
-                msg,
-            ) from exception
-        except Exception as exception:  # pylint: disable=broad-except
-            msg = f"Something really wrong happened! - {exception}"
-            raise IntegrationBlueprintApiClientError(
-                msg,
-            ) from exception
+    def _on_disconnect(
+        self,
+        client: mqtt.Client,
+        userdata: Any,
+        rc: int,
+        properties: mqtt.Properties | None = None,
+    ) -> None:
+        """Handle disconnection."""
+        self._mqtt_connected = False
+
+    def _on_message(
+        self,
+        client: mqtt.Client,
+        userdata: Any,
+        msg: mqtt.MQTTMessage
+    ) -> None:
+        """Handle incoming messages."""
+        try:
+            topic = msg.topic
+            payload = msg.payload.decode('utf-8')
+
+            # Try to parse as JSON if possible
+            try:
+                data = json.loads(payload)
+            except json.JSONDecodeError:
+                data = payload
+
+            # Store in the data dictionary
+            topic_parts = topic.split('/')
+            if len(topic_parts) > 1:
+                category = topic_parts[1]
+                if len(topic_parts) > 2:
+                    key = '/'.join(topic_parts[2:])
+                    if category not in self._mqtt_data:
+                        self._mqtt_data[category] = {}
+                    self._mqtt_data[category][key] = data
+                else:
+                    self._mqtt_data[category] = data
+            else:
+                self._mqtt_data[topic] = data
+
+        except Exception as e:
+            # Just log the error and continue
+            print(f"Error processing MQTT message: {e}")
+
+    async def _create_temp_cert_files(self) -> list[str]:
+        """Create temporary certificate files and return their paths."""
+        # Create temp files in the executor to avoid blocking
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self._create_temp_files)
+
+    def _create_temp_files(self) -> list[str]:
+        """Create temporary certificate files synchronously."""
+        temp_files = []
+
+        # Server certificate
+        server_cert_file = tempfile.NamedTemporaryFile(delete=False)
+        server_cert_file.write(self._server_cert.encode())
+        server_cert_file.close()
+        temp_files.append(server_cert_file.name)
+
+        # Client certificate
+        client_cert_file = tempfile.NamedTemporaryFile(delete=False)
+        client_cert_file.write(self._client_cert.encode())
+        client_cert_file.close()
+        temp_files.append(client_cert_file.name)
+
+        # Client key
+        client_key_file = tempfile.NamedTemporaryFile(delete=False)
+        client_key_file.write(self._client_key.encode())
+        client_key_file.close()
+        temp_files.append(client_key_file.name)
+
+        return temp_files
+
+    def _cleanup_temp_files(self) -> None:
+        """Clean up temporary certificate files."""
+        for file_path in self._temp_files:
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+        self._temp_files = []
