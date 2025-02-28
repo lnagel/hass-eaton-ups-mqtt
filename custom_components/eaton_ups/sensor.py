@@ -173,4 +173,140 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="backupSystem/powerBank/settings/lowStateOfChargeThreshold",
-        name
+        name="Backup Low Charge Threshold",
+        icon="mdi:battery-alert",
+        native_unit_of_measurement=PERCENTAGE,
+    ),
+
+    # Battery specifications
+    SensorEntityDescription(
+        key="backupSystem/powerBank/specifications/externalCount",
+        name="Backup External Count",
+        icon="mdi:battery-multiple",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/specifications/technology",
+        name="Backup Technology",
+        icon="mdi:battery-heart-variant",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/specifications/capacityAh/nominal",
+        name="Backup Nominal Capacity",
+        icon="mdi:battery-charging",
+        native_unit_of_measurement="Ah",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/specifications/voltage/nominal",
+        name="Backup Nominal Voltage",
+        icon="mdi:flash",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+    ),
+
+    # Battery status
+    SensorEntityDescription(
+        key="backupSystem/powerBank/status/operating",
+        name="Backup Operating Status",
+        icon="mdi:battery-heart-outline",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/status/health",
+        name="Backup Health",
+        icon="mdi:heart-pulse",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/status/lastTestResult",
+        name="Backup Last Test Result",
+        icon="mdi:test-tube",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/status/lastTestResultDate",
+        name="Backup Last Test Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/status/lcmInstallationDate",
+        name="Backup Installation Date",
+        icon="mdi:calendar-plus",
+        device_class=SensorDeviceClass.TIMESTAMP,
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/status/lcmReplacementDate",
+        name="Backup Replacement Date",
+        icon="mdi:calendar-refresh",
+        device_class=SensorDeviceClass.TIMESTAMP,
+    ),
+
+    # Charger status
+    SensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/operating",
+        name="Charger Operating Status",
+        icon="mdi:battery-charging",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/health",
+        name="Charger Health",
+        icon="mdi:heart-pulse",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/chargerStatus",
+        name="Charger Status",
+        icon="mdi:battery-charging-outline",
+    ),
+    SensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/mode",
+        name="Charger Mode",
+        icon="mdi:battery-charging-high",
+    ),
+)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
+    entry: EatonUpsConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the sensor platform."""
+    async_add_entities(
+        EatonUpsSensor(
+            coordinator=entry.runtime_data.coordinator,
+            entity_description=entity_description,
+        )
+        for entity_description in ENTITY_DESCRIPTIONS
+    )
+
+
+class EatonUpsSensor(EatonUpsEntity, SensorEntity):
+    """eaton_ups sensor class."""
+
+    def __init__(
+        self,
+        coordinator: EatonUPSDataUpdateCoordinator,
+        entity_description: SensorEntityDescription,
+    ) -> None:
+        """Initialize the sensor class."""
+        super().__init__(coordinator)
+        self.entity_description = entity_description
+        self._attr_unique_id = (
+            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
+        )
+
+    @property
+    def native_value(self) -> Any:
+        """Return the native value of the sensor."""
+        if not self.coordinator.data:
+            return None
+
+        # Parse the key path
+        key_parts = self.entity_description.key.split("/")
+
+        # Navigate through the data structure
+        value = self.coordinator.data
+        for part in key_parts:
+            if isinstance(value, dict) and part in value:
+                value = value[part]
+            else:
+                return None
+
+        return value
