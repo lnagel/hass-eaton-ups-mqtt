@@ -62,16 +62,16 @@ class EatonUpsMqttClient:
 
     def subscribe_to_updates(self, callback: Callable[[dict], None]) -> Callable[[], None]:
         """Subscribe to data updates.
-        
+
         Returns a function that can be called to unsubscribe.
         """
         self._update_callbacks.append(callback)
-        
+
         def unsubscribe() -> None:
             """Unsubscribe from updates."""
             if callback in self._update_callbacks:
                 self._update_callbacks.remove(callback)
-        
+
         return unsubscribe
 
     async def async_setup(self) -> None:
@@ -118,9 +118,7 @@ class EatonUpsMqttClient:
 
         if not self._mqtt_connected:
             self._cleanup_temp_files()
-            raise EatonUpsClientCommunicationError(
-                f"Failed to connect to MQTT broker at {self._host}:{self._port}"
-            )
+            raise EatonUpsClientCommunicationError(f"Failed to connect to MQTT broker at {self._host}:{self._port}")
 
         # Subscribe to the topics
         self._mqtt_client.subscribe("mbdetnrs/1.0/powerDistributions/+/#")
@@ -185,9 +183,7 @@ class EatonUpsMqttClient:
         """Handle disconnection."""
         self._mqtt_connected = False
 
-    def _on_message(
-        self, client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage
-    ) -> None:
+    def _on_message(self, client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage) -> None:
         """Handle incoming messages."""
         try:
             topic = msg.topic
@@ -201,25 +197,25 @@ class EatonUpsMqttClient:
 
             # Store in the data dictionary
             topic_parts = topic.split("/")
-            
+
             # Skip the prefix parts (mbdetnrs/1.0)
             if len(topic_parts) > 2 and topic_parts[0] == "mbdetnrs" and topic_parts[1] == "1.0":
                 # Extract the relevant parts of the topic
                 if topic_parts[2] == "powerDistributions" and len(topic_parts) > 3:
                     # Skip the powerDistribution ID
                     relevant_parts = topic_parts[4:]
-                    
+
                     # Build the key path
                     if len(relevant_parts) > 0:
                         key_path = "/".join(relevant_parts)
-                        
+
                         # Store the data at the appropriate path
                         current_dict = self._mqtt_data
                         for i, part in enumerate(relevant_parts[:-1]):
                             if part not in current_dict:
                                 current_dict[part] = {}
                             current_dict = current_dict[part]
-                        
+
                         # Store the actual data at the leaf node
                         current_dict[relevant_parts[-1]] = data
             else:

@@ -49,7 +49,6 @@ ENTITY_DESCRIPTIONS = (
         name="UPS Serial Number",
         icon="mdi:information-outline",
     ),
-    
     # Power Distribution Input Measures
     SensorEntityDescription(
         key="inputs/1/measures/voltage",
@@ -75,7 +74,6 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
     ),
-    
     # Power Distribution Output Measures
     SensorEntityDescription(
         key="outputs/1/measures/voltage",
@@ -154,7 +152,6 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.MEASUREMENT,
     ),
-    
     # Power Distribution Status
     SensorEntityDescription(
         key="status/operating",
@@ -171,7 +168,6 @@ ENTITY_DESCRIPTIONS = (
         name="UPS Mode",
         icon="mdi:power-settings",
     ),
-    
     # Backup System - Power Bank Measures
     SensorEntityDescription(
         key="backupSystem/powerBank/measures/remainingTime",
@@ -197,7 +193,6 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
-
     # Backup System - Power Bank Settings
     SensorEntityDescription(
         key="backupSystem/powerBank/settings/lowRuntimeThreshold",
@@ -212,7 +207,6 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:battery-alert",
         native_unit_of_measurement=PERCENTAGE,
     ),
-
     # Backup System - Power Bank Specifications
     SensorEntityDescription(
         key="backupSystem/powerBank/specifications/externalCount",
@@ -237,7 +231,6 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
     ),
-
     # Backup System - Power Bank Status
     SensorEntityDescription(
         key="backupSystem/powerBank/status/operating",
@@ -272,7 +265,6 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:calendar-refresh",
         device_class=SensorDeviceClass.TIMESTAMP,
     ),
-
     # Backup System - Charger Status
     SensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/operating",
@@ -294,7 +286,6 @@ ENTITY_DESCRIPTIONS = (
         name="Charger Mode",
         icon="mdi:battery-charging-high",
     ),
-    
     # Power Distribution Settings
     SensorEntityDescription(
         key="settings/audibleAlarm",
@@ -320,7 +311,6 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
     ),
-    
     # Power Distribution - Outlet 1 Measures
     SensorEntityDescription(
         key="outlets/1/measures/cumulatedEnergy",
@@ -398,7 +388,6 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
     ),
-    
     # Power Distribution - Outlet 2 Measures
     SensorEntityDescription(
         key="outlets/2/measures/cumulatedEnergy",
@@ -476,7 +465,6 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
     ),
-    
     # Power Distribution - Outlet 3 Measures
     SensorEntityDescription(
         key="outlets/3/measures/cumulatedEnergy",
@@ -554,7 +542,6 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTime.SECONDS,
         device_class=SensorDeviceClass.DURATION,
     ),
-    
     # Power Distribution - Outlet Status
     SensorEntityDescription(
         key="outlets/1/status/operating",
@@ -601,7 +588,6 @@ ENTITY_DESCRIPTIONS = (
         name="Outlet 3 Power Quality",
         icon="mdi:power-plug",
     ),
-
 )
 
 
@@ -631,9 +617,7 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         """Initialize the sensor class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
-        self._attr_unique_id = (
-            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
-        )
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
 
     @property
     def native_value(self) -> Any:
@@ -653,14 +637,11 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
                 return None
 
         # Convert string timestamps to datetime objects if this is a timestamp sensor
-        if (
-            self.entity_description.device_class == SensorDeviceClass.TIMESTAMP
-            and isinstance(value, str)
-        ):
+        if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP and isinstance(value, str):
             try:
                 # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
                 if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value.replace('Z', '+00:00'))
+                    return datetime.fromisoformat(value.replace("Z", "+00:00"))
                 # Handle other potential timestamp formats as needed
                 return None
             except (ValueError, TypeError):

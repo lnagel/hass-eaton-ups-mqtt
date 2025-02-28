@@ -66,7 +66,6 @@ ENTITY_DESCRIPTIONS = (
         name="Temperature Out Of Range",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    
     # Input Status
     BinarySensorEntityDescription(
         key="inputs/1/status/frequencyOutOfRange",
@@ -112,7 +111,6 @@ ENTITY_DESCRIPTIONS = (
         name="Input Wiring Fault",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    
     # Battery Status
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/status/criticalLowStateOfCharge",
@@ -148,7 +146,6 @@ ENTITY_DESCRIPTIONS = (
         name="Battery Test Failed",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    
     # Charger Status
     BinarySensorEntityDescription(
         key="backupSystem/powerBank/chargers/1/status/active",
@@ -183,7 +180,6 @@ ENTITY_DESCRIPTIONS = (
         name="Charger Voltage Too Low",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    
     # Environment Status
     BinarySensorEntityDescription(
         key="environment/status/buildingAlarm1",
@@ -195,7 +191,6 @@ ENTITY_DESCRIPTIONS = (
         name="Temperature Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    
     # Outlet Status
     BinarySensorEntityDescription(
         key="outlets/1/status/supply",
@@ -256,9 +251,7 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
         """Initialize the binary_sensor class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
-        self._attr_unique_id = (
-            f"{coordinator.config_entry.entry_id}_{entity_description.key}"
-        )
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
 
     @property
     def is_on(self) -> bool:

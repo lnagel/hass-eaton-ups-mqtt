@@ -42,11 +42,7 @@ HOST_SELECTOR = selector.TextSelector(
     ),
 )
 PORT_SELECTOR = vol.All(
-    selector.NumberSelector(
-        selector.NumberSelectorConfig(
-            mode=selector.NumberSelectorMode.BOX, min=1, max=65535
-        )
-    ),
+    selector.NumberSelector(selector.NumberSelectorConfig(mode=selector.NumberSelectorMode.BOX, min=1, max=65535)),
     vol.Coerce(int),
 )
 PEM_CERT_SELECTOR = selector.TextSelector(
@@ -169,9 +165,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_HOST,
                         default=current_state.get(CONF_HOST, vol.UNDEFINED),
                     ): HOST_SELECTOR,
-                    vol.Required(
-                        CONF_PORT, default=current_state.get(CONF_PORT, DEFAULT_PORT)
-                    ): PORT_SELECTOR,
+                    vol.Required(CONF_PORT, default=current_state.get(CONF_PORT, DEFAULT_PORT)): PORT_SELECTOR,
                     vol.Required(
                         CONF_SERVER_CERT,
                         default=current_state.get(CONF_SERVER_CERT, vol.UNDEFINED),
