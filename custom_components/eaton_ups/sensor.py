@@ -110,6 +110,13 @@ ENTITY_DESCRIPTIONS = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
+        key="outputs/1/measures/apparentPower",
+        name="Output Apparent Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement="VA",
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
         key="outputs/1/measures/percentLoad",
         name="Output Load",
         icon="mdi:gauge",
@@ -122,6 +129,13 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:sine-wave",
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    SensorEntityDescription(
+        key="outputs/1/measures/efficiency",
+        name="Output Efficiency",
+        icon="mdi:lightning-bolt-outline",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
     # Output Energy
     SensorEntityDescription(
         key="outputs/1/measures/cumulatedEnergy",
@@ -131,6 +145,14 @@ ENTITY_DESCRIPTIONS = (
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    SensorEntityDescription(
+        key="outputs/1/measures/averageEnergy",
+        name="Output Average Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     
     # Status
@@ -273,7 +295,33 @@ ENTITY_DESCRIPTIONS = (
         icon="mdi:battery-charging-high",
     ),
     
-    # Outlet 1 Energy
+    # Settings
+    SensorEntityDescription(
+        key="settings/audibleAlarm",
+        name="Audible Alarm",
+        icon="mdi:volume-high",
+    ),
+    SensorEntityDescription(
+        key="settings/sensitivityMode",
+        name="Sensitivity Mode",
+        icon="mdi:tune",
+    ),
+    SensorEntityDescription(
+        key="settings/voltageHighDetection",
+        name="Voltage High Detection",
+        icon="mdi:flash-alert",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+    ),
+    SensorEntityDescription(
+        key="settings/voltageLowDetection",
+        name="Voltage Low Detection",
+        icon="mdi:flash-alert",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+    ),
+    
+    # Outlet 1 metrics
     SensorEntityDescription(
         key="outlets/1/measures/cumulatedEnergy",
         name="Outlet 1 Energy",
@@ -283,8 +331,45 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
+    SensorEntityDescription(
+        key="outlets/1/measures/averageEnergy",
+        name="Outlet 1 Average Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/1/measures/activePower",
+        name="Outlet 1 Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/1/measures/apparentPower",
+        name="Outlet 1 Apparent Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement="VA",
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/1/status/delayBeforeSwitchOff",
+        name="Outlet 1 Delay Before Switch Off",
+        icon="mdi:timer-off-outline",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+    ),
+    SensorEntityDescription(
+        key="outlets/1/status/delayBeforeSwitchOn",
+        name="Outlet 1 Delay Before Switch On",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+    ),
     
-    # Outlet 2 Energy
+    # Outlet 2 metrics
     SensorEntityDescription(
         key="outlets/2/measures/cumulatedEnergy",
         name="Outlet 2 Energy",
@@ -294,8 +379,45 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
+    SensorEntityDescription(
+        key="outlets/2/measures/averageEnergy",
+        name="Outlet 2 Average Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/2/measures/activePower",
+        name="Outlet 2 Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/2/measures/apparentPower",
+        name="Outlet 2 Apparent Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement="VA",
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/2/status/delayBeforeSwitchOff",
+        name="Outlet 2 Delay Before Switch Off",
+        icon="mdi:timer-off-outline",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+    ),
+    SensorEntityDescription(
+        key="outlets/2/status/delayBeforeSwitchOn",
+        name="Outlet 2 Delay Before Switch On",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+    ),
     
-    # Outlet 3 Energy
+    # Outlet 3 metrics
     SensorEntityDescription(
         key="outlets/3/measures/cumulatedEnergy",
         name="Outlet 3 Energy",
@@ -304,6 +426,43 @@ ENTITY_DESCRIPTIONS = (
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
+    ),
+    SensorEntityDescription(
+        key="outlets/3/measures/averageEnergy",
+        name="Outlet 3 Average Energy",
+        icon="mdi:lightning-bolt",
+        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/3/measures/activePower",
+        name="Outlet 3 Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/3/measures/apparentPower",
+        name="Outlet 3 Apparent Power",
+        icon="mdi:power-plug",
+        native_unit_of_measurement="VA",
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="outlets/3/status/delayBeforeSwitchOff",
+        name="Outlet 3 Delay Before Switch Off",
+        icon="mdi:timer-off-outline",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+    ),
+    SensorEntityDescription(
+        key="outlets/3/status/delayBeforeSwitchOn",
+        name="Outlet 3 Delay Before Switch On",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
     ),
 )
 
