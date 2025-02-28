@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable
+import asyncio
 
 from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers.update_coordinator import PushUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.core import callback
 
 from .api import (
@@ -18,17 +19,30 @@ if TYPE_CHECKING:
     from .data import EatonUpsConfigEntry
 
 
-class EatonUPSDataUpdateCoordinator(PushUpdateCoordinator[dict[str, Any]]):
-    """Class to manage push updates from the MQTT API."""
+class EatonUPSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Class to manage updates from the MQTT API."""
 
     config_entry: EatonUpsConfigEntry
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the coordinator."""
+        # Use a very long update interval since we'll rely on push updates
+        kwargs["update_interval"] = None  # Disable polling
         super().__init__(*args, **kwargs)
         self._unsubscribe_callback: Callable[[], None] | None = None
+        self._setup_done = False
 
-    async def async_setup(self) -> None:
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Get data from API."""
+        if not self._setup_done:
+            await self._async_setup()
+        
+        # Just return the current data, actual updates come from MQTT callbacks
+        if self.config_entry.runtime_data.client:
+            return await self.config_entry.runtime_data.client.async_get_data()
+        return {}
+
+    async def _async_setup(self) -> None:
         """Set up the coordinator."""
         try:
             client = self.config_entry.runtime_data.client
@@ -44,10 +58,7 @@ class EatonUPSDataUpdateCoordinator(PushUpdateCoordinator[dict[str, Any]]):
             
             # Store the callback reference for later cleanup
             self._unsubscribe_callback = client.subscribe_to_updates(handle_mqtt_update)
-            
-            # Get initial data
-            data = await client.async_get_data()
-            self.async_set_updated_data(data)
+            self._setup_done = True
             
         except EatonUpsClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
@@ -62,5 +73,6 @@ class EatonUPSDataUpdateCoordinator(PushUpdateCoordinator[dict[str, Any]]):
             self._unsubscribe_callback = None
             
         # Disconnect MQTT client
-        await self.config_entry.runtime_data.client.async_disconnect()
+        if self.config_entry.runtime_data.client:
+            await self.config_entry.runtime_data.client.async_disconnect()
         await super().async_shutdown()
