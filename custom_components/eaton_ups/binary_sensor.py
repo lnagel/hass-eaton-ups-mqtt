@@ -208,11 +208,6 @@ ENTITY_DESCRIPTIONS = (
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="outlets/1/status/supplierPowerQuality",
-        name="Outlet 1 Power Quality",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
         key="outlets/2/status/supply",
         name="Outlet 2 Supply",
         device_class=BinarySensorDeviceClass.POWER,
@@ -223,11 +218,6 @@ ENTITY_DESCRIPTIONS = (
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="outlets/2/status/supplierPowerQuality",
-        name="Outlet 2 Power Quality",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
         key="outlets/3/status/supply",
         name="Outlet 3 Supply",
         device_class=BinarySensorDeviceClass.POWER,
@@ -235,11 +225,6 @@ ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="outlets/3/status/switchedOn",
         name="Outlet 3 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="outlets/3/status/supplierPowerQuality",
-        name="Outlet 3 Power Quality",
         device_class=BinarySensorDeviceClass.POWER,
     ),
 )
