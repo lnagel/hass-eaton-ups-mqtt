@@ -9,18 +9,18 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import (
-    IntegrationBlueprintApiClientAuthenticationError,
-    IntegrationBlueprintApiClientError,
+    EatonUpsClientAuthenticationError,
+    EatonUpsClientError,
 )
 
 if TYPE_CHECKING:
-    from .data import IntegrationBlueprintConfigEntry
+    from .data import EatonUpsConfigEntry
 
 
-class BlueprintDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+class EatonUPSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Class to manage fetching data from the API."""
 
-    config_entry: IntegrationBlueprintConfigEntry
+    config_entry: EatonUpsConfigEntry
 
     async def _async_update_data(self) -> Any:
         """Update data via library."""
@@ -32,9 +32,9 @@ class BlueprintDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Get the current data from the MQTT client
             return await client.async_get_data()
-        except IntegrationBlueprintApiClientAuthenticationError as exception:
+        except EatonUpsClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except IntegrationBlueprintApiClientError as exception:
+        except EatonUpsClientError as exception:
             raise UpdateFailed(exception) from exception
 
     async def async_shutdown(self) -> None:

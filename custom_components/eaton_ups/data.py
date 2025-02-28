@@ -9,21 +9,21 @@ from homeassistant.config_entries import ConfigEntry
 
 if TYPE_CHECKING:
     from homeassistant.loader import Integration
-    from .api import IntegrationBlueprintApiClient
-    from .coordinator import BlueprintDataUpdateCoordinator
+    from .api import EatonUpsMqttClient
+    from .coordinator import EatonUPSDataUpdateCoordinator
 
 
 # Use Protocol to avoid circular imports
-class IntegrationBlueprintConfigEntry(ConfigEntry):
+class EatonUpsConfigEntry(ConfigEntry):
     """Blueprint ConfigEntry with runtime data."""
 
-    runtime_data: "IntegrationBlueprintData"
+    runtime_data: "EatonUpsData"
 
 
 @dataclass
-class IntegrationBlueprintData:
+class EatonUpsData:
     """Data for the Blueprint integration."""
 
-    client: "IntegrationBlueprintApiClient"
-    coordinator: "BlueprintDataUpdateCoordinator"
+    client: "EatonUpsMqttClient"
+    coordinator: "EatonUPSDataUpdateCoordinator"
     integration: "Integration"

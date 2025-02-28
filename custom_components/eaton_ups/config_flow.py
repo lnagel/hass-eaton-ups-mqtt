@@ -18,10 +18,10 @@ from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from slugify import slugify
 
 from .api import (
-    IntegrationBlueprintApiClient,
-    IntegrationBlueprintApiClientAuthenticationError,
-    IntegrationBlueprintApiClientCommunicationError,
-    IntegrationBlueprintApiClientError,
+    EatonUpsMqttClient,
+    EatonUpsClientAuthenticationError,
+    EatonUpsClientCommunicationError,
+    EatonUpsClientError,
 )
 from .const import DOMAIN, LOGGER, DEFAULT_PORT, CONF_SERVER_CERT, CONF_CLIENT_CERT, CONF_CLIENT_KEY, MQTT_TIMEOUT
 
@@ -48,7 +48,7 @@ PEM_KEY_SELECTOR = selector.TextSelector(
     ),
 )
 
-class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
 
     VERSION = 1
@@ -69,13 +69,13 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     client_cert=user_input[CONF_CLIENT_CERT],
                     client_key=user_input[CONF_CLIENT_KEY],
                 )
-            except IntegrationBlueprintApiClientAuthenticationError as exception:
+            except EatonUpsClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
-            except IntegrationBlueprintApiClientCommunicationError as exception:
+            except EatonUpsClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
-            except IntegrationBlueprintApiClientError as exception:
+            except EatonUpsClientError as exception:
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
@@ -177,7 +177,7 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _test_credentials(self, host: str, port: str, server_cert: str, client_cert: str, client_key: str) -> None:
         """Validate credentials."""
-        client = IntegrationBlueprintApiClient(
+        client = EatonUpsMqttClient(
             host=host,
             port=port,
             server_cert=server_cert,

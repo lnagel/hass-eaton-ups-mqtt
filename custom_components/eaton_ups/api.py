@@ -17,23 +17,23 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
 
-class IntegrationBlueprintApiClientError(Exception):
+class EatonUpsClientError(Exception):
     """Exception to indicate a general API error."""
 
 
-class IntegrationBlueprintApiClientCommunicationError(
-    IntegrationBlueprintApiClientError,
+class EatonUpsClientCommunicationError(
+    EatonUpsClientError,
 ):
     """Exception to indicate a communication error."""
 
 
-class IntegrationBlueprintApiClientAuthenticationError(
-    IntegrationBlueprintApiClientError,
+class EatonUpsClientAuthenticationError(
+    EatonUpsClientError,
 ):
     """Exception to indicate an authentication error."""
 
 
-class IntegrationBlueprintApiClient:
+class EatonUpsMqttClient:
     """Eaton UPS MQTT API Client."""
 
     def __init__(
@@ -94,7 +94,7 @@ class IntegrationBlueprintApiClient:
 
         if not self._mqtt_connected:
             self._cleanup_temp_files()
-            raise IntegrationBlueprintApiClientCommunicationError(
+            raise EatonUpsClientCommunicationError(
                 f"Failed to connect to MQTT broker at {self._host}:{self._port}"
             )
 
