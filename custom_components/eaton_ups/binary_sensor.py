@@ -20,35 +20,216 @@ if TYPE_CHECKING:
     from .data import EatonUpsConfigEntry
 
 ENTITY_DESCRIPTIONS = (
+    # UPS Status
     BinarySensorEntityDescription(
-        key="status/online",
-        name="UPS Online",
+        key="status/bootloaderMode",
+        name="Bootloader Mode",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/communicationFault",
+        name="Communication Fault",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/configurationFault",
+        name="Configuration Fault",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/emergencySwitchOff",
+        name="Emergency Switch Off",
+        device_class=BinarySensorDeviceClass.SAFETY,
+    ),
+    BinarySensorEntityDescription(
+        key="status/fanFault",
+        name="Fan Fault",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/internalFailure",
+        name="Internal Failure",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/shutdownImminent",
+        name="Shutdown Imminent",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/systemAlarm",
+        name="System Alarm",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="status/temperatureOutOfRange",
+        name="Temperature Out Of Range",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    
+    # Input Status
+    BinarySensorEntityDescription(
+        key="inputs/1/status/frequencyOutOfRange",
+        name="Input Frequency Out Of Range",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/inRange",
+        name="Input In Range",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="status/on_battery",
-        name="On Battery",
+        key="inputs/1/status/internalFailure",
+        name="Input Internal Failure",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/supplied",
+        name="Input Supplied",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/supply",
+        name="Input Supply",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/voltageOutOfRange",
+        name="Input Voltage Out Of Range",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/voltageTooHigh",
+        name="Input Voltage Too High",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/voltageTooLow",
+        name="Input Voltage Too Low",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="inputs/1/status/wiringFault",
+        name="Input Wiring Fault",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    
+    # Battery Status
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/status/criticalLowStateOfCharge",
+        name="Critical Low Battery",
         device_class=BinarySensorDeviceClass.BATTERY,
     ),
     BinarySensorEntityDescription(
-        key="status/low_battery",
+        key="backupSystem/powerBank/status/internalFailure",
+        name="Battery Internal Failure",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/status/lcmExpired",
+        name="Battery Expired",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/status/lowStateOfCharge",
         name="Low Battery",
         device_class=BinarySensorDeviceClass.BATTERY,
     ),
     BinarySensorEntityDescription(
-        key="status/fault",
-        name="UPS Fault",
+        key="backupSystem/powerBank/status/supplied",
+        name="Battery Supplied",
+        device_class=BinarySensorDeviceClass.BATTERY,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/status/supply",
+        name="Battery Supply",
+        device_class=BinarySensorDeviceClass.BATTERY,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/status/testFailed",
+        name="Battery Test Failed",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    
+    # Charger Status
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/active",
+        name="Charger Active",
+        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/enabled",
+        name="Charger Enabled",
+        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/installed",
+        name="Charger Installed",
+        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/internalFailure",
+        name="Charger Internal Failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="status/overload",
-        name="UPS Overload",
+        key="backupSystem/powerBank/chargers/1/status/supply",
+        name="Charger Supply",
+        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
+    ),
+    BinarySensorEntityDescription(
+        key="backupSystem/powerBank/chargers/1/status/voltageTooHigh",
+        name="Charger Voltage Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="status/replace_battery",
-        name="Replace Battery",
+        key="backupSystem/powerBank/chargers/1/status/voltageTooLow",
+        name="Charger Voltage Too Low",
         device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    
+    # Environment Status
+    BinarySensorEntityDescription(
+        key="environment/status/buildingAlarm1",
+        name="Building Alarm",
+        device_class=BinarySensorDeviceClass.SAFETY,
+    ),
+    BinarySensorEntityDescription(
+        key="environment/status/temperatureTooHigh",
+        name="Temperature Too High",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+    ),
+    
+    # Outlet Status
+    BinarySensorEntityDescription(
+        key="outlets/1/status/supply",
+        name="Outlet 1 Supply",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="outlets/1/status/switchedOn",
+        name="Outlet 1 Switched On",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="outlets/2/status/supply",
+        name="Outlet 2 Supply",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="outlets/2/status/switchedOn",
+        name="Outlet 2 Switched On",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="outlets/3/status/supply",
+        name="Outlet 3 Supply",
+        device_class=BinarySensorDeviceClass.POWER,
+    ),
+    BinarySensorEntityDescription(
+        key="outlets/3/status/switchedOn",
+        name="Outlet 3 Switched On",
+        device_class=BinarySensorDeviceClass.POWER,
     ),
 )
 
