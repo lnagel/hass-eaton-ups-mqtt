@@ -17,6 +17,7 @@ from paho.mqtt.client import MQTTv31
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     import aiohttp
 
 from .const import MQTT_CONNECTION_TIMEOUT
@@ -176,7 +177,7 @@ class EatonUpsMqttClient:
             self._mqtt_connected = False
             self._cleanup_temp_files()
 
-    def _on_connect(  # noqa: ARG002
+    def _on_connect(
         self,
         client: mqtt.Client,
         userdata: Any,
@@ -190,7 +191,7 @@ class EatonUpsMqttClient:
         else:
             self._mqtt_connected = False
 
-    def _on_disconnect(  # noqa: ARG002
+    def _on_disconnect(
         self,
         client: mqtt.Client,
         userdata: Any,
@@ -200,7 +201,7 @@ class EatonUpsMqttClient:
         """Handle disconnection."""
         self._mqtt_connected = False
 
-    def _on_message(  # noqa: ARG002
+    def _on_message(
         self,
         client: mqtt.Client,
         userdata: Any,
@@ -230,7 +231,7 @@ class EatonUpsMqttClient:
             # Just log the error and continue
             logger.warning("Error decoding JSON in MQTT message: %s", e)
 
-        except Exception as e:
+        except Exception:
             # Just log the error and continue
             logger.exception("Error processing MQTT message")
 
@@ -245,17 +246,17 @@ class EatonUpsMqttClient:
         temp_files = []
 
         # Server certificate
-        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as server_cert_file:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as server_cert_file:
             server_cert_file.write(self._server_cert.encode())
             temp_files.append(server_cert_file.name)
 
         # Client certificate
-        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as client_cert_file:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as client_cert_file:
             client_cert_file.write(self._client_cert.encode())
             temp_files.append(client_cert_file.name)
 
         # Client key
-        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as client_key_file:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as client_key_file:
             client_key_file.write(self._client_key.encode())
             temp_files.append(client_key_file.name)
 
