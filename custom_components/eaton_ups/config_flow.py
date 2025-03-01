@@ -1,4 +1,4 @@
-"""Adds config flow for Blueprint."""
+"""Config flow for Eaton UPS integration."""
 
 from __future__ import annotations
 
@@ -66,7 +66,7 @@ PEM_KEY_SELECTOR = selector.TextSelector(
 
 
 class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+    """Config flow handler for Eaton UPS integration."""
 
     VERSION = 1
 
@@ -74,7 +74,15 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Handle a flow initialized by the user."""
+        """Handle initial configuration flow.
+
+        Prompts user for:
+        - UPS Network-M2/M3 card hostname/IP
+        - MQTT port (default 8883)
+        - Server certificate (PEM format)
+        - Client certificate (PEM format)
+        - Client private key (PEM format)
+        """
         _errors = {}
 
         if user_input is not None:
@@ -141,7 +149,11 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Handle reconfigure flow initialized by the user."""
+        """Handle reconfiguration flow.
+        
+        Allows updating connection settings for an existing integration instance.
+        Reuses the same form as initial setup but preserves current values.
+        """
         if is_reconfigure := (self.source == SOURCE_RECONFIGURE):
             reconfigure_entry = self._get_reconfigure_entry()
 
@@ -194,7 +206,11 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def _test_credentials(
         self, host: str, port: str, server_cert: str, client_cert: str, client_key: str
     ) -> None:
-        """Validate credentials."""
+        """Validate MQTT connection credentials.
+        
+        Tests connection to the UPS Network-M card using provided certificates.
+        Raises appropriate exceptions for authentication or connection failures.
+        """
         config = EatonUpsMqttClient(
             host=host,
             port=port,
@@ -212,7 +228,11 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 def try_connection(
     user_input: dict[str, Any],
 ) -> bool:
-    """Test if we can connect to an MQTT broker."""
+    """Test MQTT connection to UPS Network-M card.
+    
+    Creates temporary certificate files and attempts MQTT connection.
+    Returns True if connection succeeds within timeout period.
+    """
     # We don't import on the top because some integrations
     # should be able to optionally rely on MQTT.
     import paho.mqtt.client as mqtt  # pylint: disable=import-outside-toplevel
