@@ -30,7 +30,7 @@ from .const import (
     DEFAULT_PORT,
     DOMAIN,
     LOGGER,
-    MQTT_TIMEOUT,
+    MQTT_CONNECTION_TIMEOUT,
 )
 
 logger = logging.getLogger(__name__)
@@ -259,7 +259,7 @@ def try_connection(
         client.loop_start()
 
         try:
-            return result.get(timeout=MQTT_TIMEOUT)
+            return result.get(timeout=MQTT_CONNECTION_TIMEOUT)
         except queue.Empty:
             return False
         finally:
