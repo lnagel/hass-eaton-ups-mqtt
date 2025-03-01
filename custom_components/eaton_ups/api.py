@@ -124,7 +124,10 @@ class EatonUpsMqttClient:
             raise EatonUpsClientCommunicationError(f"Failed to connect to MQTT broker at {self._host}:{self._port}")
 
         # Subscribe to the topics
-        self._mqtt_client.subscribe("mbdetnrs/1.0/#")
+        self._mqtt_client.subscribe(topic=[
+            ("mbdetnrs/1.0/managers/#", 0),
+            ("mbdetnrs/1.0/powerDistributions/#", 0),
+        ])
 
     def _setup_tls(self, ca_certs, certfile, keyfile):
         """Set up TLS with certificates - runs in executor."""
