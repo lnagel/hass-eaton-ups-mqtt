@@ -52,7 +52,24 @@ Topic `mbdetnrs/1.0/sensors/devices` contains the following:
 
 # Protection services
 
-To be documented.
+There are 1..n protection service suppliers with prefix `mbdetnrs/1.0/protectionService/`.
+
+Topic `mbdetnrs/1.0/protectionService/suppliers` contains the following:
+
+```json
+{
+    "members@count": 0,
+    "members": []
+}
+```
+
+Topic `mbdetnrs/1.0/protectionService/actions` contains the following:
+
+```json
+{
+    "#scriptExec": "mbdetnrs/1.0/protectionService/actions/scriptExec??"
+}
+```
 
 # Alarm services
 
