@@ -195,7 +195,9 @@ class EatonUpsMqttClient:
             # Try to parse as JSON if possible
             data = json.loads(payload)
 
-            # Store in the data dictionary
+            # Store in the data dictionary using flat structure
+            # Note: Topics are stored as flat keys (e.g. "powerDistributions/1/status/health")
+            # rather than nested dictionaries
             key = topic.removeprefix("mbdetnrs/1.0/")
             self._mqtt_data[key] = data
 
