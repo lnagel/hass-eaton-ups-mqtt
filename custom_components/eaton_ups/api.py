@@ -5,16 +5,14 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import socket
-import ssl
-import tempfile
 import os
+import tempfile
 import uuid
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
 from functools import partial
+from typing import Any
 
 import aiohttp
-import async_timeout
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
@@ -64,7 +62,8 @@ class EatonUpsMqttClient:
         self._loop = None  # Store the event loop
 
     def subscribe_to_updates(self, callback: Callable[[dict], None]) -> Callable[[], None]:
-        """Subscribe to data updates.
+        """
+        Subscribe to data updates.
 
         Returns a function that can be called to unsubscribe.
         """
@@ -124,10 +123,12 @@ class EatonUpsMqttClient:
             raise EatonUpsClientCommunicationError(f"Failed to connect to MQTT broker at {self._host}:{self._port}")
 
         # Subscribe to the topics
-        self._mqtt_client.subscribe(topic=[
-            ("mbdetnrs/1.0/managers/#", 0),
-            ("mbdetnrs/1.0/powerDistributions/#", 0),
-        ])
+        self._mqtt_client.subscribe(
+            topic=[
+                ("mbdetnrs/1.0/managers/#", 0),
+                ("mbdetnrs/1.0/powerDistributions/#", 0),
+            ]
+        )
 
     def _setup_tls(self, ca_certs, certfile, keyfile):
         """Set up TLS with certificates - runs in executor."""
@@ -138,7 +139,7 @@ class EatonUpsMqttClient:
         )
         self._mqtt_client.tls_insecure_set(False)
 
-    async def async_get_data(self) -> Dict[str, Any]:
+    async def async_get_data(self) -> dict[str, Any]:
         """Get data from the MQTT broker."""
         if not self._mqtt_connected:
             await self.async_setup()
@@ -169,7 +170,7 @@ class EatonUpsMqttClient:
         self,
         client: mqtt.Client,
         userdata: Any,
-        flags: Dict[str, int],
+        flags: dict[str, int],
         rc: int,
         properties: mqtt.Properties | None = None,
     ) -> None:

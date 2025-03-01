@@ -2,24 +2,24 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-from datetime import datetime
 import re
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
-    SensorDeviceClass,
     SensorStateClass,
 )
 from homeassistant.const import (
     PERCENTAGE,
-    UnitOfElectricPotential,
-    UnitOfTime,
-    UnitOfPower,
     UnitOfElectricCurrent,
-    UnitOfFrequency,
+    UnitOfElectricPotential,
     UnitOfEnergy,
+    UnitOfFrequency,
+    UnitOfPower,
+    UnitOfTime,
 )
 
 from .entity import EatonUpsEntity

@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
-import asyncio
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
+from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.core import callback
 
 from .api import (
     EatonUpsClientAuthenticationError,
     EatonUpsClientError,
 )
-from .const import LOGGER
 
 if TYPE_CHECKING:
     from .data import EatonUpsConfigEntry

@@ -72,12 +72,11 @@ class EatonUpsSwitch(EatonUpsEntity, SwitchEntity):
         # Convert to boolean
         if isinstance(value, bool):
             return value
-        elif isinstance(value, str):
+        if isinstance(value, str):
             return value.lower() in ("true", "yes", "on", "1")
-        elif isinstance(value, (int, float)):
+        if isinstance(value, (int, float)):
             return value > 0
-        else:
-            return False
+        return False
 
     async def async_turn_on(self, **_: Any) -> None:
         """Turn on the switch."""

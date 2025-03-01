@@ -12,24 +12,24 @@ from typing import Any
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import SOURCE_RECONFIGURE
-from homeassistant.const import CONF_PORT, CONF_HOST
+from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from slugify import slugify
 
 from .api import (
-    EatonUpsMqttClient,
     EatonUpsClientAuthenticationError,
     EatonUpsClientCommunicationError,
     EatonUpsClientError,
+    EatonUpsMqttClient,
 )
 from .const import (
-    DOMAIN,
-    LOGGER,
-    DEFAULT_PORT,
-    CONF_SERVER_CERT,
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
+    CONF_SERVER_CERT,
+    DEFAULT_PORT,
+    DOMAIN,
+    LOGGER,
     MQTT_TIMEOUT,
 )
 
@@ -136,7 +136,6 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
         """Handle reconfigure flow initialized by the user."""
-
         if is_reconfigure := (self.source == SOURCE_RECONFIGURE):
             reconfigure_entry = self._get_reconfigure_entry()
 

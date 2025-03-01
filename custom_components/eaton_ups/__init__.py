@@ -14,7 +14,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import EatonUpsMqttClient
-from .const import DOMAIN, LOGGER, CONF_SERVER_CERT, CONF_CLIENT_CERT, CONF_CLIENT_KEY
+from .const import CONF_CLIENT_CERT, CONF_CLIENT_KEY, CONF_SERVER_CERT, DOMAIN, LOGGER
 from .coordinator import EatonUPSDataUpdateCoordinator
 from .data import EatonUpsData
 
