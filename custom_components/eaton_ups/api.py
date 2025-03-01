@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import socket
 import ssl
 import tempfile
@@ -16,6 +17,8 @@ import aiohttp
 import async_timeout
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
+
+logger = logging.getLogger(__name__)
 
 
 class EatonUpsClientError(Exception):
@@ -121,7 +124,7 @@ class EatonUpsMqttClient:
             raise EatonUpsClientCommunicationError(f"Failed to connect to MQTT broker at {self._host}:{self._port}")
 
         # Subscribe to the topics
-        self._mqtt_client.subscribe("mbdetnrs/1.0/powerDistributions/+/#")
+        self._mqtt_client.subscribe("mbdetnrs/1.0/#")
 
     def _setup_tls(self, ca_certs, certfile, keyfile):
         """Set up TLS with certificates - runs in executor."""
@@ -190,54 +193,24 @@ class EatonUpsMqttClient:
             payload = msg.payload.decode("utf-8")
 
             # Try to parse as JSON if possible
-            try:
-                data = json.loads(payload)
-            except json.JSONDecodeError:
-                data = payload
+            data = json.loads(payload)
 
             # Store in the data dictionary
-            topic_parts = topic.split("/")
-
-            # Only skip the MQTT API version prefix (mbdetnrs/1.0)
-            if len(topic_parts) > 2 and topic_parts[0] == "mbdetnrs" and topic_parts[1] == "1.0":
-                # Keep everything after the version prefix
-                relevant_parts = topic_parts[2:]
-
-                # Build the key path
-                if len(relevant_parts) > 0:
-                    key_path = "/".join(relevant_parts)
-
-                    # Store the data at the appropriate path
-                    current_dict = self._mqtt_data
-                    for part in relevant_parts[:-1]:
-                        if part not in current_dict:
-                            current_dict[part] = {}
-                        current_dict = current_dict[part]
-
-                    # Store the actual data at the leaf node
-                    current_dict[relevant_parts[-1]] = data
-            else:
-                # Fallback for other topics
-                if len(topic_parts) > 1:
-                    category = topic_parts[1]
-                    if len(topic_parts) > 2:
-                        key = "/".join(topic_parts[2:])
-                        if category not in self._mqtt_data:
-                            self._mqtt_data[category] = {}
-                        self._mqtt_data[category][key] = data
-                    else:
-                        self._mqtt_data[category] = data
-                else:
-                    self._mqtt_data[topic] = data
+            key = topic.removeprefix("mbdetnrs/1.0/")
+            self._mqtt_data[key] = data
 
             # Use the event loop to safely notify callbacks
             if self._loop and self._update_callbacks:
                 for callback in self._update_callbacks:
                     self._loop.call_soon_threadsafe(lambda cb=callback: cb(self._mqtt_data))
 
+        except json.JSONDecodeError as e:
+            # Just log the error and continue
+            logger.warning(f"Error decoding JSON in MQTT message: {e}")
+
         except Exception as e:
             # Just log the error and continue
-            print(f"Error processing MQTT message: {e}")
+            logger.error(f"Error processing MQTT message: {e}")
 
     async def _create_temp_cert_files(self) -> list[str]:
         """Create temporary certificate files and return their paths."""

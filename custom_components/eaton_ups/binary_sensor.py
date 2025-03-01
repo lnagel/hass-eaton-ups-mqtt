@@ -22,203 +22,203 @@ if TYPE_CHECKING:
 ENTITY_DESCRIPTIONS = (
     # UPS Status
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/bootloaderMode",
+        key="powerDistributions/1/status$bootloaderMode",
         name="Bootloader Mode",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/communicationFault",
+        key="powerDistributions/1/status$communicationFault",
         name="Communication Fault",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/configurationFault",
+        key="powerDistributions/1/status$configurationFault",
         name="Configuration Fault",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/emergencySwitchOff",
+        key="powerDistributions/1/status$emergencySwitchOff",
         name="Emergency Switch Off",
         device_class=BinarySensorDeviceClass.SAFETY,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/fanFault",
+        key="powerDistributions/1/status$fanFault",
         name="Fan Fault",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/internalFailure",
+        key="powerDistributions/1/status$internalFailure",
         name="Internal Failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/shutdownImminent",
+        key="powerDistributions/1/status$shutdownImminent",
         name="Shutdown Imminent",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/systemAlarm",
+        key="powerDistributions/1/status$systemAlarm",
         name="System Alarm",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/status/temperatureOutOfRange",
+        key="powerDistributions/1/status$temperatureOutOfRange",
         name="Temperature Out Of Range",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     # Input Status
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/frequencyOutOfRange",
+        key="powerDistributions/1/inputs/1/status$frequencyOutOfRange",
         name="Input Frequency Out Of Range",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/inRange",
+        key="powerDistributions/1/inputs/1/status$inRange",
         name="Input In Range",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/internalFailure",
+        key="powerDistributions/1/inputs/1/status$internalFailure",
         name="Input Internal Failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/supplied",
+        key="powerDistributions/1/inputs/1/status$supplied",
         name="Input Supplied",
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/supply",
+        key="powerDistributions/1/inputs/1/status$supply",
         name="Input Supply",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/voltageOutOfRange",
+        key="powerDistributions/1/inputs/1/status$voltageOutOfRange",
         name="Input Voltage Out Of Range",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/voltageTooHigh",
+        key="powerDistributions/1/inputs/1/status$voltageTooHigh",
         name="Input Voltage Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/voltageTooLow",
+        key="powerDistributions/1/inputs/1/status$voltageTooLow",
         name="Input Voltage Too Low",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status/wiringFault",
+        key="powerDistributions/1/inputs/1/status$wiringFault",
         name="Input Wiring Fault",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     # Battery Status
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/criticalLowStateOfCharge",
+        key="powerDistributions/1/backupSystem/powerBank/status$criticalLowStateOfCharge",
         name="Critical Low Battery",
         device_class=BinarySensorDeviceClass.BATTERY,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/internalFailure",
+        key="powerDistributions/1/backupSystem/powerBank/status$internalFailure",
         name="Battery Internal Failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/lcmExpired",
+        key="powerDistributions/1/backupSystem/powerBank/status$lcmExpired",
         name="Battery Expired",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/lowStateOfCharge",
+        key="powerDistributions/1/backupSystem/powerBank/status$lowStateOfCharge",
         name="Low Battery",
         device_class=BinarySensorDeviceClass.BATTERY,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/supplied",
+        key="powerDistributions/1/backupSystem/powerBank/status$supplied",
         name="Battery Supplied",
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/supply",
+        key="powerDistributions/1/backupSystem/powerBank/status$supply",
         name="Battery Supply",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/status/testFailed",
+        key="powerDistributions/1/backupSystem/powerBank/status$testFailed",
         name="Battery Test Failed",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     # Charger Status
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/active",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$active",
         name="Charger Active",
         device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/enabled",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$enabled",
         name="Charger Enabled",
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/installed",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$installed",
         name="Charger Installed",
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/internalFailure",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$internalFailure",
         name="Charger Internal Failure",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/supply",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$supply",
         name="Charger Supply",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/voltageTooHigh",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$voltageTooHigh",
         name="Charger Voltage Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status/voltageTooLow",
+        key="powerDistributions/1/backupSystem/powerBank/chargers/1/status$voltageTooLow",
         name="Charger Voltage Too Low",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     # Environment Status
     BinarySensorEntityDescription(
-        key="powerDistributions/1/environment/status/buildingAlarm1",
+        key="powerDistributions/1/environment/status$buildingAlarm1",
         name="Building Alarm",
         device_class=BinarySensorDeviceClass.SAFETY,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/environment/status/temperatureTooHigh",
+        key="powerDistributions/1/environment/status$temperatureTooHigh",
         name="Temperature Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     # Outlet Status
     BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status/supply",
+        key="powerDistributions/1/outlets/1/status$supply",
         name="Outlet 1 Supply",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status/switchedOn",
+        key="powerDistributions/1/outlets/1/status$switchedOn",
         name="Outlet 1 Switched On",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status/supply",
+        key="powerDistributions/1/outlets/2/status$supply",
         name="Outlet 2 Supply",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status/switchedOn",
+        key="powerDistributions/1/outlets/2/status$switchedOn",
         name="Outlet 2 Switched On",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status/supply",
+        key="powerDistributions/1/outlets/3/status$supply",
         name="Outlet 3 Supply",
         device_class=BinarySensorDeviceClass.POWER,
     ),
     BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status/switchedOn",
+        key="powerDistributions/1/outlets/3/status$switchedOn",
         name="Outlet 3 Switched On",
         device_class=BinarySensorDeviceClass.POWER,
     ),
@@ -259,16 +259,17 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
         if not self.coordinator.data:
             return False
 
-        # Parse the key path
-        key_parts = self.entity_description.key.split("/")
+        # Parse the key to extract topic and lookup path within the topic's data
+        topic, lookup = self.entity_description.key.split("$", 1)
+        lookup_parts = lookup.split("/")
 
         # Navigate through the data structure
-        value = self.coordinator.data
-        for part in key_parts:
+        value = self.coordinator.data.get(topic, {})
+        for part in lookup_parts:
             if isinstance(value, dict) and part in value:
                 value = value[part]
             else:
-                return False
+                return None
 
         # Convert to boolean
         if isinstance(value, bool):
