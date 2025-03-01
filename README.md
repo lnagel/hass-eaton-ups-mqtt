@@ -1,10 +1,25 @@
-# Notice
+# Eaton UPS Integration for Home Assistant
 
-The component and platforms in this repository are not meant to be used by a
-user, but as a "blueprint" that custom component developers can build
-upon, to make more awesome stuff.
+A Home Assistant integration that connects to Eaton UPS devices via MQTT to monitor power status, battery levels, and control UPS functions. This integration provides:
 
-HAVE FUN! 😎
+- Real-time monitoring of UPS status and measurements
+- Battery status and health information
+- Power input/output metrics
+- Binary sensors for fault conditions
+- Switches for controllable features
+
+## Requirements
+
+- An Eaton UPS device with MQTT capability
+- MQTT broker configured with SSL certificates
+- Home Assistant 2023.8.0 or newer
+
+## Installation
+
+1. Add this repository to HACS or copy the `custom_components/eaton_ups` folder to your Home Assistant configuration directory
+2. Restart Home Assistant
+3. Add the integration through the Home Assistant UI
+4. Configure with your UPS's MQTT connection details and certificates
 
 ## Why?
 
