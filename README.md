@@ -1,6 +1,6 @@
 # Eaton UPS Integration for Home Assistant
 
-A Home Assistant integration that connects to Eaton UPS devices via MQTT to monitor power status and battery levels. This integration provides:
+A Home Assistant integration that connects to Eaton UPS devices through their Network-M2/M3 management card via MQTT to monitor power status and battery levels. This integration provides:
 
 - Device Information
   - Model, serial number, firmware details
@@ -25,8 +25,11 @@ A Home Assistant integration that connects to Eaton UPS devices via MQTT to moni
 
 ## Requirements
 
-- An Eaton UPS device with MQTT capability
-- MQTT broker configured with SSL certificates
+- An Eaton UPS device with Network-M2 or Network-M3 management card
+- TLS certificates (mandatory):
+  - Server certificate for the Network-M card
+  - Client certificate and private key for authentication
+  - These must be uploaded to the Network-M card's web interface
 - Home Assistant 2023.8.0 or newer
 
 ## Installation
