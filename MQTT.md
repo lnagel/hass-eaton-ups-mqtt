@@ -184,7 +184,7 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/measures` contai
 {
 	"remainingTime": 18971,
 	"stateOfCharge": 100,
-	"voltage": 52.9
+	"voltage": 52.8
 }
 ```
 
@@ -226,8 +226,8 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/status` contains
 	"lastTestResult": "success",
 	"lastTestResultDate": "2025-02-25T12:40:02.000Z",
 	"lastSuccessfulTestDate": "2025-02-25T12:40:02.000Z",
-	"lcmInstallationDate": "2022-10-18T12:26:32.000Z",
-	"lcmReplacementDate": "2026-10-17T12:26:32.000Z",
+	"lcmInstallationDate": "2022-10-18T12:26:28.000Z",
+	"lcmReplacementDate": "2026-10-17T12:26:28.000Z",
 	"lcmExpired": false,
 	"lowStateOfCharge": false,
 	"storagePresent": "present",
@@ -269,7 +269,7 @@ Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/measures` contains the followi
 {
 	"current": 1,
 	"frequency": 49.9,
-	"voltage": 231.5
+	"voltage": 234.0
 }
 ```
 
@@ -297,8 +297,8 @@ Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/phases/1/measures` contains th
 
 ```json
 {
-	"current": 1.1,
-	"voltage": 231.9
+	"current": 1.0,
+	"voltage": 234.0
 }
 ```
 
@@ -320,14 +320,14 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outlets/1/measures` contains the follow
 
 ```json
 {
-	"activePower": 91,
-	"apparentPower": 151,
+	"activePower": 85,
+	"apparentPower": 146,
 	"averageEnergy": 83,
-	"cumulatedEnergy": 1120826.0059357,
+	"cumulatedEnergy": 1123102.9778719,
 	"current": 0.5,
 	"frequency": 49.9,
-	"powerFactor": 0.6,
-	"voltage": 231.9
+	"powerFactor": 0.59,
+	"voltage": 234.0
 }
 ```
 
@@ -369,16 +369,16 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outputs/1/measures` contains the follow
 
 ```json
 {
-	"activePower": 152,
+	"activePower": 146,
 	"apparentPower": 226,
-	"averageEnergy": 155,
-	"cumulatedEnergy": 3195829.9875259,
+	"averageEnergy": 158,
+	"cumulatedEnergy": 3201624.1550446,
 	"current": 1,
 	"efficiency": 99,
-	"frequency": 50,
+	"frequency": 49.9,
 	"percentLoad": 15,
-	"powerFactor": 0.64,
-	"voltage": 232.2
+	"powerFactor": 0.65,
+	"voltage": 234.0
 }
 ```
 
@@ -388,12 +388,12 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outputs/1/phases/1/measures` contains t
 
 ```json
 {
-	"activePower": 149,
-	"apparentPower": 244,
+	"activePower": 146,
+	"apparentPower": 226,
 	"current": 1,
-	"percentLoad": 16,
-	"powerFactor": 0.61,
-	"voltage": 232.2
+	"percentLoad": 15,
+	"powerFactor": 0.65,
+	"voltage": 234.0
 }
 ```
 
