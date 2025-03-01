@@ -10,6 +10,7 @@ import tempfile
 import uuid
 from functools import partial
 from pathlib import Path
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import paho.mqtt.client as mqtt
@@ -19,6 +20,17 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     import aiohttp
+
+@dataclass
+class EatonUpsMqttConfig:
+    """Configuration for MQTT client."""
+
+    host: str
+    port: str
+    server_cert: str
+    client_cert: str
+    client_key: str
+    session: "aiohttp.ClientSession"
 
 from .const import MQTT_CONNECTION_TIMEOUT
 
@@ -44,22 +56,14 @@ class EatonUpsClientAuthenticationError(
 class EatonUpsMqttClient:
     """Eaton UPS MQTT API Client."""
 
-    def __init__(
-        self,
-        host: str,
-        port: str,
-        server_cert: str,
-        client_cert: str,
-        client_key: str,
-        session: aiohttp.ClientSession,
-    ) -> None:
+    def __init__(self, config: EatonUpsMqttConfig) -> None:
         """Initialize Eaton UPS MQTT client."""
-        self._host = host
-        self._port = int(port)
-        self._server_cert = server_cert
-        self._client_cert = client_cert
-        self._client_key = client_key
-        self._session = session
+        self._host = config.host
+        self._port = int(config.port)
+        self._server_cert = config.server_cert
+        self._client_cert = config.client_cert
+        self._client_key = config.client_key
+        self._session = config.session
         self._mqtt_client = None
         self._mqtt_connected = False
         self._mqtt_data = {}
@@ -179,11 +183,11 @@ class EatonUpsMqttClient:
 
     def _on_connect(
         self,
-        client: mqtt.Client,
-        userdata: Any,
-        flags: dict[str, int],
+        _client: mqtt.Client,
+        _userdata: Any,
+        _flags: dict[str, int],
         rc: int,
-        properties: mqtt.Properties | None = None,
+        _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle connection callback."""
         if rc == 0:
@@ -193,18 +197,18 @@ class EatonUpsMqttClient:
 
     def _on_disconnect(
         self,
-        client: mqtt.Client,
-        userdata: Any,
-        rc: int,
-        properties: mqtt.Properties | None = None,
+        _client: mqtt.Client,
+        _userdata: Any,
+        _rc: int,
+        _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
         self._mqtt_connected = False
 
     def _on_message(
         self,
-        client: mqtt.Client,
-        userdata: Any,
+        _client: mqtt.Client,
+        _userdata: Any,
         msg: mqtt.MQTTMessage,
     ) -> None:
         """Handle incoming messages."""
@@ -216,16 +220,19 @@ class EatonUpsMqttClient:
             data = json.loads(payload)
 
             # Store in the data dictionary using flat structure
-            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data is stored without modifications.
-            # This will make it possible to use the storage key to make direct lookups in the data dictionary and
-            # provide more efficient callbacks to sensor updates.
+            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data is stored 
+            # without modifications. This will make it possible to use the storage key to make 
+            # direct lookups in the data dictionary and provide more efficient callbacks to 
+            # sensor updates.
             key = topic.removeprefix("mbdetnrs/1.0/")
             self._mqtt_data[key] = data
 
             # Use the event loop to safely notify callbacks
             if self._loop and self._update_callbacks:
                 for callback in self._update_callbacks:
-                    self._loop.call_soon_threadsafe(lambda cb=callback: cb(self._mqtt_data))
+                    self._loop.call_soon_threadsafe(
+                        lambda cb=callback: cb(self._mqtt_data)
+                    )
 
         except json.JSONDecodeError as e:
             # Just log the error and continue
