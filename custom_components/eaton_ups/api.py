@@ -8,12 +8,14 @@ import logging
 import os
 import tempfile
 import uuid
-from collections.abc import Callable
 from functools import partial
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import aiohttp
 import paho.mqtt.client as mqtt
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    import aiohttp
 from paho.mqtt.client import MQTTv31
 
 logger = logging.getLogger(__name__)

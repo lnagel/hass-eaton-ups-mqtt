@@ -276,6 +276,6 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
             return value
         if isinstance(value, str):
             return value.lower() in ("true", "yes", "on", "1")
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             return value > 0
         return False
