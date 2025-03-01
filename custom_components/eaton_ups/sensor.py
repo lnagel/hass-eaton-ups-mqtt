@@ -149,8 +149,8 @@ ENTITY_DESCRIPTIONS = (
         key="outputs/1/measures/averageEnergy",
         name="Output Average Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     # Power Distribution Status
@@ -327,8 +327,8 @@ ENTITY_DESCRIPTIONS = (
         key="outlets/1/measures/averageEnergy",
         name="Outlet 1 Average Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
@@ -405,8 +405,8 @@ ENTITY_DESCRIPTIONS = (
         key="outlets/2/measures/averageEnergy",
         name="Outlet 2 Average Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
@@ -483,8 +483,8 @@ ENTITY_DESCRIPTIONS = (
         key="outlets/3/measures/averageEnergy",
         name="Outlet 3 Average Energy",
         icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
