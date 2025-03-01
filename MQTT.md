@@ -52,8 +52,6 @@ Topic `mbdetnrs/1.0/sensors/devices` contains the following:
 
 # Protection services
 
-There are 1..n protection service suppliers with prefix `mbdetnrs/1.0/protectionService/`.
-
 Topic `mbdetnrs/1.0/protectionService/suppliers` contains the following:
 
 ```json
