@@ -41,7 +41,7 @@ async def async_setup_entry(
         logger=LOGGER,
         name=DOMAIN,
     )
-    config=EatonUpsMqttConfig(
+    config = EatonUpsMqttConfig(
         host=entry.data[CONF_HOST],
         port=entry.data[CONF_PORT],
         server_cert=entry.data[CONF_SERVER_CERT],

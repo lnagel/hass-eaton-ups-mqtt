@@ -32,10 +32,9 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
             return "Eaton UPS"
 
         # Try to find model information in the data
-        model = (
-            self.coordinator.data.get("powerDistributions/1/identification", {})
-            .get("model")
-        )
+        model = self.coordinator.data.get(
+            "powerDistributions/1/identification", {}
+        ).get("model")
         return model or None
 
     def _get_firmware_version(self) -> str:
@@ -44,8 +43,7 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
             return None
 
         # Try to find firmware information in the data
-        firmware = (
-            self.coordinator.data.get("powerDistributions/1/identification", {})
-            .get("firmwareVersion")
-        )
+        firmware = self.coordinator.data.get(
+            "powerDistributions/1/identification", {}
+        ).get("firmwareVersion")
         return firmware or None

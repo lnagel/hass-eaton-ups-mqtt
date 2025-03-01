@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
     import aiohttp
 
+
 @dataclass
 class EatonUpsMqttConfig:
     """Configuration for MQTT client."""
@@ -32,6 +33,7 @@ class EatonUpsMqttConfig:
     server_cert: str
     client_cert: str
     client_key: str
+
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +58,7 @@ class EatonUpsMqttClient:
     """Eaton UPS MQTT API Client."""
 
     def __init__(
-            self, config: EatonUpsMqttConfig, session: aiohttp.ClientSession
+        self, config: EatonUpsMqttConfig, session: aiohttp.ClientSession
     ) -> None:
         """Initialize Eaton UPS MQTT client."""
         self._host = config.host
