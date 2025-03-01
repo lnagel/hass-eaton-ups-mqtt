@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
+from .const import MQTT_CONNECTION_TIMEOUT
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -32,8 +33,6 @@ class EatonUpsMqttConfig:
     client_cert: str
     client_key: str
     session: aiohttp.ClientSession
-
-from .const import MQTT_CONNECTION_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
