@@ -107,7 +107,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outputs/1/measures/activePower",
-        name="Output Power",
+        name="Output Active Power",
         icon="mdi:power-plug",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -154,7 +154,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outputs/1/measures/averageEnergy",
-        name="Output Average Energy",
+        name="Output Average Power", # fixed name from Average Energy
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -333,7 +333,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outlets/1/measures/averageEnergy",
-        name="Outlet 1 Average Energy",
+        name="Outlet 1 Average Power", # fixed name from Average Energy
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -341,7 +341,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outlets/1/measures/activePower",
-        name="Outlet 1 Power",
+        name="Outlet 1 Active Power",
         icon="mdi:power-plug",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -415,7 +415,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outlets/2/measures/averageEnergy",
-        name="Outlet 2 Average Energy",
+        name="Outlet 2 Average Power", # fixed name from Average Energy
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -423,7 +423,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outlets/2/measures/activePower",
-        name="Outlet 2 Power",
+        name="Outlet 2 Active Power",
         icon="mdi:power-plug",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -497,7 +497,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outlets/3/measures/averageEnergy",
-        name="Outlet 3 Average Energy",
+        name="Outlet 3 Average Power", # fixed name from Average Energy
         icon="mdi:lightning-bolt",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
@@ -505,7 +505,7 @@ ENTITY_DESCRIPTIONS = (
     ),
     SensorEntityDescription(
         key="outlets/3/measures/activePower",
-        name="Outlet 3 Power",
+        name="Outlet 3 Active Power",
         icon="mdi:power-plug",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
