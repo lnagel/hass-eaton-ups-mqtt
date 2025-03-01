@@ -16,14 +16,14 @@ if TYPE_CHECKING:
 
 # Use Protocol to avoid circular imports
 class EatonUpsConfigEntry(ConfigEntry):
-    """Blueprint ConfigEntry with runtime data."""
+    """Eaton UPS ConfigEntry with runtime data."""
 
     runtime_data: EatonUpsData
 
 
 @dataclass
 class EatonUpsData:
-    """Data for the Blueprint integration."""
+    """Data for the Eaton UPS integration."""
 
     client: EatonUpsMqttClient
     coordinator: EatonUPSDataUpdateCoordinator
