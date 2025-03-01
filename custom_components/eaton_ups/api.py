@@ -19,6 +19,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     import aiohttp
 
+from .const import MQTT_CONNECTION_TIMEOUT
+
 logger = logging.getLogger(__name__)
 
 
