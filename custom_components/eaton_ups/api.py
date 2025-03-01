@@ -8,7 +8,6 @@ import json
 import logging
 import tempfile
 import uuid
-from collections.abc import Callable
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -17,6 +16,7 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     import aiohttp
 
 logger = logging.getLogger(__name__)
@@ -64,7 +64,9 @@ class EatonUpsMqttClient:
         self._update_callbacks = []  # Add this line to store callbacks
         self._loop = None  # Store the event loop
 
-    def subscribe_to_updates(self, callback: Callable[[dict], None]) -> Callable[[], None]:
+    def subscribe_to_updates(
+        self, callback: Callable[[dict[str, Any]], None]
+    ) -> Callable[[], None]:
         """
         Subscribe to data updates.
 
@@ -117,13 +119,14 @@ class EatonUpsMqttClient:
 
         # Wait for connection to establish
         attempts = 0
-        while not self._mqtt_connected and attempts < 10:
+        while not self._mqtt_connected and attempts < MQTT_CONNECTION_TIMEOUT:
             await asyncio.sleep(1)
             attempts += 1
 
         if not self._mqtt_connected:
             self._cleanup_temp_files()
-            raise EatonUpsClientCommunicationError(f"Failed to connect to MQTT broker at {self._host}:{self._port}")
+            error_msg = f"Failed to connect to MQTT broker at {self._host}:{self._port}"
+            raise EatonUpsClientCommunicationError(error_msg)
 
         # Subscribe to the topics
         self._mqtt_client.subscribe(
@@ -133,14 +136,14 @@ class EatonUpsMqttClient:
             ]
         )
 
-    def _setup_tls(self, ca_certs, certfile, keyfile):
+    def _setup_tls(self, ca_certs: str, certfile: str, keyfile: str) -> None:
         """Set up TLS with certificates - runs in executor."""
         self._mqtt_client.tls_set(
             ca_certs=ca_certs,
             certfile=certfile,
             keyfile=keyfile,
         )
-        self._mqtt_client.tls_insecure_set(False)
+        self._mqtt_client.tls_insecure_set(insecure=False)
 
     async def async_get_data(self) -> dict[str, Any]:
         """Get data from the MQTT broker."""
@@ -157,7 +160,9 @@ class EatonUpsMqttClient:
 
         # This is a placeholder for actual command sending
         # In a real implementation, you would publish to a specific topic
-        self._mqtt_client.publish("mbdetnrs/1.0/powerDistributions/1/command", json.dumps({"command": value}))
+        topic = "mbdetnrs/1.0/powerDistributions/1/command"
+        payload = json.dumps({"command": value})
+        self._mqtt_client.publish(topic, payload)
         return {"success": True}
 
     async def async_disconnect(self) -> None:
@@ -169,7 +174,7 @@ class EatonUpsMqttClient:
             self._mqtt_connected = False
             self._cleanup_temp_files()
 
-    def _on_connect(
+    def _on_connect(  # noqa: ARG002
         self,
         client: mqtt.Client,
         userdata: Any,
@@ -183,7 +188,7 @@ class EatonUpsMqttClient:
         else:
             self._mqtt_connected = False
 
-    def _on_disconnect(
+    def _on_disconnect(  # noqa: ARG002
         self,
         client: mqtt.Client,
         userdata: Any,
@@ -193,7 +198,12 @@ class EatonUpsMqttClient:
         """Handle disconnection."""
         self._mqtt_connected = False
 
-    def _on_message(self, client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage) -> None:
+    def _on_message(  # noqa: ARG002
+        self,
+        client: mqtt.Client,
+        userdata: Any,
+        msg: mqtt.MQTTMessage,
+    ) -> None:
         """Handle incoming messages."""
         try:
             topic = msg.topic
@@ -216,11 +226,11 @@ class EatonUpsMqttClient:
 
         except json.JSONDecodeError as e:
             # Just log the error and continue
-            logger.warning(f"Error decoding JSON in MQTT message: {e}")
+            logger.warning("Error decoding JSON in MQTT message: %s", e)
 
         except Exception as e:
             # Just log the error and continue
-            logger.error(f"Error processing MQTT message: {e}")
+            logger.exception("Error processing MQTT message")
 
     async def _create_temp_cert_files(self) -> list[str]:
         """Create temporary certificate files and return their paths."""
@@ -233,22 +243,19 @@ class EatonUpsMqttClient:
         temp_files = []
 
         # Server certificate
-        server_cert_file = tempfile.NamedTemporaryFile(delete=False)
-        server_cert_file.write(self._server_cert.encode())
-        server_cert_file.close()
-        temp_files.append(server_cert_file.name)
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as server_cert_file:
+            server_cert_file.write(self._server_cert.encode())
+            temp_files.append(server_cert_file.name)
 
         # Client certificate
-        client_cert_file = tempfile.NamedTemporaryFile(delete=False)
-        client_cert_file.write(self._client_cert.encode())
-        client_cert_file.close()
-        temp_files.append(client_cert_file.name)
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as client_cert_file:
+            client_cert_file.write(self._client_cert.encode())
+            temp_files.append(client_cert_file.name)
 
         # Client key
-        client_key_file = tempfile.NamedTemporaryFile(delete=False)
-        client_key_file.write(self._client_key.encode())
-        client_key_file.close()
-        temp_files.append(client_key_file.name)
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False) as client_key_file:
+            client_key_file.write(self._client_key.encode())
+            temp_files.append(client_key_file.name)
 
         return temp_files
 
