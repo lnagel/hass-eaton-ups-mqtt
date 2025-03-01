@@ -30,7 +30,8 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
   - Server certificate for the Network-M card
   - Client certificate and private key for authentication
   - These must be uploaded to the Network-M card's web interface
-- Home Assistant 2023.8.0 or newer
+- Home Assistant 2025.2.4 or newer
+- HACS 2.0.1 or newer
 
 ## Installation
 
