@@ -673,7 +673,7 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
                 # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
                 if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
                     return datetime.fromisoformat(value.replace("Z", "+00:00"))
-                else:
+                else:  # noqa: RET505
                     # Handle other potential timestamp formats as needed
                     return None
             except (ValueError, TypeError):
