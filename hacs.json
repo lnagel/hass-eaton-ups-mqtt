@@ -2,6 +2,5 @@
     "name": "Eaton UPS",
     "homeassistant": "2025.2.4",
     "hacs": "2.0.1",
-    "render_readme": true,
-    "domains": ["binary_sensor", "sensor", "switch"]
+    "render_readme": true
 }
