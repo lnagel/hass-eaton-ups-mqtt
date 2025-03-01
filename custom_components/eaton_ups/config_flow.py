@@ -42,7 +42,13 @@ HOST_SELECTOR = selector.TextSelector(
     ),
 )
 PORT_SELECTOR = vol.All(
-    selector.NumberSelector(selector.NumberSelectorConfig(mode=selector.NumberSelectorMode.BOX, min=1, max=65535)),
+    selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            mode=selector.NumberSelectorMode.BOX,
+            min=1,
+            max=65535,
+        )
+    ),
     vol.Coerce(int),
 )
 PEM_CERT_SELECTOR = selector.TextSelector(
@@ -164,7 +170,10 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_HOST,
                         default=current_state.get(CONF_HOST, vol.UNDEFINED),
                     ): HOST_SELECTOR,
-                    vol.Required(CONF_PORT, default=current_state.get(CONF_PORT, DEFAULT_PORT)): PORT_SELECTOR,
+                    vol.Required(
+                        CONF_PORT,
+                        default=current_state.get(CONF_PORT, DEFAULT_PORT),
+                    ): PORT_SELECTOR,
                     vol.Required(
                         CONF_SERVER_CERT,
                         default=current_state.get(CONF_SERVER_CERT, vol.UNDEFINED),
@@ -216,11 +225,11 @@ def try_connection(
     result: queue.Queue[bool] = queue.Queue(maxsize=1)
 
     def on_connect(
-        client_: mqtt.Client,
-        userdata: None,
-        flags: dict[str, Any],
+        _client: mqtt.Client,
+        _userdata: None,
+        _flags: dict[str, Any],
         result_code: int,
-        properties: mqtt.Properties | None = None,
+        _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle connection result."""
         result.put(result_code == mqtt.CONNACK_ACCEPTED)
@@ -228,11 +237,11 @@ def try_connection(
     client.on_connect = on_connect
 
     def on_connect_fail(
-        client_: mqtt.Client,
-        userdata: None,
+        _client: mqtt.Client,
+        _userdata: None,
     ) -> None:
         """Handle connection result."""
-        result.put(False)
+        result.put(item=False)
 
     client.on_connect_fail = on_connect_fail
 
@@ -251,10 +260,9 @@ def try_connection(
             certfile=client_cert_file.name,
             keyfile=client_key_file.name,
         )
-        client.tls_insecure_set(False)
+        client.tls_insecure_set(insecure=False)
         client.enable_logger(logger)
 
-        # client.connect(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
         client.connect_async(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
         client.loop_start()
 
@@ -268,6 +276,6 @@ def try_connection(
 
     finally:
         # Clean up temporary files
-        os.remove(server_cert_file.name)
-        os.remove(client_cert_file.name)
-        os.remove(client_key_file.name)
+        Path(server_cert_file.name).unlink()
+        Path(client_cert_file.name).unlink()
+        Path(client_key_file.name).unlink()
