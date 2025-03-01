@@ -255,8 +255,6 @@ class EatonUpsMqttClient:
     def _cleanup_temp_files(self) -> None:
         """Clean up temporary certificate files."""
         for file_path in self._temp_files:
-            try:
-                os.remove(file_path)
-            except Exception:
-                pass
+            with contextlib.suppress(Exception):
+                Path(file_path).unlink()
         self._temp_files = []
