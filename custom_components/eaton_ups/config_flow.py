@@ -74,7 +74,8 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Handle initial configuration flow.
+        """
+        Handle initial configuration flow.
 
         Prompts user for:
         - UPS Network-M2/M3 card hostname/IP
@@ -149,8 +150,9 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Handle reconfiguration flow.
-        
+        """
+        Handle reconfiguration flow.
+
         Allows updating connection settings for an existing integration instance.
         Reuses the same form as initial setup but preserves current values.
         """
@@ -206,8 +208,9 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def _test_credentials(
         self, host: str, port: str, server_cert: str, client_cert: str, client_key: str
     ) -> None:
-        """Validate MQTT connection credentials.
-        
+        """
+        Validate MQTT connection credentials.
+
         Tests connection to the UPS Network-M card using provided certificates.
         Raises appropriate exceptions for authentication or connection failures.
         """
@@ -228,8 +231,9 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 def try_connection(
     user_input: dict[str, Any],
 ) -> bool:
-    """Test MQTT connection to UPS Network-M card.
-    
+    """
+    Test MQTT connection to UPS Network-M card.
+
     Creates temporary certificate files and attempts MQTT connection.
     Returns True if connection succeeds within timeout period.
     """
