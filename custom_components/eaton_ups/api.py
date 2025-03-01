@@ -196,8 +196,9 @@ class EatonUpsMqttClient:
             data = json.loads(payload)
 
             # Store in the data dictionary using flat structure
-            # Note: Topics are stored as flat keys (e.g. "powerDistributions/1/status/health")
-            # rather than nested dictionaries
+            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data is stored without modifications.
+            # This will make it possible to use the storage key to make direct lookups in the data dictionary and
+            # provide more efficient callbacks to sensor updates.
             key = topic.removeprefix("mbdetnrs/1.0/")
             self._mqtt_data[key] = data
 
