@@ -71,7 +71,23 @@ Topic `mbdetnrs/1.0/protectionService/actions` contains the following:
 
 # Alarm services
 
-To be documented.
+There are two main alarm topics with prefix `mbdetnrs/1.0/alarmService/`.
+
+Topic `mbdetnrs/1.0/alarmService/activeAlarms` contains the following:
+
+```json
+{
+    "@id": "/mbdetnrs/1.0/alarmService/activeAlarms",
+    "members@count": 0,
+    "members": []
+}
+```
+
+Topic `mbdetnrs/1.0/alarmService/mostCritical` contains the following:
+
+```json
+{}
+```
 
 # Power Services
 
