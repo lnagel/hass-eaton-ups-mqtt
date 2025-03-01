@@ -7,6 +7,7 @@ import os
 import queue
 import tempfile
 import uuid
+from pathlib import Path
 from typing import Any
 
 import voluptuous as vol
