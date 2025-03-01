@@ -664,13 +664,18 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
                 return None
 
         # Convert string timestamps to datetime objects if this is a timestamp sensor
-        if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP and isinstance(value, str):
+        is_timestamp = (
+            self.entity_description.device_class == SensorDeviceClass.TIMESTAMP
+            and isinstance(value, str)
+        )
+        if is_timestamp:
             try:
                 # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
                 if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
                     return datetime.fromisoformat(value.replace("Z", "+00:00"))
-                # Handle other potential timestamp formats as needed
-                return None
+                else:
+                    # Handle other potential timestamp formats as needed
+                    return None
             except (ValueError, TypeError):
                 # If conversion fails, return None instead of the string
                 return None
