@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
-from .const import MQTT_CONNECTION_TIMEOUT
+from .const import MQTT_CONNECTION_ATTEMPTS
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -126,7 +126,7 @@ class EatonUpsMqttClient:
 
         # Wait for connection to establish
         attempts = 0
-        while not self._mqtt_connected and attempts < MQTT_CONNECTION_TIMEOUT:
+        while not self._mqtt_connected and attempts < MQTT_CONNECTION_ATTEMPTS:
             await asyncio.sleep(1)
             attempts += 1
 
