@@ -2,10 +2,26 @@
 
 A Home Assistant integration that connects to Eaton UPS devices via MQTT to monitor power status and battery levels. This integration provides:
 
-- Real-time monitoring of UPS status and measurements
-- Battery status and health information
-- Power input/output metrics
-- Binary sensors for fault conditions
+- Device Information
+  - Model, serial number, firmware details
+  - UPS operating mode and health status
+  - System alarms and fault conditions
+
+- Power Metrics
+  - Input/Output voltage, current, and frequency
+  - Active and apparent power measurements
+  - Power factor and load percentage
+  - Energy consumption statistics
+
+- Battery Information
+  - Charge level and remaining runtime
+  - Charging status and mode (e.g., ABM)
+  - Battery test results and health
+  - Installation and replacement dates
+
+- Environmental Monitoring
+  - Temperature status
+  - Fan and system alerts
 
 ## Requirements
 
