@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -220,10 +221,10 @@ class EatonUpsMqttClient:
             data = json.loads(payload)
 
             # Store in the data dictionary using flat structure
-            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data is stored
-            # without modifications. This will make it possible to use the storage key to make
-            # direct lookups in the data dictionary and provide more efficient callbacks to
-            # sensor updates.
+            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data
+            # is stored without modifications. This will make it possible to use the
+            # storage key to make direct lookups in the data dictionary and provide
+            # more efficient callbacks to sensor updates.
             key = topic.removeprefix("mbdetnrs/1.0/")
             self._mqtt_data[key] = data
 
