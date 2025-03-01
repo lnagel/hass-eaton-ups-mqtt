@@ -8,9 +8,9 @@ import json
 import logging
 import tempfile
 import uuid
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import paho.mqtt.client as mqtt
@@ -30,7 +30,7 @@ class EatonUpsMqttConfig:
     server_cert: str
     client_cert: str
     client_key: str
-    session: "aiohttp.ClientSession"
+    session: aiohttp.ClientSession
 
 from .const import MQTT_CONNECTION_TIMEOUT
 
@@ -220,9 +220,9 @@ class EatonUpsMqttClient:
             data = json.loads(payload)
 
             # Store in the data dictionary using flat structure
-            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data is stored 
-            # without modifications. This will make it possible to use the storage key to make 
-            # direct lookups in the data dictionary and provide more efficient callbacks to 
+            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data is stored
+            # without modifications. This will make it possible to use the storage key to make
+            # direct lookups in the data dictionary and provide more efficient callbacks to
             # sensor updates.
             key = topic.removeprefix("mbdetnrs/1.0/")
             self._mqtt_data[key] = data
