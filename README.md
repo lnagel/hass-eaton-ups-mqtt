@@ -1,12 +1,11 @@
 # Eaton UPS Integration for Home Assistant
 
-A Home Assistant integration that connects to Eaton UPS devices via MQTT to monitor power status, battery levels, and control UPS functions. This integration provides:
+A Home Assistant integration that connects to Eaton UPS devices via MQTT to monitor power status and battery levels. This integration provides:
 
 - Real-time monitoring of UPS status and measurements
 - Battery status and health information
 - Power input/output metrics
 - Binary sensors for fault conditions
-- Switches for controllable features
 
 ## Requirements
 
