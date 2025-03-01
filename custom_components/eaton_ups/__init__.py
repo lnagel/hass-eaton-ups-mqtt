@@ -21,7 +21,7 @@ from .data import EatonUpsData
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from .data import IntegrationBlueprintConfigEntry
+    from .data import EatonUpsConfigEntry
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
@@ -33,7 +33,7 @@ PLATFORMS: list[Platform] = [
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: IntegrationBlueprintConfigEntry,
+    entry: EatonUpsConfigEntry,
 ) -> bool:
     """Set up this integration using UI."""
     coordinator = EatonUPSDataUpdateCoordinator(
@@ -65,7 +65,7 @@ async def async_setup_entry(
 
 async def async_unload_entry(
     hass: HomeAssistant,
-    entry: IntegrationBlueprintConfigEntry,
+    entry: EatonUpsConfigEntry,
 ) -> bool:
     """Handle removal of an entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
@@ -73,7 +73,7 @@ async def async_unload_entry(
 
 async def async_reload_entry(
     hass: HomeAssistant,
-    entry: IntegrationBlueprintConfigEntry,
+    entry: EatonUpsConfigEntry,
 ) -> None:
     """Reload config entry."""
     await async_unload_entry(hass, entry)
