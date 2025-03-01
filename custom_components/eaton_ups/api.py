@@ -32,7 +32,6 @@ class EatonUpsMqttConfig:
     server_cert: str
     client_cert: str
     client_key: str
-    session: aiohttp.ClientSession
 
 logger = logging.getLogger(__name__)
 
@@ -56,14 +55,16 @@ class EatonUpsClientAuthenticationError(
 class EatonUpsMqttClient:
     """Eaton UPS MQTT API Client."""
 
-    def __init__(self, config: EatonUpsMqttConfig) -> None:
+    def __init__(
+            self, config: EatonUpsMqttConfig, session: aiohttp.ClientSession
+    ) -> None:
         """Initialize Eaton UPS MQTT client."""
         self._host = config.host
         self._port = int(config.port)
         self._server_cert = config.server_cert
         self._client_cert = config.client_cert
         self._client_key = config.client_key
-        self._session = config.session
+        self._session = session
         self._mqtt_client = None
         self._mqtt_connected = False
         self._mqtt_data = {}
@@ -150,7 +151,7 @@ class EatonUpsMqttClient:
             certfile=certfile,
             keyfile=keyfile,
         )
-        self._mqtt_client.tls_insecure_set(insecure=False)
+        self._mqtt_client.tls_insecure_set(value=False)
 
     async def async_get_data(self) -> dict[str, Any]:
         """Get data from the MQTT broker."""

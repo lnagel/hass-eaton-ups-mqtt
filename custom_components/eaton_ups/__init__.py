@@ -13,7 +13,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.loader import async_get_loaded_integration
 
-from .api import EatonUpsMqttClient
+from .api import EatonUpsMqttClient, EatonUpsMqttConfig
 from .const import CONF_CLIENT_CERT, CONF_CLIENT_KEY, CONF_SERVER_CERT, DOMAIN, LOGGER
 from .coordinator import EatonUPSDataUpdateCoordinator
 from .data import EatonUpsData
@@ -41,15 +41,15 @@ async def async_setup_entry(
         logger=LOGGER,
         name=DOMAIN,
     )
+    config=EatonUpsMqttConfig(
+        host=entry.data[CONF_HOST],
+        port=entry.data[CONF_PORT],
+        server_cert=entry.data[CONF_SERVER_CERT],
+        client_cert=entry.data[CONF_CLIENT_CERT],
+        client_key=entry.data[CONF_CLIENT_KEY],
+    )
     entry.runtime_data = EatonUpsData(
-        client=EatonUpsMqttClient(
-            host=entry.data[CONF_HOST],
-            port=entry.data[CONF_PORT],
-            server_cert=entry.data[CONF_SERVER_CERT],
-            client_cert=entry.data[CONF_CLIENT_CERT],
-            client_key=entry.data[CONF_CLIENT_KEY],
-            session=async_get_clientsession(hass),
-        ),
+        client=EatonUpsMqttClient(config=config, session=async_get_clientsession(hass)),
         integration=async_get_loaded_integration(hass, entry.domain),
         coordinator=coordinator,
     )

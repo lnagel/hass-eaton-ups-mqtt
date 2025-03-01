@@ -195,12 +195,15 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self, host: str, port: str, server_cert: str, client_cert: str, client_key: str
     ) -> None:
         """Validate credentials."""
-        client = EatonUpsMqttClient(
+        config = EatonUpsMqttClient(
             host=host,
             port=port,
             server_cert=server_cert,
             client_cert=client_cert,
             client_key=client_key,
+        )
+        client = EatonUpsMqttClient(
+            config=config,
             session=async_create_clientsession(self.hass),
         )
         await client.async_get_data()
