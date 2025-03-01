@@ -3,20 +3,21 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
-import os
 import tempfile
 import uuid
+from collections.abc import Callable
 from functools import partial
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import paho.mqtt.client as mqtt
+from paho.mqtt.client import MQTTv31
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     import aiohttp
-from paho.mqtt.client import MQTTv31
 
 logger = logging.getLogger(__name__)
 
