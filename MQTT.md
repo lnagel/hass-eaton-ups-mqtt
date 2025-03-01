@@ -30,7 +30,25 @@ Topic `mbdetnrs/1.0/managers/1/identification` contains the following:
 
 # Sensors
 
-To be documented.
+There are two main sensor topics with prefix `mbdetnrs/1.0/sensors/`.
+
+Topic `mbdetnrs/1.0/sensors/status` contains the following:
+
+```json
+{
+    "operating": 7,
+    "health": 5
+}
+```
+
+Topic `mbdetnrs/1.0/sensors/devices` contains the following:
+
+```json
+{
+    "members@count": 0,
+    "members": []
+}
+```
 
 # Protection services
 
