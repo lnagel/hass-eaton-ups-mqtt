@@ -32,7 +32,7 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
             return "Eaton UPS"
 
         # Try to find model information in the data
-        model = self.coordinator.data.get("device", {}).get("model")
+        model = self.coordinator.data.get("powerDistributions", {}).get("1", {}).get("identification", {}).get("model")
         if model:
             return model
 
@@ -44,7 +44,7 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
             return None
 
         # Try to find firmware information in the data
-        firmware = self.coordinator.data.get("device", {}).get("firmware")
+        firmware = self.coordinator.data.get("powerDistributions", {}).get("1", {}).get("identification", {}).get("firmwareVersion")
         if firmware:
             return firmware
 
