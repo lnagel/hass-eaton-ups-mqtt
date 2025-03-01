@@ -5,10 +5,10 @@
     "@lnagel"
   ],
   "config_flow": true,
+  "dependencies": ["mqtt"],
   "documentation": "https://github.com/lnagel/hass-eaton-ups",
-  "iot_class": "local_push",
   "integration_type": "device",
+  "iot_class": "local_push",
   "issue_tracker": "https://github.com/lnagel/hass-eaton-ups/issues",
-  "version": "0.1.0",
-  "dependencies": ["mqtt"]
+  "version": "0.1.0"
 }
