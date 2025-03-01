@@ -198,26 +198,24 @@ class EatonUpsMqttClient:
             # Store in the data dictionary
             topic_parts = topic.split("/")
 
-            # Skip the prefix parts (mbdetnrs/1.0)
+            # Only skip the MQTT API version prefix (mbdetnrs/1.0)
             if len(topic_parts) > 2 and topic_parts[0] == "mbdetnrs" and topic_parts[1] == "1.0":
-                # Extract the relevant parts of the topic
-                if topic_parts[2] == "powerDistributions" and len(topic_parts) > 3:
-                    # Skip the powerDistribution ID
-                    relevant_parts = topic_parts[4:]
+                # Keep everything after the version prefix
+                relevant_parts = topic_parts[2:]
 
-                    # Build the key path
-                    if len(relevant_parts) > 0:
-                        key_path = "/".join(relevant_parts)
+                # Build the key path
+                if len(relevant_parts) > 0:
+                    key_path = "/".join(relevant_parts)
 
-                        # Store the data at the appropriate path
-                        current_dict = self._mqtt_data
-                        for i, part in enumerate(relevant_parts[:-1]):
-                            if part not in current_dict:
-                                current_dict[part] = {}
-                            current_dict = current_dict[part]
+                    # Store the data at the appropriate path
+                    current_dict = self._mqtt_data
+                    for part in relevant_parts[:-1]:
+                        if part not in current_dict:
+                            current_dict[part] = {}
+                        current_dict = current_dict[part]
 
-                        # Store the actual data at the leaf node
-                        current_dict[relevant_parts[-1]] = data
+                    # Store the actual data at the leaf node
+                    current_dict[relevant_parts[-1]] = data
             else:
                 # Fallback for other topics
                 if len(topic_parts) > 1:

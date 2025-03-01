@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 ENTITY_DESCRIPTIONS = (
     # UPS Status
     BinarySensorEntityDescription(
-        key="status/bootloaderMode",
+        key="powerDistributions/1/status/bootloaderMode",
         name="Bootloader Mode",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),

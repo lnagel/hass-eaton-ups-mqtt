@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 ENTITY_DESCRIPTIONS = (
     # Power Distribution Identification
     SensorEntityDescription(
-        key="identification/model",
+        key="powerDistributions/1/identification/model",
         name="UPS Model",
         icon="mdi:information-outline",
     ),
