@@ -102,6 +102,7 @@ class EatonUpsMqttClient:
         # Create the MQTT client
         client_id = f"hass-eaton-ups-{mqtt.base62(uuid.uuid4().int, padding=10)}"
         self._mqtt_client = mqtt.Client(client_id=client_id, protocol=MQTTv31)
+        self._mqtt_client.reconnect_delay_set(min_delay=1, max_delay=30)
 
         # Set up callbacks
         self._mqtt_client.on_connect = self._on_connect
@@ -138,13 +139,8 @@ class EatonUpsMqttClient:
             error_msg = f"Failed to connect to MQTT broker at {self._host}:{self._port}"
             raise EatonUpsClientCommunicationError(error_msg)
 
-        # Subscribe to the topics
-        self._mqtt_client.subscribe(
-            topic=[
-                ("mbdetnrs/1.0/managers/#", 0),
-                ("mbdetnrs/1.0/powerDistributions/#", 0),
-            ]
-        )
+        # Initial subscription to topics
+        self._subscribe_to_topics()
 
     def _setup_tls(self, ca_certs: str, certfile: str, keyfile: str) -> None:
         """Set up TLS with certificates - runs in executor."""
@@ -184,6 +180,15 @@ class EatonUpsMqttClient:
             self._mqtt_connected = False
             self._cleanup_temp_files()
 
+    def _subscribe_to_topics(self) -> None:
+        """Subscribe to all required MQTT topics."""
+        self._mqtt_client.subscribe(
+            topic=[
+                ("mbdetnrs/1.0/managers/#", 0),
+                ("mbdetnrs/1.0/powerDistributions/#", 0),
+            ]
+        )
+
     def _on_connect(
         self,
         _client: mqtt.Client,
@@ -195,6 +200,8 @@ class EatonUpsMqttClient:
         """Handle connection callback."""
         if rc == 0:
             self._mqtt_connected = True
+            # Resubscribe to topics on reconnect
+            self._subscribe_to_topics()
         else:
             self._mqtt_connected = False
 
