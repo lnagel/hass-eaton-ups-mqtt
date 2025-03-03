@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
@@ -21,6 +21,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfTime,
 )
+from homeassistant.helpers.entity import EntityCategory
 
 from .entity import EatonUpsEntity
 
@@ -33,21 +34,196 @@ if TYPE_CHECKING:
 
 # Define base entity descriptions for non-dynamic entities
 BASE_ENTITY_DESCRIPTIONS = (
+    # Manager Identification
+    SensorEntityDescription(
+        key="managers/1/identification$firmwareVersion",
+        name="Manager Firmware Version",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$physicalName",
+        name="Manager Physical Name",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$uuid",
+        name="Manager UUID",
+        icon="mdi:identifier",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$vendor",
+        name="Manager Vendor",
+        icon="mdi:domain",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$product",
+        name="Manager Product",
+        icon="mdi:package-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$serialNumber",
+        name="Manager Serial Number",
+        icon="mdi:barcode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$type",
+        name="Manager Type",
+        icon="mdi:card-text-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$partNumber",
+        name="Manager Part Number",
+        icon="mdi:numeric",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$hwVersion",
+        name="Manager Hardware Version",
+        icon="mdi:chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$name",
+        name="Manager Name",
+        icon="mdi:account-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$contact",
+        name="Manager Contact",
+        icon="mdi:account-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$location",
+        name="Manager Location",
+        icon="mdi:map-marker-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$firmwareInstallationDate",
+        name="Manager Firmware Installation Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$firmwareActivationDate",
+        name="Manager Firmware Activation Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$firmwareDate",
+        name="Manager Firmware Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$firmwareSha",
+        name="Manager Firmware SHA",
+        icon="mdi:checkbox-marked-circle-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$bootloaderVersion",
+        name="Manager Bootloader Version",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$manufacturer",
+        name="Manager Manufacturer",
+        icon="mdi:factory",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="managers/1/identification$macAddress",
+        name="Manager MAC Address",
+        icon="mdi:ethernet",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
     # Power Distribution Identification
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$uuid",
+        name="UPS UUID",
+        icon="mdi:identifier",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$physicalName",
+        name="UPS Physical Name",
+        icon="mdi:label-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$friendlyName",
+        name="UPS Friendly Name",
+        icon="mdi:label-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$partNumber",
+        name="UPS Part Number",
+        icon="mdi:numeric",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$referenceNumber",
+        name="UPS Reference Number",
+        icon="mdi:numeric-9-plus-box-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$vendor",
+        name="UPS Vendor",
+        icon="mdi:domain",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
     SensorEntityDescription(
         key="powerDistributions/1/identification$model",
         name="UPS Model",
         icon="mdi:information-outline",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/identification$firmwareVersion",
-        name="UPS Firmware Version",
-        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/identification$serialNumber",
         name="UPS Serial Number",
         icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$type",
+        name="UPS Type",
+        icon="mdi:card-text-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$productName",
+        name="UPS Product Name",
+        icon="mdi:package-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$firmwareVersion",
+        name="UPS Firmware Version",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$name",
+        name="UPS Name",
+        icon="mdi:label-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     # Power Distribution Status
     SensorEntityDescription(
@@ -110,17 +286,20 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/backupSystem/powerBank/specifications$externalCount",
         name="Backup External Count",
         icon="mdi:battery-multiple",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$technology",
         name="Backup Technology",
         icon="mdi:battery-heart-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$capacityAh/nominal",
         name="Backup Nominal Capacity",
         icon="mdi:battery-charging",
         native_unit_of_measurement="Ah",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$voltage/nominal",
@@ -128,6 +307,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:flash",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     # Backup System - Power Bank Status
     SensorEntityDescription(
@@ -189,11 +369,21 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/settings$audibleAlarm",
         name="Audible Alarm",
         icon="mdi:volume-high",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/settings$nominalVoltage",
+        name="Nominal Voltage",
+        icon="mdi:flash-alert",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/settings$sensitivityMode",
         name="Sensitivity Mode",
         icon="mdi:tune",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/settings$voltageHighDetection",
@@ -201,6 +391,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:flash-alert",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/settings$voltageLowDetection",
@@ -208,6 +399,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:flash-alert",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )
 
@@ -522,26 +714,31 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         # Navigate through the data structure
         value = self.coordinator.data.get(topic, {})
         for part in lookup_parts:
-            if isinstance(value, dict) and part in value:
-                value = value[part]
-            else:
+            if not (isinstance(value, dict) and part in value):
                 return None
+            value = value[part]
 
-        # Convert string timestamps to datetime objects if this is a timestamp sensor
-        is_timestamp = (
-            self.entity_description.device_class == SensorDeviceClass.TIMESTAMP
-            and isinstance(value, str)
-        )
-        if is_timestamp:
-            try:
-                # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
-                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value.replace("Z", "+00:00"))
-                else:  # noqa: RET505
-                    # Handle other potential timestamp formats as needed
-                    return None
-            except (ValueError, TypeError):
-                # If conversion fails, return None instead of the string
-                return None
+        # Handle timestamp conversions if needed
+        if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
+            return self._convert_timestamp(value)
 
         return value
+
+    def _convert_timestamp(self, value: Any) -> datetime | None:
+        """Convert value to timestamp if possible."""
+        if isinstance(value, int):
+            # Handle Unix timestamp (e.g., 1738146293)
+            try:
+                return datetime.fromtimestamp(value, tz=UTC)
+            except (ValueError, TypeError, OSError):
+                return None
+
+        if isinstance(value, str):
+            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
+            try:
+                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
+                    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            except (ValueError, TypeError):
+                pass
+
+        return None
