@@ -6,7 +6,7 @@ from typing import Final
 LOGGER: Logger = getLogger(__package__)
 
 DOMAIN = "eaton_ups"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
+ATTRIBUTION = "Data provided by Eaton UPS"
 
 CONF_SERVER_CERT: Final = "server_cert"
 CONF_CLIENT_KEY: Final = "client_key"
