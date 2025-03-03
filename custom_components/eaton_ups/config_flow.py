@@ -161,12 +161,14 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         _errors = {}
         if user_input is not None:
-            can_connect = await self.hass.async_add_executor_job(
+            identification = await self.hass.async_add_executor_job(
                 try_connection,
                 user_input,
             )
 
-            if can_connect:
+            if identification and "macAddress" in identification:
+                await self.async_set_unique_id(identification["macAddress"])
+                self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=user_input[CONF_HOST],
                     data=user_input,
@@ -230,15 +232,16 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
 def try_connection(
     user_input: dict[str, Any],
-) -> bool:
+) -> dict[str, Any] | None:
     """
-    Test MQTT connection to UPS Network-M card.
+    Test MQTT connection to UPS Network-M card and get identification data.
 
     Creates temporary certificate files and attempts MQTT connection.
-    Returns True if connection succeeds within timeout period.
+    Returns the identification data if connection succeeds, None otherwise.
     """
     # We don't import on the top because some integrations
     # should be able to optionally rely on MQTT.
+    import json
     import paho.mqtt.client as mqtt  # pylint: disable=import-outside-toplevel
     from homeassistant.components.mqtt.async_client import AsyncMQTTClient
 
@@ -249,26 +252,46 @@ def try_connection(
         reconnect_on_failure=False,
     )
 
-    result: queue.Queue[bool] = queue.Queue(maxsize=1)
+    result: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=1)
+    identification_received = False
 
     def on_connect(
-        _client: mqtt.Client,
+        client: mqtt.Client,
         _userdata: None,
         _flags: dict[str, Any],
         result_code: int,
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle connection result."""
-        result.put(result_code == mqtt.CONNACK_ACCEPTED)
+        if result_code == mqtt.CONNACK_ACCEPTED:
+            client.subscribe("mbdetnrs/1.0/managers/1/identification")
+        else:
+            result.put(None)
+
+    def on_message(
+        _client: mqtt.Client,
+        _userdata: None,
+        msg: mqtt.MQTTMessage,
+    ) -> None:
+        """Handle received messages."""
+        nonlocal identification_received
+        if msg.topic == "mbdetnrs/1.0/managers/1/identification":
+            try:
+                identification = json.loads(msg.payload)
+                result.put(identification)
+                identification_received = True
+            except json.JSONDecodeError:
+                result.put(None)
 
     client.on_connect = on_connect
+    client.on_message = on_message
 
     def on_connect_fail(
         _client: mqtt.Client,
         _userdata: None,
     ) -> None:
-        """Handle connection result."""
-        result.put(item=False)
+        """Handle connection failure."""
+        result.put(None)
 
     client.on_connect_fail = on_connect_fail
 
@@ -294,9 +317,12 @@ def try_connection(
         client.loop_start()
 
         try:
-            return result.get(timeout=MQTT_TIMEOUT)
+            identification = result.get(timeout=MQTT_TIMEOUT)
+            if not identification_received:
+                return None
+            return identification
         except queue.Empty:
-            return False
+            return None
         finally:
             client.disconnect()
             client.loop_stop()
