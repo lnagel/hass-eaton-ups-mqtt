@@ -641,26 +641,31 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         # Navigate through the data structure
         value = self.coordinator.data.get(topic, {})
         for part in lookup_parts:
-            if isinstance(value, dict) and part in value:
-                value = value[part]
-            else:
+            if not (isinstance(value, dict) and part in value):
                 return None
+            value = value[part]
 
-        # Convert timestamps to datetime objects if this is a timestamp sensor
+        # Handle timestamp conversions if needed
         if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
-            if isinstance(value, int):
-                # Handle Unix timestamp (e.g., 1738146293)
-                try:
-                    return datetime.fromtimestamp(value, tz=UTC)
-                except (ValueError, TypeError, OSError):
-                    return None
-            elif isinstance(value, str):
-                # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
-                try:
-                    if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-                except (ValueError, TypeError):
-                    return None
-            return None
+            return self._convert_timestamp(value)
 
         return value
+
+    def _convert_timestamp(self, value: Any) -> datetime | None:
+        """Convert value to timestamp if possible."""
+        if isinstance(value, int):
+            # Handle Unix timestamp (e.g., 1738146293)
+            try:
+                return datetime.fromtimestamp(value, tz=UTC)
+            except (ValueError, TypeError, OSError):
+                return None
+
+        if isinstance(value, str):
+            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
+            try:
+                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
+                    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            except (ValueError, TypeError):
+                pass
+
+        return None
