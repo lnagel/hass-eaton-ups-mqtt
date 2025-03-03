@@ -105,17 +105,19 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
-                await self.async_set_unique_id(
-                    ## Do NOT use this in production code
-                    ## The unique_id should never be something that can change
-                    ## https://developers.home-assistant.io/docs/config_entries_config_flow_handler#unique-ids
-                    unique_id=slugify(user_input[CONF_HOST])
+                identification = await self.hass.async_add_executor_job(
+                    try_connection,
+                    user_input,
                 )
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=user_input[CONF_HOST],
-                    data=user_input,
-                )
+
+                if identification and "macAddress" in identification:
+                    await self.async_set_unique_id(identification["macAddress"])
+                    self._abort_if_unique_id_configured()
+                    return self.async_create_entry(
+                        title=user_input[CONF_HOST],
+                        data=user_input,
+                    )
+                _errors["base"] = "cannot_connect"
 
         return self.async_show_form(
             step_id="user",
