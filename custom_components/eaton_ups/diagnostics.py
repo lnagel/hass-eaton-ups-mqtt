@@ -4,11 +4,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from homeassistant.components.diagnostics import async_redact_data
+
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from . import EatonUpsConfigEntry
+    from . import (
+        CONF_CLIENT_CERT,
+        CONF_CLIENT_KEY,
+        CONF_SERVER_CERT,
+        EatonUpsConfigEntry,
+    )
     from .coordinator import EatonUPSDataUpdateCoordinator
+
+CONF_TO_REDACT = {CONF_SERVER_CERT, CONF_CLIENT_KEY, CONF_CLIENT_CERT}
+DATA_TO_REDACT = {"serialNumber", "macAddress"}
 
 
 async def async_get_config_entry_diagnostics(
@@ -19,5 +29,6 @@ async def async_get_config_entry_diagnostics(
     coordinator: EatonUPSDataUpdateCoordinator = config_entry.runtime_data.coordinator
 
     return {
-        "coordinator_data": coordinator.data, # MQTT topics with data from the coordinator (without version prefix)
+        "config_entry": async_redact_data(config_entry.as_dict(), CONF_TO_REDACT),
+        "coordinator_data": async_redact_data(coordinator.data, DATA_TO_REDACT),
     }
