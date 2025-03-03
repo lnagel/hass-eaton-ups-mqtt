@@ -53,6 +53,9 @@ async def async_setup_entry(
         coordinator=coordinator,
     )
 
+    # Store coordinator in hass.data
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+
     # Use the standard refresh method
     await coordinator.async_config_entry_first_refresh()
 
