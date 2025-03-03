@@ -157,16 +157,19 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/identification$model",
         name="UPS Model",
         icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/identification$firmwareVersion",
         name="UPS Firmware Version",
         icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/identification$serialNumber",
         name="UPS Serial Number",
         icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     # Power Distribution Status
     SensorEntityDescription(
