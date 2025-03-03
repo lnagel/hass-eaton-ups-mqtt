@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 
+
 def _generate_input_descriptions(input_num: int) -> tuple[SensorEntityDescription, ...]:
     """Generate sensor descriptions for a specific input."""
     return (
