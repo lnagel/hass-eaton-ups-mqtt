@@ -191,37 +191,6 @@ BASE_ENTITY_DESCRIPTIONS = (
         name="Temperature Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    # Outlet Status
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$supply",
-        name="Outlet 1 Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$switchedOn",
-        name="Outlet 1 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$supply",
-        name="Outlet 2 Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$switchedOn",
-        name="Outlet 2 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$supply",
-        name="Outlet 3 Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$switchedOn",
-        name="Outlet 3 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
 )
 
 
