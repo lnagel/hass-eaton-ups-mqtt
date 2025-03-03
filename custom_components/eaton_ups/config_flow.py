@@ -15,13 +15,13 @@ from homeassistant.config_entries import SOURCE_RECONFIGURE
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
-from slugify import slugify
 
 from .api import (
     EatonUpsClientAuthenticationError,
     EatonUpsClientCommunicationError,
     EatonUpsClientError,
-    EatonUpsMqttClient, EatonUpsMqttConfig,
+    EatonUpsMqttClient,
+    EatonUpsMqttConfig,
 )
 from .const import (
     CONF_CLIENT_CERT,
@@ -175,13 +175,12 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         data=user_input,
                     )
                     return self.async_abort(reason="reauth_successful")
-                else:
-                    await self.async_set_unique_id(identification["macAddress"])
-                    self._abort_if_unique_id_configured()
-                    return self.async_create_entry(
-                        title=user_input[CONF_HOST],
-                        data=user_input,
-                    )
+                await self.async_set_unique_id(identification["macAddress"])
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title=user_input[CONF_HOST],
+                    data=user_input,
+                )
 
             _errors["base"] = "cannot_connect"
 
@@ -251,6 +250,7 @@ def try_connection(
     # We don't import on the top because some integrations
     # should be able to optionally rely on MQTT.
     import json
+
     import paho.mqtt.client as mqtt  # pylint: disable=import-outside-toplevel
     from homeassistant.components.mqtt.async_client import AsyncMQTTClient
 
