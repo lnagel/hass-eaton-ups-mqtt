@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from homeassistant.core import HomeAssistant
-
-from . import EatonUpsConfigEntry
-from .coordinator import EatonUPSDataUpdateCoordinator
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from . import EatonUpsConfigEntry
+    from .coordinator import EatonUPSDataUpdateCoordinator
 
 
 async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, config_entry: EatonUpsConfigEntry
+    _hass: HomeAssistant,  # noqa: ARG001
+    config_entry: EatonUpsConfigEntry,
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
     coordinator: EatonUPSDataUpdateCoordinator = config_entry.runtime_data.coordinator
@@ -42,5 +43,5 @@ async def async_get_config_entry_diagnostics(
             "bootloader_version": manager_data.get("bootloaderVersion"),
             "manufacturer": manager_data.get("manufacturer"),
             "mac_address": manager_data.get("macAddress"),
-        }
+        },
     }
