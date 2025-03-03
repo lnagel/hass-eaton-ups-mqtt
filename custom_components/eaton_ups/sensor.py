@@ -90,9 +90,39 @@ BASE_ENTITY_DESCRIPTIONS = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
-        key="managers/1/identification$name",
-        name="Manager Name",
+        key="powerDistributions/1/identification$name",
+        name="UPS Name",
         icon="mdi:label-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$partNumber",
+        name="UPS Part Number",
+        icon="mdi:numeric",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$referenceNumber",
+        name="UPS Reference Number",
+        icon="mdi:numeric-9-plus-box-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$vendor",
+        name="UPS Vendor",
+        icon="mdi:domain",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$productName",
+        name="UPS Product Name",
+        icon="mdi:package-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/identification$type",
+        name="UPS Type",
+        icon="mdi:card-text-outline",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
