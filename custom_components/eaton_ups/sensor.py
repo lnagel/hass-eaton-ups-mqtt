@@ -139,7 +139,7 @@ def get_entity_descriptions(
     for input_num in range(1, 10):  # Check reasonable range
         if any(
             key.startswith(f"powerDistributions/1/inputs/{input_num}/")
-            for key in coordinator.data.keys()
+            for key in coordinator.data
         ):
             descriptions.extend(_generate_input_descriptions(input_num))
 
@@ -147,7 +147,7 @@ def get_entity_descriptions(
     for output_num in range(1, 10):
         if any(
             key.startswith(f"powerDistributions/1/outputs/{output_num}/")
-            for key in coordinator.data.keys()
+            for key in coordinator.data
         ):
             descriptions.extend(_generate_output_descriptions(output_num))
 
@@ -155,7 +155,7 @@ def get_entity_descriptions(
     for outlet_num in range(1, 10):
         if any(
             key.startswith(f"powerDistributions/1/outlets/{outlet_num}/")
-            for key in coordinator.data.keys()
+            for key in coordinator.data
         ):
             descriptions.extend(_generate_outlet_descriptions(outlet_num))
 

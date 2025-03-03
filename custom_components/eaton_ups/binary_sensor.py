@@ -2,12 +2,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
-    BinarySensorEntity,
-    BinarySensorEntityDescription,
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass,
+)
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfFrequency,
+    UnitOfPower,
+    UnitOfTime,
 )
 
 from .entity import EatonUpsEntity
@@ -305,7 +315,7 @@ def get_binary_entity_descriptions(
     for input_num in range(1, 10):  # Check reasonable range
         if any(
             key.startswith(f"powerDistributions/1/inputs/{input_num}/")
-            for key in coordinator.data.keys()
+            for key in coordinator.data
         ):
             descriptions.extend(_generate_input_binary_descriptions(input_num))
 
@@ -313,7 +323,7 @@ def get_binary_entity_descriptions(
     for outlet_num in range(1, 10):
         if any(
             key.startswith(f"powerDistributions/1/outlets/{outlet_num}/")
-            for key in coordinator.data.keys()
+            for key in coordinator.data
         ):
             descriptions.extend(_generate_outlet_binary_descriptions(outlet_num))
 
