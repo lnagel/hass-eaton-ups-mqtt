@@ -21,7 +21,7 @@ from .api import (
     EatonUpsClientAuthenticationError,
     EatonUpsClientCommunicationError,
     EatonUpsClientError,
-    EatonUpsMqttClient,
+    EatonUpsMqttClient, EatonUpsMqttConfig,
 )
 from .const import (
     CONF_CLIENT_CERT,
@@ -225,7 +225,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         Tests connection to the UPS Network-M card using provided certificates.
         Raises appropriate exceptions for authentication or connection failures.
         """
-        config = EatonUpsMqttClient(
+        config = EatonUpsMqttConfig(
             host=host,
             port=port,
             server_cert=server_cert,
