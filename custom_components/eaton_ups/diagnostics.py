@@ -18,9 +18,6 @@ async def async_get_config_entry_diagnostics(
     """Return diagnostics for a config entry."""
     coordinator: EatonUPSDataUpdateCoordinator = config_entry.runtime_data.coordinator
 
-    # Get manager identification data from coordinator
-    manager_identification = coordinator.data.get("managers/1/identification", {})
-
     return {
-        "manager_identification": manager_identification,
+        "coordinator_data": coordinator.data, # MQTT topics with data from the coordinator (without version prefix)
     }
