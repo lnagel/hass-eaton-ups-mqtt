@@ -309,7 +309,7 @@ def try_connection(
             certfile=client_cert_file.name,
             keyfile=client_key_file.name,
         )
-        client.tls_insecure_set(insecure=False)
+        client.tls_insecure_set(value=False)
         client.enable_logger(logger)
 
         client.connect_async(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
