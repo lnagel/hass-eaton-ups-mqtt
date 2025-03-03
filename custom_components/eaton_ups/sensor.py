@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
@@ -650,9 +650,8 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
             if isinstance(value, int):
                 # Handle Unix timestamp (e.g., 1738146293)
-                from datetime import timezone
                 try:
-                    return datetime.fromtimestamp(value, tz=timezone.utc)
+                    return datetime.fromtimestamp(value, tz=UTC)
                 except (ValueError, TypeError, OSError):
                     return None
             elif isinstance(value, str):
