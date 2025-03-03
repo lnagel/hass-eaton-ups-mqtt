@@ -3,17 +3,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
+from . import EatonUpsConfigEntry
 from .const import DOMAIN
 from .coordinator import EatonUPSDataUpdateCoordinator
 
 async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: ConfigEntry
+    hass: HomeAssistant, config_entry: EatonUpsConfigEntry
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    coordinator: EatonUPSDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: EatonUPSDataUpdateCoordinator = config_entry.runtime_data.coordinator
 
     # Get manager identification data from coordinator
     # The path matches the MQTT topic structure from the documentation
