@@ -31,8 +31,8 @@ if TYPE_CHECKING:
     from .coordinator import EatonUPSDataUpdateCoordinator
     from .data import EatonUpsConfigEntry
 
-# Define entity descriptions grouped according to MQTT API structure
-ENTITY_DESCRIPTIONS = (
+# Define base entity descriptions for non-dynamic entities
+BASE_ENTITY_DESCRIPTIONS = (
     # Power Distribution Identification
     SensorEntityDescription(
         key="powerDistributions/1/identification$model",
@@ -48,117 +48,6 @@ ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/identification$serialNumber",
         name="UPS Serial Number",
         icon="mdi:information-outline",
-    ),
-    # Power Distribution Input Measures
-    SensorEntityDescription(
-        key="powerDistributions/1/inputs/1/measures$voltage",
-        name="Input Voltage",
-        icon="mdi:flash",
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/inputs/1/measures$frequency",
-        name="Input Frequency",
-        icon="mdi:sine-wave",
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.FREQUENCY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/inputs/1/measures$current",
-        name="Input Current",
-        icon="mdi:current-ac",
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.CURRENT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    # Power Distribution Output Measures
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$voltage",
-        name="Output Voltage",
-        icon="mdi:flash",
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$frequency",
-        name="Output Frequency",
-        icon="mdi:sine-wave",
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.FREQUENCY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$current",
-        name="Output Current",
-        icon="mdi:current-ac",
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.CURRENT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$activePower",
-        name="Output Active Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$apparentPower",
-        name="Output Apparent Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement="VA",
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$percentLoad",
-        name="Output Load",
-        icon="mdi:gauge",
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$powerFactor",
-        name="Output Power Factor",
-        icon="mdi:sine-wave",
-        suggested_display_precision=2,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$efficiency",
-        name="Output Efficiency",
-        icon="mdi:lightning-bolt-outline",
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    # Output Energy
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$cumulatedEnergy",
-        name="Output Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        suggested_display_precision=3,
-        suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outputs/1/measures$averageEnergy",
-        name="Output Average Power",  # fixed name from Average Energy
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
     ),
     # Power Distribution Status
     SensorEntityDescription(
@@ -320,299 +209,266 @@ ENTITY_DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
     ),
-    # Power Distribution - Outlet 1 Measures
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$cumulatedEnergy",
-        name="Outlet 1 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        suggested_display_precision=3,
-        suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$averageEnergy",
-        name="Outlet 1 Average Power",  # fixed name from Average Energy
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$activePower",
-        name="Outlet 1 Active Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$apparentPower",
-        name="Outlet 1 Apparent Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement="VA",
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$current",
-        name="Outlet 1 Current",
-        icon="mdi:current-ac",
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.CURRENT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$frequency",
-        name="Outlet 1 Frequency",
-        icon="mdi:sine-wave",
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.FREQUENCY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$voltage",
-        name="Outlet 1 Voltage",
-        icon="mdi:flash",
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/measures$powerFactor",
-        name="Outlet 1 Power Factor",
-        icon="mdi:sine-wave",
-        suggested_display_precision=2,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$delayBeforeSwitchOff",
-        name="Outlet 1 Delay Before Switch Off",
-        icon="mdi:timer-off-outline",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
-        device_class=SensorDeviceClass.DURATION,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$delayBeforeSwitchOn",
-        name="Outlet 1 Delay Before Switch On",
-        icon="mdi:timer-outline",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
-        device_class=SensorDeviceClass.DURATION,
-    ),
-    # Power Distribution - Outlet 2 Measures
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$cumulatedEnergy",
-        name="Outlet 2 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        suggested_display_precision=3,
-        suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$averageEnergy",
-        name="Outlet 2 Average Power",  # fixed name from Average Energy
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$activePower",
-        name="Outlet 2 Active Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$apparentPower",
-        name="Outlet 2 Apparent Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement="VA",
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$current",
-        name="Outlet 2 Current",
-        icon="mdi:current-ac",
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.CURRENT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$frequency",
-        name="Outlet 2 Frequency",
-        icon="mdi:sine-wave",
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.FREQUENCY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$voltage",
-        name="Outlet 2 Voltage",
-        icon="mdi:flash",
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/measures$powerFactor",
-        name="Outlet 2 Power Factor",
-        icon="mdi:sine-wave",
-        suggested_display_precision=2,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$delayBeforeSwitchOff",
-        name="Outlet 2 Delay Before Switch Off",
-        icon="mdi:timer-off-outline",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
-        device_class=SensorDeviceClass.DURATION,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$delayBeforeSwitchOn",
-        name="Outlet 2 Delay Before Switch On",
-        icon="mdi:timer-outline",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
-        device_class=SensorDeviceClass.DURATION,
-    ),
-    # Power Distribution - Outlet 3 Measures
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$cumulatedEnergy",
-        name="Outlet 3 Energy",
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
-        suggested_display_precision=3,
-        suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$averageEnergy",
-        name="Outlet 3 Average Power",  # fixed name from Average Energy
-        icon="mdi:lightning-bolt",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$activePower",
-        name="Outlet 3 Active Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement=UnitOfPower.WATT,
-        device_class=SensorDeviceClass.POWER,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$apparentPower",
-        name="Outlet 3 Apparent Power",
-        icon="mdi:power-plug",
-        native_unit_of_measurement="VA",
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$current",
-        name="Outlet 3 Current",
-        icon="mdi:current-ac",
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.CURRENT,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$frequency",
-        name="Outlet 3 Frequency",
-        icon="mdi:sine-wave",
-        native_unit_of_measurement=UnitOfFrequency.HERTZ,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.FREQUENCY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$voltage",
-        name="Outlet 3 Voltage",
-        icon="mdi:flash",
-        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-        suggested_display_precision=1,
-        device_class=SensorDeviceClass.VOLTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/measures$powerFactor",
-        name="Outlet 3 Power Factor",
-        icon="mdi:sine-wave",
-        suggested_display_precision=2,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$delayBeforeSwitchOff",
-        name="Outlet 3 Delay Before Switch Off",
-        icon="mdi:timer-off-outline",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
-        device_class=SensorDeviceClass.DURATION,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$delayBeforeSwitchOn",
-        name="Outlet 3 Delay Before Switch On",
-        icon="mdi:timer-outline",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
-        device_class=SensorDeviceClass.DURATION,
-    ),
-    # Power Distribution - Outlet Status
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$operating",
-        name="Outlet 1 Operating Status",
-        icon="mdi:power-settings",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$health",
-        name="Outlet 1 Health",
-        icon="mdi:heart-pulse",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$supplierPowerQuality",
-        name="Outlet 1 Power Quality",
-        icon="mdi:power-plug",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$operating",
-        name="Outlet 2 Operating Status",
-        icon="mdi:power-settings",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$health",
-        name="Outlet 2 Health",
-        icon="mdi:heart-pulse",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$supplierPowerQuality",
-        name="Outlet 2 Power Quality",
-        icon="mdi:power-plug",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$operating",
-        name="Outlet 3 Operating Status",
-        icon="mdi:power-settings",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$health",
-        name="Outlet 3 Health",
-        icon="mdi:heart-pulse",
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$supplierPowerQuality",
-        name="Outlet 3 Power Quality",
-        icon="mdi:power-plug",
-    ),
 )
+
+
+def _generate_input_descriptions(input_num: int) -> tuple[SensorEntityDescription, ...]:
+    """Generate sensor descriptions for a specific input."""
+    return (
+        SensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/measures$voltage",
+            name=f"Input {input_num} Voltage",
+            icon="mdi:flash",
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.VOLTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/measures$frequency",
+            name=f"Input {input_num} Frequency",
+            icon="mdi:sine-wave",
+            native_unit_of_measurement=UnitOfFrequency.HERTZ,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.FREQUENCY,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/measures$current",
+            name=f"Input {input_num} Current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    )
+
+
+def _generate_output_descriptions(
+    output_num: int,
+) -> tuple[SensorEntityDescription, ...]:
+    """Generate sensor descriptions for a specific output."""
+    return (
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$voltage",
+            name=f"Output {output_num} Voltage",
+            icon="mdi:flash",
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.VOLTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$frequency",
+            name=f"Output {output_num} Frequency",
+            icon="mdi:sine-wave",
+            native_unit_of_measurement=UnitOfFrequency.HERTZ,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.FREQUENCY,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$current",
+            name=f"Output {output_num} Current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$activePower",
+            name=f"Output {output_num} Active Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement=UnitOfPower.WATT,
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$apparentPower",
+            name=f"Output {output_num} Apparent Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement="VA",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$percentLoad",
+            name=f"Output {output_num} Load",
+            icon="mdi:gauge",
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$powerFactor",
+            name=f"Output {output_num} Power Factor",
+            icon="mdi:sine-wave",
+            suggested_display_precision=2,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$efficiency",
+            name=f"Output {output_num} Efficiency",
+            icon="mdi:lightning-bolt-outline",
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$cumulatedEnergy",
+            name=f"Output {output_num} Energy",
+            icon="mdi:lightning-bolt",
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+            suggested_display_precision=3,
+            suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+            device_class=SensorDeviceClass.ENERGY,
+            state_class=SensorStateClass.TOTAL_INCREASING,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$averageEnergy",
+            name=f"Output {output_num} Average Power",  # fixed name from Average Energy
+            icon="mdi:lightning-bolt",
+            native_unit_of_measurement=UnitOfPower.WATT,
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    )
+
+
+def _generate_outlet_descriptions(
+    outlet_num: int,
+) -> tuple[SensorEntityDescription, ...]:
+    """Generate sensor descriptions for a specific outlet."""
+    return (
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$cumulatedEnergy",
+            name=f"Outlet {outlet_num} Energy",
+            icon="mdi:lightning-bolt",
+            native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+            suggested_display_precision=3,
+            suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+            device_class=SensorDeviceClass.ENERGY,
+            state_class=SensorStateClass.TOTAL_INCREASING,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$averageEnergy",
+            name=f"Outlet {outlet_num} Average Power",  # fixed name from Average Energy
+            icon="mdi:lightning-bolt",
+            native_unit_of_measurement=UnitOfPower.WATT,
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$activePower",
+            name=f"Outlet {outlet_num} Active Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement=UnitOfPower.WATT,
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$apparentPower",
+            name=f"Outlet {outlet_num} Apparent Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement="VA",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$current",
+            name=f"Outlet {outlet_num} Current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$frequency",
+            name=f"Outlet {outlet_num} Frequency",
+            icon="mdi:sine-wave",
+            native_unit_of_measurement=UnitOfFrequency.HERTZ,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.FREQUENCY,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$voltage",
+            name=f"Outlet {outlet_num} Voltage",
+            icon="mdi:flash",
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.VOLTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$powerFactor",
+            name=f"Outlet {outlet_num} Power Factor",
+            icon="mdi:sine-wave",
+            suggested_display_precision=2,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$delayBeforeSwitchOff",
+            name=f"Outlet {outlet_num} Delay Before Switch Off",
+            icon="mdi:timer-off-outline",
+            native_unit_of_measurement=UnitOfTime.SECONDS,
+            device_class=SensorDeviceClass.DURATION,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$delayBeforeSwitchOn",
+            name=f"Outlet {outlet_num} Delay Before Switch On",
+            icon="mdi:timer-outline",
+            native_unit_of_measurement=UnitOfTime.SECONDS,
+            device_class=SensorDeviceClass.DURATION,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$operating",
+            name=f"Outlet {outlet_num} Operating Status",
+            icon="mdi:power-settings",
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$health",
+            name=f"Outlet {outlet_num} Health",
+            icon="mdi:heart-pulse",
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$supplierPowerQuality",
+            name=f"Outlet {outlet_num} Power Quality",
+            icon="mdi:power-plug",
+        ),
+    )
+
+
+def get_entity_descriptions(
+    coordinator: EatonUPSDataUpdateCoordinator,
+) -> tuple[SensorEntityDescription, ...]:
+    """Get entity descriptions based on available MQTT topics."""
+    descriptions = list(BASE_ENTITY_DESCRIPTIONS)
+
+    # Detect inputs
+    for input_num in range(1, 10):  # Check reasonable range
+        if any(
+            key.startswith(f"powerDistributions/1/inputs/{input_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_input_descriptions(input_num))
+
+    # Detect outputs
+    for output_num in range(1, 10):
+        if any(
+            key.startswith(f"powerDistributions/1/outputs/{output_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_output_descriptions(output_num))
+
+    # Detect outlets
+    for outlet_num in range(1, 10):
+        if any(
+            key.startswith(f"powerDistributions/1/outlets/{outlet_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_outlet_descriptions(outlet_num))
+
+    return tuple(descriptions)
 
 
 async def async_setup_entry(
@@ -621,12 +477,20 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the sensor platform."""
+    coordinator = entry.runtime_data.coordinator
+
+    # Wait for initial data
+    await coordinator.async_config_entry_first_refresh()
+
+    # Generate descriptions based on available data
+    entity_descriptions = get_entity_descriptions(coordinator)
+
     async_add_entities(
         EatonUpsSensor(
-            coordinator=entry.runtime_data.coordinator,
+            coordinator=coordinator,
             entity_description=entity_description,
         )
-        for entity_description in ENTITY_DESCRIPTIONS
+        for entity_description in entity_descriptions
     )
 
 

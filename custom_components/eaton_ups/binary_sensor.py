@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from .coordinator import EatonUPSDataUpdateCoordinator
     from .data import EatonUpsConfigEntry
 
-ENTITY_DESCRIPTIONS = (
+BASE_ENTITY_DESCRIPTIONS = (
     # UPS Status
     BinarySensorEntityDescription(
         key="powerDistributions/1/status$bootloaderMode",
@@ -64,51 +64,6 @@ ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="powerDistributions/1/status$temperatureOutOfRange",
         name="Temperature Out Of Range",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    # Input Status
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$frequencyOutOfRange",
-        name="Input Frequency Out Of Range",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$inRange",
-        name="Input In Range",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$internalFailure",
-        name="Input Internal Failure",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$supplied",
-        name="Input Supplied",
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$supply",
-        name="Input Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$voltageOutOfRange",
-        name="Input Voltage Out Of Range",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$voltageTooHigh",
-        name="Input Voltage Too High",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$voltageTooLow",
-        name="Input Voltage Too Low",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$wiringFault",
-        name="Input Wiring Fault",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     # Battery Status
@@ -191,38 +146,102 @@ ENTITY_DESCRIPTIONS = (
         name="Temperature Too High",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    # Outlet Status
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$supply",
-        name="Outlet 1 Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/1/status$switchedOn",
-        name="Outlet 1 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$supply",
-        name="Outlet 2 Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/2/status$switchedOn",
-        name="Outlet 2 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$supply",
-        name="Outlet 3 Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/outlets/3/status$switchedOn",
-        name="Outlet 3 Switched On",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
 )
+
+
+def _generate_input_binary_descriptions(
+    input_num: int,
+) -> tuple[BinarySensorEntityDescription, ...]:
+    """Generate binary sensor descriptions for a specific input."""
+    return (
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$frequencyOutOfRange",
+            name=f"Input {input_num} Frequency Out Of Range",
+            device_class=BinarySensorDeviceClass.PROBLEM,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$inRange",
+            name=f"Input {input_num} In Range",
+            device_class=BinarySensorDeviceClass.POWER,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$internalFailure",
+            name=f"Input {input_num} Internal Failure",
+            device_class=BinarySensorDeviceClass.PROBLEM,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$supplied",
+            name=f"Input {input_num} Supplied",
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$supply",
+            name=f"Input {input_num} Supply",
+            device_class=BinarySensorDeviceClass.POWER,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$voltageOutOfRange",
+            name=f"Input {input_num} Voltage Out Of Range",
+            device_class=BinarySensorDeviceClass.PROBLEM,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$voltageTooHigh",
+            name=f"Input {input_num} Voltage Too High",
+            device_class=BinarySensorDeviceClass.PROBLEM,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$voltageTooLow",
+            name=f"Input {input_num} Voltage Too Low",
+            device_class=BinarySensorDeviceClass.PROBLEM,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/status$wiringFault",
+            name=f"Input {input_num} Wiring Fault",
+            device_class=BinarySensorDeviceClass.PROBLEM,
+        ),
+    )
+
+
+def _generate_outlet_binary_descriptions(
+    outlet_num: int,
+) -> tuple[BinarySensorEntityDescription, ...]:
+    """Generate binary sensor descriptions for a specific outlet."""
+    return (
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$supply",
+            name=f"Outlet {outlet_num} Supply",
+            device_class=BinarySensorDeviceClass.POWER,
+        ),
+        BinarySensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$switchedOn",
+            name=f"Outlet {outlet_num} Switched On",
+            device_class=BinarySensorDeviceClass.POWER,
+        ),
+    )
+
+
+def get_binary_entity_descriptions(
+    coordinator: EatonUPSDataUpdateCoordinator,
+) -> tuple[BinarySensorEntityDescription, ...]:
+    """Get binary entity descriptions based on available MQTT topics."""
+    descriptions = list(BASE_ENTITY_DESCRIPTIONS)
+
+    # Detect inputs
+    for input_num in range(1, 10):  # Check reasonable range
+        if any(
+            key.startswith(f"powerDistributions/1/inputs/{input_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_input_binary_descriptions(input_num))
+
+    # Detect outlets
+    for outlet_num in range(1, 10):
+        if any(
+            key.startswith(f"powerDistributions/1/outlets/{outlet_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_outlet_binary_descriptions(outlet_num))
+
+    return tuple(descriptions)
 
 
 async def async_setup_entry(
@@ -231,12 +250,20 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the binary_sensor platform."""
+    coordinator = entry.runtime_data.coordinator
+
+    # Wait for initial data
+    await coordinator.async_config_entry_first_refresh()
+
+    # Generate descriptions based on available data
+    entity_descriptions = get_binary_entity_descriptions(coordinator)
+
     async_add_entities(
         EatonUpsBinarySensor(
-            coordinator=entry.runtime_data.coordinator,
+            coordinator=coordinator,
             entity_description=entity_description,
         )
-        for entity_description in ENTITY_DESCRIPTIONS
+        for entity_description in entity_descriptions
     )
 
 
