@@ -2,166 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 import re
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
-
-
-
-def _generate_input_descriptions(input_num: int) -> tuple[SensorEntityDescription, ...]:
-    """Generate sensor descriptions for a specific input."""
-    return (
-        SensorEntityDescription(
-            key=f"powerDistributions/1/inputs/{input_num}/measures$voltage",
-            name=f"Input {input_num} Voltage",
-            icon="mdi:flash",
-            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.VOLTAGE,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/inputs/{input_num}/measures$frequency",
-            name=f"Input {input_num} Frequency",
-            icon="mdi:sine-wave",
-            native_unit_of_measurement=UnitOfFrequency.HERTZ,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.FREQUENCY,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/inputs/{input_num}/measures$current",
-            name=f"Input {input_num} Current",
-            icon="mdi:current-ac",
-            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.CURRENT,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-    )
-
-
-def _generate_output_descriptions(
-    output_num: int,
-) -> tuple[SensorEntityDescription, ...]:
-    """Generate sensor descriptions for a specific output."""
-    return (
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outputs/{output_num}/measures$voltage",
-            name=f"Output {output_num} Voltage",
-            icon="mdi:flash",
-            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.VOLTAGE,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outputs/{output_num}/measures$frequency",
-            name=f"Output {output_num} Frequency",
-            icon="mdi:sine-wave",
-            native_unit_of_measurement=UnitOfFrequency.HERTZ,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.FREQUENCY,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outputs/{output_num}/measures$current",
-            name=f"Output {output_num} Current",
-            icon="mdi:current-ac",
-            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.CURRENT,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outputs/{output_num}/measures$activePower",
-            name=f"Output {output_num} Active Power",
-            icon="mdi:power-plug",
-            native_unit_of_measurement=UnitOfPower.WATT,
-            device_class=SensorDeviceClass.POWER,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outputs/{output_num}/measures$apparentPower",
-            name=f"Output {output_num} Apparent Power",
-            icon="mdi:power-plug",
-            native_unit_of_measurement="VA",
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-    )
-
-
-def _generate_outlet_descriptions(
-    outlet_num: int,
-) -> tuple[SensorEntityDescription, ...]:
-    """Generate sensor descriptions for a specific outlet."""
-    return (
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outlets/{outlet_num}/measures$voltage",
-            name=f"Outlet {outlet_num} Voltage",
-            icon="mdi:flash",
-            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.VOLTAGE,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outlets/{outlet_num}/measures$current",
-            name=f"Outlet {outlet_num} Current",
-            icon="mdi:current-ac",
-            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-            suggested_display_precision=1,
-            device_class=SensorDeviceClass.CURRENT,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outlets/{outlet_num}/measures$activePower",
-            name=f"Outlet {outlet_num} Active Power",
-            icon="mdi:power-plug",
-            native_unit_of_measurement=UnitOfPower.WATT,
-            device_class=SensorDeviceClass.POWER,
-            state_class=SensorStateClass.MEASUREMENT,
-        ),
-        SensorEntityDescription(
-            key=f"powerDistributions/1/outlets/{outlet_num}/status$operating",
-            name=f"Outlet {outlet_num} Operating Status",
-            icon="mdi:power-settings",
-        ),
-    )
-
-
-def get_entity_descriptions(
-    coordinator: EatonUPSDataUpdateCoordinator,
-) -> tuple[SensorEntityDescription, ...]:
-    """Get entity descriptions based on available MQTT topics."""
-    descriptions = list(BASE_ENTITY_DESCRIPTIONS)
-
-    # Detect inputs
-    for input_num in range(1, 10):  # Check reasonable range
-        if any(
-            key.startswith(f"powerDistributions/1/inputs/{input_num}/")
-            for key in coordinator.data
-        ):
-            descriptions.extend(_generate_input_descriptions(input_num))
-
-    # Detect outputs
-    for output_num in range(1, 10):
-        if any(
-            key.startswith(f"powerDistributions/1/outputs/{output_num}/")
-            for key in coordinator.data
-        ):
-            descriptions.extend(_generate_output_descriptions(output_num))
-
-    # Detect outlets
-    for outlet_num in range(1, 10):
-        if any(
-            key.startswith(f"powerDistributions/1/outlets/{outlet_num}/")
-            for key in coordinator.data
-        ):
-            descriptions.extend(_generate_outlet_descriptions(outlet_num))
-
-    return tuple(descriptions)
-
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -770,6 +613,161 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:power-plug",
     ),
 )
+
+
+def _generate_input_descriptions(input_num: int) -> tuple[SensorEntityDescription, ...]:
+    """Generate sensor descriptions for a specific input."""
+    return (
+        SensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/measures$voltage",
+            name=f"Input {input_num} Voltage",
+            icon="mdi:flash",
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.VOLTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/measures$frequency",
+            name=f"Input {input_num} Frequency",
+            icon="mdi:sine-wave",
+            native_unit_of_measurement=UnitOfFrequency.HERTZ,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.FREQUENCY,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/inputs/{input_num}/measures$current",
+            name=f"Input {input_num} Current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    )
+
+
+def _generate_output_descriptions(
+    output_num: int,
+) -> tuple[SensorEntityDescription, ...]:
+    """Generate sensor descriptions for a specific output."""
+    return (
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$voltage",
+            name=f"Output {output_num} Voltage",
+            icon="mdi:flash",
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.VOLTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$frequency",
+            name=f"Output {output_num} Frequency",
+            icon="mdi:sine-wave",
+            native_unit_of_measurement=UnitOfFrequency.HERTZ,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.FREQUENCY,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$current",
+            name=f"Output {output_num} Current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$activePower",
+            name=f"Output {output_num} Active Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement=UnitOfPower.WATT,
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outputs/{output_num}/measures$apparentPower",
+            name=f"Output {output_num} Apparent Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement="VA",
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+    )
+
+
+def _generate_outlet_descriptions(
+    outlet_num: int,
+) -> tuple[SensorEntityDescription, ...]:
+    """Generate sensor descriptions for a specific outlet."""
+    return (
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$voltage",
+            name=f"Outlet {outlet_num} Voltage",
+            icon="mdi:flash",
+            native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.VOLTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$current",
+            name=f"Outlet {outlet_num} Current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+            suggested_display_precision=1,
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/measures$activePower",
+            name=f"Outlet {outlet_num} Active Power",
+            icon="mdi:power-plug",
+            native_unit_of_measurement=UnitOfPower.WATT,
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+        ),
+        SensorEntityDescription(
+            key=f"powerDistributions/1/outlets/{outlet_num}/status$operating",
+            name=f"Outlet {outlet_num} Operating Status",
+            icon="mdi:power-settings",
+        ),
+    )
+
+
+def get_entity_descriptions(
+    coordinator: EatonUPSDataUpdateCoordinator,
+) -> tuple[SensorEntityDescription, ...]:
+    """Get entity descriptions based on available MQTT topics."""
+    descriptions = list(BASE_ENTITY_DESCRIPTIONS)
+
+    # Detect inputs
+    for input_num in range(1, 10):  # Check reasonable range
+        if any(
+            key.startswith(f"powerDistributions/1/inputs/{input_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_input_descriptions(input_num))
+
+    # Detect outputs
+    for output_num in range(1, 10):
+        if any(
+            key.startswith(f"powerDistributions/1/outputs/{output_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_output_descriptions(output_num))
+
+    # Detect outlets
+    for outlet_num in range(1, 10):
+        if any(
+            key.startswith(f"powerDistributions/1/outlets/{outlet_num}/")
+            for key in coordinator.data
+        ):
+            descriptions.extend(_generate_outlet_descriptions(outlet_num))
+
+    return tuple(descriptions)
 
 
 async def async_setup_entry(
