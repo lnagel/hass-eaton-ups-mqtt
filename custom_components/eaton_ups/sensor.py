@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfElectricCurrent,
@@ -33,6 +34,124 @@ if TYPE_CHECKING:
 
 # Define base entity descriptions for non-dynamic entities
 BASE_ENTITY_DESCRIPTIONS = (
+    # Manager Identification
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$firmwareVersion",
+        name="Manager Firmware Version",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$physicalName",
+        name="Manager Physical Name",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$uuid",
+        name="Manager UUID",
+        icon="mdi:identifier",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$vendor",
+        name="Manager Vendor",
+        icon="mdi:domain",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$product",
+        name="Manager Product",
+        icon="mdi:package-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$serialNumber",
+        name="Manager Serial Number",
+        icon="mdi:barcode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$type",
+        name="Manager Type",
+        icon="mdi:card-text-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$partNumber",
+        name="Manager Part Number",
+        icon="mdi:numeric",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$hwVersion",
+        name="Manager Hardware Version",
+        icon="mdi:chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$name",
+        name="Manager Name",
+        icon="mdi:label-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$contact",
+        name="Manager Contact",
+        icon="mdi:account-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$location",
+        name="Manager Location",
+        icon="mdi:map-marker-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$firmwareInstallationDate",
+        name="Manager Firmware Installation Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$firmwareActivationDate",
+        name="Manager Firmware Activation Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$firmwareDate",
+        name="Manager Firmware Date",
+        icon="mdi:calendar-clock",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$firmwareSha",
+        name="Manager Firmware SHA",
+        icon="mdi:checkbox-marked-circle-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$bootloaderVersion",
+        name="Manager Bootloader Version",
+        icon="mdi:information-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$manufacturer",
+        name="Manager Manufacturer",
+        icon="mdi:factory",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="mbdetnrs/1.0/managers/1/identification$macAddress",
+        name="Manager MAC Address",
+        icon="mdi:ethernet",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
     # Power Distribution Identification
     SensorEntityDescription(
         key="powerDistributions/1/identification$model",
