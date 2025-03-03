@@ -646,21 +646,22 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
             else:
                 return None
 
-        # Convert string timestamps to datetime objects if this is a timestamp sensor
-        is_timestamp = (
-            self.entity_description.device_class == SensorDeviceClass.TIMESTAMP
-            and isinstance(value, str)
-        )
-        if is_timestamp:
-            try:
-                # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
-                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value.replace("Z", "+00:00"))
-                else:  # noqa: RET505
-                    # Handle other potential timestamp formats as needed
+        # Convert timestamps to datetime objects if this is a timestamp sensor
+        if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
+            if isinstance(value, int):
+                # Handle Unix timestamp (e.g., 1738146293)
+                from datetime import timezone
+                try:
+                    return datetime.fromtimestamp(value, tz=timezone.utc)
+                except (ValueError, TypeError, OSError):
                     return None
-            except (ValueError, TypeError):
-                # If conversion fails, return None instead of the string
-                return None
+            elif isinstance(value, str):
+                # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
+                try:
+                    if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
+                        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+                except (ValueError, TypeError):
+                    return None
+            return None
 
         return value
