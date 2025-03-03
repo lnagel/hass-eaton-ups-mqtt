@@ -255,7 +255,6 @@ def try_connection(
     )
 
     result: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=1)
-    identification_received = False
 
     def on_connect(
         client: mqtt.Client,
@@ -276,12 +275,10 @@ def try_connection(
         msg: mqtt.MQTTMessage,
     ) -> None:
         """Handle received messages."""
-        nonlocal identification_received
         if msg.topic == "mbdetnrs/1.0/managers/1/identification":
             try:
                 identification = json.loads(msg.payload)
                 result.put(identification)
-                identification_received = True
             except json.JSONDecodeError:
                 result.put(None)
 
@@ -319,10 +316,7 @@ def try_connection(
         client.loop_start()
 
         try:
-            identification = result.get(timeout=MQTT_TIMEOUT)
-            if not identification_received:
-                return None
-            return identification
+            return result.get(timeout=MQTT_TIMEOUT)
         except queue.Empty:
             return None
         finally:
