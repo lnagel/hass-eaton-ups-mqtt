@@ -90,6 +90,12 @@ BASE_ENTITY_DESCRIPTIONS = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
+        key="managers/1/identification$name",
+        name="Manager Name",
+        icon="mdi:account-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
         key="managers/1/identification$contact",
         name="Manager Contact",
         icon="mdi:account-outline",
@@ -148,24 +154,6 @@ BASE_ENTITY_DESCRIPTIONS = (
     ),
     # Power Distribution Identification
     SensorEntityDescription(
-        key="powerDistributions/1/identification$model",
-        name="UPS Model",
-        icon="mdi:information-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/identification$firmwareVersion",
-        name="UPS Firmware Version",
-        icon="mdi:information-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
-        key="powerDistributions/1/identification$serialNumber",
-        name="UPS Serial Number",
-        icon="mdi:information-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
         key="powerDistributions/1/identification$uuid",
         name="UPS UUID",
         icon="mdi:identifier",
@@ -210,7 +198,7 @@ BASE_ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
         key="powerDistributions/1/identification$serialNumber",
         name="UPS Serial Number",
-        icon="mdi:barcode",
+        icon="mdi:information-outline",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
