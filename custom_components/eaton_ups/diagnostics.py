@@ -6,15 +6,12 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.diagnostics import async_redact_data
 
+from . import CONF_CLIENT_CERT, CONF_CLIENT_KEY, CONF_SERVER_CERT
+
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from . import (
-        CONF_CLIENT_CERT,
-        CONF_CLIENT_KEY,
-        CONF_SERVER_CERT,
-        EatonUpsConfigEntry,
-    )
+    from . import EatonUpsConfigEntry
     from .coordinator import EatonUPSDataUpdateCoordinator
 
 CONF_TO_REDACT = {CONF_SERVER_CERT, CONF_CLIENT_KEY, CONF_CLIENT_CERT}
