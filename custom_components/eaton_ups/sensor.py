@@ -286,17 +286,20 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/backupSystem/powerBank/specifications$externalCount",
         name="Backup External Count",
         icon="mdi:battery-multiple",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$technology",
         name="Backup Technology",
         icon="mdi:battery-heart-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$capacityAh/nominal",
         name="Backup Nominal Capacity",
         icon="mdi:battery-charging",
         native_unit_of_measurement="Ah",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$voltage/nominal",
@@ -304,6 +307,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:flash",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     # Backup System - Power Bank Status
     SensorEntityDescription(
@@ -365,11 +369,21 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/settings$audibleAlarm",
         name="Audible Alarm",
         icon="mdi:volume-high",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key="powerDistributions/1/settings$nominalVoltage",
+        name="Nominal Voltage",
+        icon="mdi:flash-alert",
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/settings$sensitivityMode",
         name="Sensitivity Mode",
         icon="mdi:tune",
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/settings$voltageHighDetection",
@@ -377,6 +391,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:flash-alert",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/settings$voltageLowDetection",
@@ -384,6 +399,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         icon="mdi:flash-alert",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )
 
