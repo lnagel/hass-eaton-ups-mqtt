@@ -66,51 +66,6 @@ BASE_ENTITY_DESCRIPTIONS = (
         name="Temperature Out Of Range",
         device_class=BinarySensorDeviceClass.PROBLEM,
     ),
-    # Input Status
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$frequencyOutOfRange",
-        name="Input Frequency Out Of Range",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$inRange",
-        name="Input In Range",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$internalFailure",
-        name="Input Internal Failure",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$supplied",
-        name="Input Supplied",
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$supply",
-        name="Input Supply",
-        device_class=BinarySensorDeviceClass.POWER,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$voltageOutOfRange",
-        name="Input Voltage Out Of Range",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$voltageTooHigh",
-        name="Input Voltage Too High",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$voltageTooLow",
-        name="Input Voltage Too Low",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
-    BinarySensorEntityDescription(
-        key="powerDistributions/1/inputs/1/status$wiringFault",
-        name="Input Wiring Fault",
-        device_class=BinarySensorDeviceClass.PROBLEM,
-    ),
     # Battery Status
     BinarySensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/status$criticalLowStateOfCharge",
