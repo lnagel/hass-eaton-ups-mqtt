@@ -6,12 +6,13 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
+
     from . import EatonUpsConfigEntry
     from .coordinator import EatonUPSDataUpdateCoordinator
 
 
 async def async_get_config_entry_diagnostics(
-    _hass: HomeAssistant,  # noqa: ARG001
+    _hass: HomeAssistant,
     config_entry: EatonUpsConfigEntry,
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""

@@ -12,7 +12,6 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.const import (
     PERCENTAGE,
     UnitOfElectricCurrent,
@@ -22,6 +21,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfTime,
 )
+from homeassistant.helpers.entity import EntityCategory
 
 from .entity import EatonUpsEntity
 
