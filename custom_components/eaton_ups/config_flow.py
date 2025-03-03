@@ -169,12 +169,19 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
             if identification and "macAddress" in identification:
-                await self.async_set_unique_id(identification["macAddress"])
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=user_input[CONF_HOST],
-                    data=user_input,
-                )
+                if is_reconfigure:
+                    self.hass.config_entries.async_update_entry(
+                        reconfigure_entry,
+                        data=user_input,
+                    )
+                    return self.async_abort(reason="reauth_successful")
+                else:
+                    await self.async_set_unique_id(identification["macAddress"])
+                    self._abort_if_unique_id_configured()
+                    return self.async_create_entry(
+                        title=user_input[CONF_HOST],
+                        data=user_input,
+                    )
 
             _errors["base"] = "cannot_connect"
 
