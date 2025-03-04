@@ -2,4 +2,4 @@ colorlog==6.9.0
 homeassistant==2025.2.5
 pip>=21.3.1
 ruff==0.9.9
-paho-mqtt==1.6.1
+paho-mqtt==2.1.0
