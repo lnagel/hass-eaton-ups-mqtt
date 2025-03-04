@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTTv31
 
-from .const import MQTT_CONNECTION_ATTEMPTS
+from .const import MQTT_CONNECTION_ATTEMPTS, MQTT_PREFIX
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -166,7 +166,7 @@ class EatonUpsMqttClient:
 
         # This is a placeholder for actual command sending
         # In a real implementation, you would publish to a specific topic
-        topic = "mbdetnrs/1.0/powerDistributions/1/command"
+        topic = MQTT_PREFIX + "powerDistributions/1/command"
         payload = json.dumps({"command": value})
         self._mqtt_client.publish(topic, payload)
         return {"success": True}
@@ -184,8 +184,8 @@ class EatonUpsMqttClient:
         """Subscribe to all required MQTT topics."""
         self._mqtt_client.subscribe(
             topic=[
-                ("mbdetnrs/1.0/managers/#", 0),
-                ("mbdetnrs/1.0/powerDistributions/#", 0),
+                (MQTT_PREFIX + "managers/#", 0),
+                (MQTT_PREFIX + "powerDistributions/#", 0),
             ]
         )
 
@@ -234,7 +234,7 @@ class EatonUpsMqttClient:
             # is stored without modifications. This will make it possible to use the
             # storage key to make direct lookups in the data dictionary and provide
             # more efficient callbacks to sensor updates.
-            key = topic.removeprefix("mbdetnrs/1.0/")
+            key = topic.removeprefix(MQTT_PREFIX)
             self._mqtt_data[key] = data
 
             # Use the event loop to safely notify callbacks

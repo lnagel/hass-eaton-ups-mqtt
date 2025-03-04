@@ -30,6 +30,7 @@ from .const import (
     DEFAULT_PORT,
     DOMAIN,
     LOGGER,
+    MQTT_PREFIX,
     MQTT_TIMEOUT,
 )
 
@@ -272,7 +273,7 @@ def try_connection(
     ) -> None:
         """Handle connection result."""
         if result_code == mqtt.CONNACK_ACCEPTED:
-            client.subscribe("mbdetnrs/1.0/managers/1/identification")
+            client.subscribe(MQTT_PREFIX + "managers/1/identification")
         else:
             result.put(None)
 
@@ -282,7 +283,7 @@ def try_connection(
         msg: mqtt.MQTTMessage,
     ) -> None:
         """Handle received messages."""
-        if msg.topic == "mbdetnrs/1.0/managers/1/identification":
+        if msg.topic == MQTT_PREFIX + "managers/1/identification":
             try:
                 identification = json.loads(msg.payload)
                 result.put(identification)
