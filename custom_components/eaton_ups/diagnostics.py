@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .coordinator import EatonUPSDataUpdateCoordinator
 
 CONF_TO_REDACT = {CONF_SERVER_CERT, CONF_CLIENT_KEY, CONF_CLIENT_CERT}
-DATA_TO_REDACT = {"serialNumber", "macAddress"}
+DATA_TO_REDACT = {"serialNumber"}
 
 
 async def async_get_config_entry_diagnostics(
