@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, date
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
@@ -335,13 +335,13 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/backupSystem/powerBank/status$lcmInstallationDate",
         name="Backup Installation Date",
         icon="mdi:calendar-plus",
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DATE,
     ),
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/status$lcmReplacementDate",
         name="Backup Replacement Date",
         icon="mdi:calendar-refresh",
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DATE,
     ),
     # Backup System - Charger Status
     SensorEntityDescription(
@@ -718,11 +718,32 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
                 return None
             value = value[part]
 
-        # Handle timestamp conversions if needed
+        # Handle date and timestamp conversions if needed
+        if self.entity_description.device_class == SensorDeviceClass.DATE:
+            return self._convert_date(value)
         if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
             return self._convert_timestamp(value)
 
         return value
+
+    def _convert_date(self, value: Any) -> date | None:
+        """Convert value to timestamp if possible."""
+        if isinstance(value, int):
+            # Handle Unix timestamp (e.g., 1738146293)
+            try:
+                return datetime.fromtimestamp(value, tz=UTC).date()
+            except (ValueError, TypeError, OSError):
+                return None
+
+        if isinstance(value, str):
+            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
+            try:
+                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
+                    return datetime.fromisoformat(value.replace("Z", "+00:00")).date()
+            except (ValueError, TypeError):
+                pass
+
+        return None
 
     def _convert_timestamp(self, value: Any) -> datetime | None:
         """Convert value to timestamp if possible."""
