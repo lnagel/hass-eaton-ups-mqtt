@@ -100,7 +100,7 @@ class EatonUpsMqttClient:
         self._loop = asyncio.get_running_loop()
 
         # Create the MQTT client
-        client_id = f"hass-eaton-ups-{mqtt.base62(uuid.uuid4().int, padding=10)}"
+        client_id = f"hass-eaton-ups-{uuid.uuid4()}"
         self._mqtt_client = mqtt.Client(client_id=client_id, protocol=MQTTv31)
         self._mqtt_client.reconnect_delay_set(min_delay=1, max_delay=30)
 
