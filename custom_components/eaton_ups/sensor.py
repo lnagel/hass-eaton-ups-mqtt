@@ -285,7 +285,7 @@ BASE_ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/specifications$externalCount",
         name="Backup External Count",
-        icon="mdi:battery-multiple",
+        icon="mdi:battery-check",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
