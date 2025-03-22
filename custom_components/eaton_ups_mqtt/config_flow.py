@@ -255,7 +255,7 @@ def try_connection(
     import paho.mqtt.client as mqtt  # pylint: disable=import-outside-toplevel
     from homeassistant.components.mqtt.async_client import AsyncMQTTClient
 
-    client_id = mqtt.base62(uuid.uuid4().int, padding=22)
+    client_id = f"hass-eaton-ups-{uuid.uuid4()}"
     client = AsyncMQTTClient(
         client_id,
         protocol=mqtt.MQTTv31,
