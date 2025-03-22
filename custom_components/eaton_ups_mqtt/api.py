@@ -101,7 +101,11 @@ class EatonUpsMqttClient:
 
         # Create the MQTT client
         client_id = f"hass-eaton-ups-{uuid.uuid4()}"
-        self._mqtt_client = mqtt.Client(client_id=client_id, protocol=MQTTv31)
+        self._mqtt_client = mqtt.Client(
+            callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
+            client_id=client_id,
+            protocol=MQTTv31,
+        )
         self._mqtt_client.reconnect_delay_set(min_delay=1, max_delay=30)
 
         # Set up callbacks

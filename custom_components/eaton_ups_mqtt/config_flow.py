@@ -257,7 +257,8 @@ def try_connection(
 
     client_id = f"hass-eaton-ups-{uuid.uuid4()}"
     client = AsyncMQTTClient(
-        client_id,
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
+        client_id=client_id,
         protocol=mqtt.MQTTv31,
         reconnect_on_failure=False,
     )
