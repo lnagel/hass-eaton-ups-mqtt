@@ -1,11 +1,11 @@
-"""Constants for eaton_ups."""
+"""Constants for eaton_ups_mqtt."""
 
 from logging import Logger, getLogger
 from typing import Final
 
 LOGGER: Logger = getLogger(__package__)
 
-DOMAIN = "eaton_ups"
+DOMAIN = "eaton_ups_mqtt"
 ATTRIBUTION = "Data provided by Eaton UPS"
 
 CONF_SERVER_CERT: Final = "server_cert"

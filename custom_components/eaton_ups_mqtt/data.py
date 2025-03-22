@@ -1,4 +1,4 @@
-"""Custom types for eaton_ups."""
+"""Custom types for eaton_ups_mqtt."""
 
 from __future__ import annotations
 

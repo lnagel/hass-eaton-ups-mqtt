@@ -1,0 +1,16 @@
+{
+  "domain": "eaton_ups_mqtt",
+  "name": "Eaton UPS MQTT",
+  "codeowners": [
+    "@lnagel"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "mqtt"
+  ],
+  "documentation": "https://github.com/lnagel/hass-eaton-ups-mqtt",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/lnagel/hass-eaton-ups-mqtt/issues",
+  "version": "0.1.2"
+}

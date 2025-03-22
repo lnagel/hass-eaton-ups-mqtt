@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for eaton_ups."""
+"""DataUpdateCoordinator for eaton_ups_mqtt."""
 
 from __future__ import annotations
 

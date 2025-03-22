@@ -1,4 +1,4 @@
-"""Binary sensor platform for eaton_ups."""
+"""Binary sensor platform for eaton_ups_mqtt."""
 
 from __future__ import annotations
 
@@ -268,7 +268,7 @@ async def async_setup_entry(
 
 
 class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
-    """eaton_ups binary_sensor class."""
+    """eaton_ups_mqtt binary_sensor class."""
 
     def __init__(
         self,
