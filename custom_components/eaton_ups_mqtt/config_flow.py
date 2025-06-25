@@ -250,10 +250,12 @@ def try_connection(
     """
     # We don't import on the top because some integrations
     # should be able to optionally rely on MQTT.
-    import json
+    import json  # noqa: PLC0415
 
-    import paho.mqtt.client as mqtt  # pylint: disable=import-outside-toplevel
-    from homeassistant.components.mqtt.async_client import AsyncMQTTClient
+    import paho.mqtt.client as mqtt  # noqa: PLC0415
+    from homeassistant.components.mqtt.async_client import (  # noqa: PLC0415
+        AsyncMQTTClient,
+    )
 
     client_id = f"hass-eaton-ups-{uuid.uuid4()}"
     client = AsyncMQTTClient(
