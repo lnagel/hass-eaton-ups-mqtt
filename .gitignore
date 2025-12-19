@@ -5,6 +5,9 @@ __pycache__
 */build/*
 */dist/*
 
+# virtual environments
+.venv/
+
 
 # misc
 .coverage
