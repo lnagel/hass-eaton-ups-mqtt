@@ -12,7 +12,7 @@ dependencies = [
     "colorlog==6.10.1",
     "homeassistant>=2025.3.1",
     "paho-mqtt==2.1.0",
-    "ruff==0.14.7",
+    "ruff==0.14.10",
 ]
 
 [project.optional-dependencies]
