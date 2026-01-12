@@ -1,5 +1,7 @@
 # Eaton UPS MQTT Integration for Home Assistant
 
+[![codecov](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt)
+
 A Home Assistant integration that connects to Eaton UPS devices through their Network-M2/M3 management card via MQTT to monitor power status and battery levels. This integration provides:
 
 - Device Information

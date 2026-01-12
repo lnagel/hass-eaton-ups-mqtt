@@ -1,0 +1,45 @@
+name: "Test"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  test:
+    name: "Run Tests with Coverage"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v6.0.1"
+
+      - name: "Set up Python"
+        uses: "actions/setup-python@v5.5.0"
+        with:
+          python-version: "3.13"
+
+      - name: "Install uv"
+        uses: "astral-sh/setup-uv@v5.3.1"
+
+      - name: "Install dependencies"
+        run: |
+          uv sync --extra test
+          # Upgrade aiodns and pycares to fix compatibility issues
+          uv pip install --upgrade 'aiodns>=4.0.0' 'pycares>=5.0.1'
+
+      - name: "Run tests with coverage"
+        run: |
+          uv run pytest --cov=custom_components.eaton_ups_mqtt --cov-branch --cov-report=term --cov-report=xml
+
+      - name: "Upload coverage to Codecov"
+        uses: "codecov/codecov-action@v5.2.1"
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false

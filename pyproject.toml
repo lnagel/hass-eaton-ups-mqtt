@@ -18,6 +18,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
     "pytest-homeassistant-custom-component>=0.13.0",
 ]
 dev = [
@@ -58,3 +59,34 @@ replace = 'version = "{new_version}"'
 filename = "custom_components/eaton_ups_mqtt/manifest.json"
 search = '"version": "{current_version}"'
 replace = '"version": "{new_version}"'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v -p no:pytest_homeassistant_custom_component -p no:pytest_aiohttp"
+
+[tool.coverage.run]
+source = ["custom_components.eaton_ups_mqtt"]
+branch = true
+omit = [
+    "tests/*",
+    ".venv/*",
+]
+
+[tool.coverage.report]
+precision = 0
+fail_under = 15
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"
