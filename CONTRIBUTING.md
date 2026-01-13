@@ -87,6 +87,27 @@ Home Assistant instance running and already configured with the included
 [`configuration.yaml`](./config/configuration.yaml)
 file.
 
+## Contributing Test Fixtures
+
+To capture MQTT data from your UPS for test fixtures:
+
+```bash
+# 1. Capture raw data (requires TLS certs from UPS web interface)
+uv run python scripts/dump_mqtt_data.py \
+  --host YOUR_UPS --server-cert ca.pem --client-cert client.pem \
+  --client-key client.key --output tests/fixtures/raw_ups_data.json
+
+# 2. Sanitize PII (serial numbers, MACs, UUIDs, dates)
+uv run python scripts/sanitize_fixture.py \
+  --input tests/fixtures/raw_ups_data.json \
+  --output tests/fixtures/mqtt_data_YOUR_MODEL.json
+
+# 3. Delete raw data and submit PR with sanitized fixture
+rm tests/fixtures/raw_ups_data.json
+```
+
+Existing fixtures: `mqtt_data_5px_g2.json` (Eaton 5PX 1500i RT2U G2)
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under its MIT License.
