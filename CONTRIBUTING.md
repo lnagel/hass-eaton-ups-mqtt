@@ -15,9 +15,44 @@ Pull requests are the best way to propose changes to the codebase.
 
 1. Fork the repo and create your branch from `main`.
 2. If you've changed something, update the documentation.
-3. Make sure your code lints (using `scripts/lint`).
-4. Test you contribution.
+3. Make sure your code passes all checks (see below).
+4. Test your contribution.
 5. Issue that pull request!
+
+## Development Setup
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
+
+```bash
+# Install dependencies
+uv sync --all-extras
+
+# Run tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=custom_components/eaton_ups_mqtt --cov-branch
+
+# Format code
+uv run ruff format .
+
+# Lint and auto-fix
+uv run ruff check . --fix
+
+# Type check
+uv run ty check
+
+# Full pre-commit check
+uv run pytest && uv run ruff format . && uv run ruff check . --fix && uv run ty check
+```
+
+## Use a Consistent Coding Style
+
+This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting. All code must pass:
+
+- `uv run ruff check .` - Linting
+- `uv run ruff format . --check` - Formatting
+- `uv run ty check` - Type checking
 
 ## Any contributions you make will be under the MIT Software License
 
@@ -41,10 +76,6 @@ Report a bug by [opening a new issue](../../issues/new/choose); it's that easy!
 - Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
 
 People *love* thorough bug reports. I'm not even kidding.
-
-## Use a Consistent Coding Style
-
-Use [black](https://github.com/ambv/black) to make sure the code follows the style.
 
 ## Test your code modification
 
