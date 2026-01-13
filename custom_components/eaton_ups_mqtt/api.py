@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import paho.mqtt.client as mqtt
-from paho.mqtt.client import MQTTv31
+from paho.mqtt.client import Client, MQTTv31
 
 from .const import MQTT_CONNECTION_ATTEMPTS, MQTT_PREFIX
 
@@ -57,6 +57,13 @@ class EatonUpsClientAuthenticationError(
 class EatonUpsMqttClient:
     """Eaton UPS MQTT API Client."""
 
+    _mqtt_client: Client | None
+    _mqtt_connected: bool
+    _mqtt_data: dict[str, Any]
+    _temp_files: list[str]
+    _update_callbacks: list[Callable[[dict[str, Any]], None]]
+    _loop: asyncio.AbstractEventLoop | None
+
     def __init__(
         self, config: EatonUpsMqttConfig, session: aiohttp.ClientSession
     ) -> None:
@@ -71,8 +78,8 @@ class EatonUpsMqttClient:
         self._mqtt_connected = False
         self._mqtt_data = {}
         self._temp_files = []
-        self._update_callbacks = []  # Add this line to store callbacks
-        self._loop = None  # Store the event loop
+        self._update_callbacks = []
+        self._loop = None
 
     def subscribe_to_updates(
         self, callback: Callable[[dict[str, Any]], None]
@@ -148,6 +155,9 @@ class EatonUpsMqttClient:
 
     def _setup_tls(self, ca_certs: str, certfile: str, keyfile: str) -> None:
         """Set up TLS with certificates - runs in executor."""
+        if self._mqtt_client is None:
+            msg = "MQTT client not initialized"
+            raise EatonUpsClientError(msg)
         self._mqtt_client.tls_set(
             ca_certs=ca_certs,
             certfile=certfile,
@@ -163,10 +173,14 @@ class EatonUpsMqttClient:
         # Return the current data
         return self._mqtt_data
 
-    async def async_set_title(self, value: str) -> Any:
+    async def async_set_title(self, value: str) -> dict[str, bool]:
         """Set a value via MQTT (placeholder for now)."""
         if not self._mqtt_connected:
             await self.async_setup()
+
+        if self._mqtt_client is None:
+            msg = "MQTT client not initialized"
+            raise EatonUpsClientError(msg)
 
         # This is a placeholder for actual command sending
         # In a real implementation, you would publish to a specific topic
@@ -186,6 +200,8 @@ class EatonUpsMqttClient:
 
     def _subscribe_to_topics(self) -> None:
         """Subscribe to all required MQTT topics."""
+        if self._mqtt_client is None:
+            return
         self._mqtt_client.subscribe(
             topic=[
                 (MQTT_PREFIX + "managers/#", 0),

@@ -283,10 +283,10 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
         )
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         """Return true if the binary_sensor is on."""
         if not self.coordinator.data:
-            return False
+            return None
 
         # Parse the key to extract topic and lookup path within the topic's data
         topic, lookup = self.entity_description.key.split("$", 1)
