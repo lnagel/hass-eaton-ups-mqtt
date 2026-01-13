@@ -68,7 +68,9 @@ class TestBinarySensorDescriptionGenerators:
             (_generate_outlet_binary_descriptions, 3, 2),
         ],
     )
-    def test_binary_generator_returns_descriptions(self, generator, input_num, min_count):
+    def test_binary_generator_returns_descriptions(
+        self, generator, input_num, min_count
+    ):
         """Test binary generators return expected number of descriptions."""
         descriptions = generator(input_num)
         assert len(descriptions) >= min_count

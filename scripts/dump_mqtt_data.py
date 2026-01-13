@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Dump MQTT data from Eaton UPS for test fixtures.
+"""
+Dump MQTT data from Eaton UPS for test fixtures.
 
 This script connects to a real Eaton UPS MQTT broker and captures
 all messages to create test fixtures.
@@ -33,7 +34,9 @@ MQTT_PREFIX = "mbdetnrs/1.0/"
 class MqttDataDumper:
     """Captures MQTT messages from Eaton UPS."""
 
-    def __init__(self, host: str, port: int, server_cert: str, client_cert: str, client_key: str) -> None:
+    def __init__(
+        self, host: str, port: int, server_cert: str, client_cert: str, client_key: str
+    ) -> None:
         """Initialize the dumper."""
         self.host = host
         self.port = port
@@ -168,11 +171,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Dump MQTT data from Eaton UPS")
     parser.add_argument("--host", required=True, help="MQTT broker hostname")
     parser.add_argument("--port", type=int, default=8883, help="MQTT broker port")
-    parser.add_argument("--server-cert", required=True, help="Path to server certificate")
-    parser.add_argument("--client-cert", required=True, help="Path to client certificate")
+    parser.add_argument(
+        "--server-cert", required=True, help="Path to server certificate"
+    )
+    parser.add_argument(
+        "--client-cert", required=True, help="Path to client certificate"
+    )
     parser.add_argument("--client-key", required=True, help="Path to client key")
     parser.add_argument("--output", required=True, help="Output JSON file path")
-    parser.add_argument("--duration", type=int, default=30, help="Capture duration in seconds")
+    parser.add_argument(
+        "--duration", type=int, default=30, help="Capture duration in seconds"
+    )
 
     args = parser.parse_args()
 

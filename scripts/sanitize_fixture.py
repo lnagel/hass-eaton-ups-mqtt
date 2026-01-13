@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sanitize PII from UPS MQTT fixture data.
+"""
+Sanitize PII from UPS MQTT fixture data.
 
 This script replaces personally identifiable information (PII) in the
 raw UPS data dump with realistic fake data.
@@ -13,13 +14,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import random
 import re
 import string
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # Seed for reproducible fake data (change this to get different values)
@@ -179,7 +179,11 @@ class PiiSanitizer:
             self._record_change(f"{path}.firmwareSha", old, result["firmwareSha"])
 
         # Timestamps
-        for field in ["firmwareInstallationDate", "firmwareActivationDate", "firmwareDate"]:
+        for field in [
+            "firmwareInstallationDate",
+            "firmwareActivationDate",
+            "firmwareDate",
+        ]:
             if field in result and isinstance(result[field], int):
                 old = result[field]
                 result[field] = self._offset_timestamp(old)

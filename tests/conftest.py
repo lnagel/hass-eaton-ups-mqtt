@@ -14,6 +14,16 @@ from custom_components.eaton_ups_mqtt.const import DOMAIN
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+# Register pytest-homeassistant-custom-component plugin
+pytest_plugins = "pytest_homeassistant_custom_component"
+
+
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(enable_custom_integrations):
+    """Enable custom integrations for all tests."""
+    return
+
+
 # Path to fixtures directory
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -35,7 +45,7 @@ def ups_5px_g2_full() -> dict[str, Any]:
 
 
 @pytest.fixture
-def mock_mqtt_client() -> Generator[MagicMock, None, None]:
+def mock_mqtt_client() -> Generator[MagicMock]:
     """Mock paho MQTT client."""
     with patch("paho.mqtt.client.Client") as mock_client_class:
         mock_instance = MagicMock()
