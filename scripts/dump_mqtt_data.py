@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Dump MQTT data from Eaton UPS for test fixtures.
 

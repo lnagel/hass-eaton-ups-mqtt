@@ -68,13 +68,34 @@ max-complexity = 25
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = [
+    "ANN", # No type annotations required in tests
+    "ARG001", # Allow unused arguments in fixtures
+    "ARG002", # Allow unused method arguments
+    "D", # No docstrings required in tests
+    "E501", # Allow long lines in tests
+    "EM101", # Allow string literals in exceptions
+    "INP001", # No __init__.py required for conftest
+    "PLR2004", # Allow magic values in tests
     "S101", # Allow assert in tests
     "S106", # Allow hardcoded passwords in tests
-    "ARG001", # Allow unused arguments in fixtures
-    "PLR2004", # Allow magic values in tests
+    "S108", # Allow hardcoded temp paths in tests
     "SLF001", # Allow private member access in tests
-    "EM101", # Allow string literals in exceptions
+    "TC002", # Allow non-type-checking imports
     "TRY003", # Allow long exception messages
+]
+"scripts/**" = [
+    "ANN", # No type annotations required in scripts
+    "ARG002", # Allow unused arguments (MQTT callbacks)
+    "BLE001", # Allow blind exceptions
+    "D", # No docstrings required
+    "E501", # Allow long lines
+    "ERA001", # Allow commented code
+    "FBT003", # Allow boolean positional args
+    "FURB162", # Allow timezone replacement
+    "INP001", # No __init__.py required
+    "PLR2004", # Allow magic values
+    "S311", # Allow pseudo-random generators
+    "T201", # Allow print statements
 ]
 
 [tool.coverage.run]
@@ -90,6 +111,9 @@ exclude_lines = [
 ]
 fail_under = 85
 show_missing = true
+
+[tool.ty.src]
+include = ["custom_components"]
 
 [tool.ty.environment]
 python-version = "3.13"

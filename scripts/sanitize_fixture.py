@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Sanitize PII from UPS MQTT fixture data.
 
