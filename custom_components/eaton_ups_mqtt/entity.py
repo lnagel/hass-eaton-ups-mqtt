@@ -26,7 +26,7 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
             sw_version=self._get_firmware_version(),
         )
 
-    def _get_model_info(self) -> str:
+    def _get_model_info(self) -> str | None:
         """Get model information from the coordinator data."""
         if not self.coordinator.data:
             return "Eaton UPS"
@@ -35,9 +35,11 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
         model = self.coordinator.data.get(
             "powerDistributions/1/identification", {}
         ).get("model")
-        return model or None
+        if isinstance(model, str) and model:
+            return model
+        return None
 
-    def _get_firmware_version(self) -> str:
+    def _get_firmware_version(self) -> str | None:
         """Get firmware version from the coordinator data."""
         if not self.coordinator.data:
             return None
@@ -46,4 +48,6 @@ class EatonUpsEntity(CoordinatorEntity[EatonUPSDataUpdateCoordinator]):
         firmware = self.coordinator.data.get(
             "powerDistributions/1/identification", {}
         ).get("firmwareVersion")
-        return firmware or None
+        if isinstance(firmware, str) and firmware:
+            return firmware
+        return None

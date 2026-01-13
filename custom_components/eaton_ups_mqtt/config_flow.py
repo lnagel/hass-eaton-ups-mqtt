@@ -293,7 +293,7 @@ def try_connection(
             except json.JSONDecodeError:
                 result.put(None)
 
-    client.on_connect = on_connect
+    client.on_connect = on_connect  # type: ignore[assignment]
     client.on_message = on_message
 
     def on_connect_fail(
