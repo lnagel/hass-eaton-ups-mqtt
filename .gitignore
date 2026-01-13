@@ -23,3 +23,7 @@ coverage.json
 # Home Assistant configuration
 config/*
 !config/configuration.yaml
+
+# Local development and test data (contains PII from real UPS)
+certs/
+tests/fixtures/raw_ups_data.json
