@@ -3,7 +3,7 @@
   "host": "ups.example.local",
   "port": 8883,
   "duration_seconds": 30,
-  "message_count": 413,
+  "message_count": 869,
   "data": {
     "managers/1/identification": {
       "firmwareVersion": "3.1.15",
@@ -26,6 +26,263 @@
       "manufacturer": "Eaton",
       "macAddress": "2F:C2:31:B7:B0:87"
     },
+    "sensors/status": {
+      "operating": 7,
+      "health": 5
+    },
+    "sensors/devices": {
+      "members@count": 0,
+      "members": []
+    },
+    "protectionService/suppliers": {
+      "members@count": 0,
+      "members": []
+    },
+    "protectionService/actions": {
+      "#scriptExec": "mbdetnrs/1.0/protectionService/actions/scriptExec??"
+    },
+    "alarmService/activeAlarms": {
+      "@id": "/mbdetnrs/1.0/alarmService/activeAlarms",
+      "members@count": 0,
+      "members": []
+    },
+    "alarmService/mostCritical": {},
+    "powerService/suppliers": {
+      "members@count": 3,
+      "members": [
+        {
+          "@id": "mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg"
+        },
+        {
+          "@id": "mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg"
+        },
+        {
+          "@id": "mbdetnrs/1.0/powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA"
+        }
+      ]
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/controllers": {
+      "members@count": 4,
+      "members": [
+        {
+          "@id": "mbdetnrs/1.0/scheduleService/schedulers/6gwp94ddUAGpoYYtmAzyCQ"
+        },
+        {
+          "@id": "mbdetnrs/1.0/protectionService/suppliers/KW7cx1fhUim8rQyhkeS48A/triggers/power"
+        },
+        {
+          "@id": "mbdetnrs/1.0/powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA"
+        },
+        {
+          "@id": "mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg"
+        }
+      ]
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/identification": {
+      "uuid": "69c58f49-4771-5a64-b12f-87fce3d511ae",
+      "manufacturer": "Eaton",
+      "model": "Power Supplier",
+      "serial": "",
+      "physicalName": "PRIMARY",
+      "name": "PRIMARY",
+      "interface": "mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg",
+      "version": "01.00.0000",
+      "location": "",
+      "contact": ""
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/configuration": {
+      "canProtect": true,
+      "canSelfProtect": true,
+      "connectorType": "unknown",
+      "isControllable": true,
+      "isSwitchable": true,
+      "automaticSwitchOnEnabled": true,
+      "automaticSwitchOnDelay": 0,
+      "nominalActivePower": 1500.0,
+      "nominalApparentPower": 1500.0,
+      "nominalCurrent": 6.52173901,
+      "nominalFrequency": 50.0,
+      "nominalVoltage": 230.0,
+      "powerCycleDuration": 10
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/summary": {
+      "mode": 4,
+      "quality": 4,
+      "poweringFor": -1,
+      "estimatedPoweringFor": -1,
+      "protectingFor": 15636,
+      "loadPercent": 17.0,
+      "protectionCapacityPercent": 99.0,
+      "protectionLowCapacityAlarm": false,
+      "protectionCapacityRuntime": 15636
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/schedule": {
+      "delayBeforePowerDown": -1,
+      "delayBeforePowerUp": -1
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/powerDownMinimumDurations": {
+      "normal": 0,
+      "critical": 0,
+      "emergency": 0
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/measures": {
+      "activePower": 0.0,
+      "apparentPower": 0.0,
+      "current": 0.0,
+      "frequency": 50.0,
+      "powerFactor": 0.0,
+      "voltage": 231.900009
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/controllers": {
+      "members@count": 2,
+      "members": [
+        {
+          "@id": "mbdetnrs/1.0/scheduleService/schedulers/6DABA3hhW1KltopjPKPZzA"
+        },
+        {
+          "@id": "mbdetnrs/1.0/protectionService/suppliers/FEA6q-IQU8GwmXbKO4h7gw/triggers/power"
+        }
+      ]
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/identification": {
+      "uuid": "b2e34b72-bee9-5884-b3ed-b2bbf5bfdd92",
+      "manufacturer": "Eaton",
+      "model": "Power Supplier",
+      "serial": "",
+      "physicalName": "GROUP 1",
+      "name": "GROUP 1",
+      "interface": "mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg",
+      "version": "01.00.0000",
+      "location": "",
+      "contact": ""
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/configuration": {
+      "canProtect": true,
+      "canSelfProtect": false,
+      "connectorType": "unknown",
+      "isControllable": true,
+      "isSwitchable": true,
+      "automaticSwitchOnEnabled": true,
+      "automaticSwitchOnDelay": 3,
+      "nominalActivePower": 1500.0,
+      "nominalApparentPower": 1500.0,
+      "nominalCurrent": 6.52173901,
+      "nominalFrequency": 50.0,
+      "nominalVoltage": 230.0,
+      "powerCycleDuration": 10
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/summary": {
+      "mode": 4,
+      "quality": 4,
+      "poweringFor": -1,
+      "estimatedPoweringFor": -1,
+      "protectingFor": 15636,
+      "loadPercent": 17.0,
+      "protectionCapacityPercent": 99.0,
+      "protectionLowCapacityAlarm": false,
+      "protectionCapacityRuntime": 15636
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/schedule": {
+      "delayBeforePowerDown": -1,
+      "delayBeforePowerUp": -1
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/powerDownMinimumDurations": {
+      "normal": 0,
+      "critical": 0,
+      "emergency": 0
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/measures": {
+      "activePower": 56.0,
+      "apparentPower": 79.0,
+      "current": 0.400000006,
+      "frequency": 50.0,
+      "powerFactor": 0.699999988,
+      "voltage": 231.900009
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/shutdownDurations": {
+      "normal": 0,
+      "critical": 0
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/estimatedPowerdownCommand": {
+      "timepoint": 4294967295,
+      "severity": 0,
+      "delay": -1
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/controllers": {
+      "members@count": 2,
+      "members": [
+        {
+          "@id": "mbdetnrs/1.0/protectionService/suppliers/Bn57S2SHUHK6QfYAYk1OQw/triggers/power"
+        },
+        {
+          "@id": "mbdetnrs/1.0/scheduleService/schedulers/HGr7rIKmUNy0CTKBd6veqg"
+        }
+      ]
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/identification": {
+      "uuid": "b0cfe2d8-ef93-5486-bcec-1ab331cdc50c",
+      "manufacturer": "Eaton",
+      "model": "Power Supplier",
+      "serial": "",
+      "physicalName": "GROUP 2",
+      "name": "GROUP 2",
+      "interface": "mbdetnrs/1.0/powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA",
+      "version": "01.00.0000",
+      "location": "",
+      "contact": ""
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/configuration": {
+      "canProtect": true,
+      "canSelfProtect": false,
+      "connectorType": "unknown",
+      "isControllable": true,
+      "isSwitchable": true,
+      "automaticSwitchOnEnabled": true,
+      "automaticSwitchOnDelay": 6,
+      "nominalActivePower": 1500.0,
+      "nominalApparentPower": 1500.0,
+      "nominalCurrent": 6.52173901,
+      "nominalFrequency": 50.0,
+      "nominalVoltage": 230.0,
+      "powerCycleDuration": 10
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/summary": {
+      "mode": 4,
+      "quality": 4,
+      "poweringFor": -1,
+      "estimatedPoweringFor": -1,
+      "protectingFor": 15636,
+      "loadPercent": 17.0,
+      "protectionCapacityPercent": 99.0,
+      "protectionLowCapacityAlarm": false,
+      "protectionCapacityRuntime": 15636
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/schedule": {
+      "delayBeforePowerDown": -1,
+      "delayBeforePowerUp": -1
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/powerDownMinimumDurations": {
+      "normal": 0,
+      "critical": 0,
+      "emergency": 0
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/measures": {
+      "activePower": 70.0,
+      "apparentPower": 131.0,
+      "current": 0.600000024,
+      "frequency": 50.0,
+      "powerFactor": 0.529999971,
+      "voltage": 231.900009
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/shutdownDurations": {
+      "normal": 0,
+      "critical": 0
+    },
+    "powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA/estimatedPowerdownCommand": {
+      "timepoint": 4294967295,
+      "severity": 0,
+      "delay": -1
+    },
     "powerDistributions/1/backupSystem/powerBank/chargers/1/status": {
       "operating": "in service",
       "health": "ok",
@@ -40,9 +297,9 @@
       "mode": "abm"
     },
     "powerDistributions/1/backupSystem/powerBank/measures": {
-      "remainingTime": 14861,
-      "stateOfCharge": 100,
-      "voltage": 52.2
+      "remainingTime": 15636,
+      "stateOfCharge": 99,
+      "voltage": 52
     },
     "powerDistributions/1/backupSystem/powerBank/settings": {
       "replacementAlarmEnabled": true,
@@ -69,8 +326,8 @@
       "lastTestResult": "success",
       "lastTestResultDate": "2025-01-04T14:17:36.000Z",
       "lastSuccessfulTestDate": "2025-01-04T14:17:36.000Z",
-      "lcmInstallationDate": "2021-10-26T11:12:04.000Z",
-      "lcmReplacementDate": "2025-10-25T11:12:04.000Z",
+      "lcmInstallationDate": "2021-10-26T11:11:46.000Z",
+      "lcmReplacementDate": "2025-10-25T11:11:46.000Z",
       "lcmExpired": false,
       "lowStateOfCharge": false,
       "storagePresent": "present",
@@ -94,13 +351,13 @@
       "name": "Eaton 5PX 1500i RT2U G2"
     },
     "powerDistributions/1/inputs/1/measures": {
-      "current": 1.3,
+      "current": 1.1,
       "frequency": 50,
-      "voltage": 231.7
+      "voltage": 230.8
     },
     "powerDistributions/1/inputs/1/phases/1/measures": {
-      "current": 1.3,
-      "voltage": 231.7
+      "current": 1.1,
+      "voltage": 230.8
     },
     "powerDistributions/1/inputs/1/status": {
       "operating": "in service",
@@ -121,14 +378,14 @@
       "friendlyName": "PRIMARY"
     },
     "powerDistributions/1/outlets/1/measures": {
-      "activePower": 47,
-      "apparentPower": 62,
-      "averageEnergy": 3,
-      "cumulatedEnergy": 1256493.0319786,
-      "current": 0.1,
-      "frequency": 49.9,
-      "powerFactor": 0.75,
-      "voltage": 231.7
+      "activePower": 0,
+      "apparentPower": 0,
+      "averageEnergy": 1,
+      "cumulatedEnergy": 1257753.0741692,
+      "current": 0,
+      "frequency": 50,
+      "powerFactor": 0,
+      "voltage": 231.9
     },
     "powerDistributions/1/outlets/1/specifications": {
       "feed": "Outputs.1",
@@ -149,14 +406,14 @@
       "friendlyName": "GROUP 1"
     },
     "powerDistributions/1/outlets/2/measures": {
-      "activePower": 55,
-      "apparentPower": 96,
-      "averageEnergy": 64,
-      "cumulatedEnergy": 1201898.008585,
-      "current": 0.5,
-      "frequency": 49.9,
-      "powerFactor": 0.84,
-      "voltage": 231.7
+      "activePower": 58,
+      "apparentPower": 79,
+      "averageEnergy": 59,
+      "cumulatedEnergy": 1211635.991931,
+      "current": 0.4,
+      "frequency": 50,
+      "powerFactor": 0.73,
+      "voltage": 231.9
     },
     "powerDistributions/1/outlets/2/specifications": {
       "feed": "Outputs.1",
@@ -177,14 +434,14 @@
       "friendlyName": "GROUP 2"
     },
     "powerDistributions/1/outlets/3/measures": {
-      "activePower": 77,
+      "activePower": 72,
       "apparentPower": 131,
-      "averageEnergy": 69,
-      "cumulatedEnergy": 1654783.0402851,
+      "averageEnergy": 77,
+      "cumulatedEnergy": 1672178.953886,
       "current": 0.7,
-      "frequency": 49.9,
-      "powerFactor": 0.58,
-      "voltage": 231.7
+      "frequency": 50,
+      "powerFactor": 0.54,
+      "voltage": 231.9
     },
     "powerDistributions/1/outlets/3/specifications": {
       "feed": "Outputs.1",
@@ -200,24 +457,24 @@
       "supplierPowerQuality": "protecting"
     },
     "powerDistributions/1/outputs/1/measures": {
-      "activePower": 192,
-      "apparentPower": 275,
-      "averageEnergy": 178,
-      "cumulatedEnergy": 4651951.1938095,
-      "current": 1.2,
+      "activePower": 174,
+      "apparentPower": 267,
+      "averageEnergy": 179,
+      "cumulatedEnergy": 4686421.1559296,
+      "current": 1.1,
       "efficiency": 99,
-      "frequency": 49.9,
-      "percentLoad": 18,
-      "powerFactor": 0.69,
-      "voltage": 231.7
+      "frequency": 50,
+      "percentLoad": 17,
+      "powerFactor": 0.65,
+      "voltage": 231.9
     },
     "powerDistributions/1/outputs/1/phases/1/measures": {
-      "activePower": 192,
-      "apparentPower": 275,
-      "current": 1.2,
-      "percentLoad": 19,
-      "powerFactor": 0.69,
-      "voltage": 231.7
+      "activePower": 174,
+      "apparentPower": 267,
+      "current": 1.1,
+      "percentLoad": 17,
+      "powerFactor": 0.65,
+      "voltage": 231.9
     },
     "powerDistributions/1/settings": {
       "audibleAlarm": "disabled on battery",
@@ -276,6 +533,36 @@
       "buildingAlarm1": false,
       "temperatureTooHigh": false
     },
-    "powerDistributions/1/environment/measures": {}
+    "powerDistributions/1/environment/measures": {},
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/timeSync??/suNLcr7pWISz7bK79b_dkg": {
+      "$reqId": 686074357,
+      "client": 30750845.428
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/timeSync?=/suNLcr7pWISz7bK79b_dkg": {
+      "$reqId": 686074357,
+      "$err": 1,
+      "client": 30750845.428,
+      "ref": 30750845.434
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/timeSync??/sM_i2O-TVIa87BqzMc3FDA": {
+      "$reqId": 686076531,
+      "client": 30750847.603
+    },
+    "powerService/suppliers/acWPSUdxWmSxL4f849URrg/timeSync?=/sM_i2O-TVIa87BqzMc3FDA": {
+      "$reqId": 686076531,
+      "$err": 1,
+      "client": 30750847.603,
+      "ref": 30750847.607
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/timeSync??/6DABA3hhW1KltopjPKPZzA": {
+      "$reqId": 686078803,
+      "client": 30750849.875
+    },
+    "powerService/suppliers/suNLcr7pWISz7bK79b_dkg/timeSync?=/6DABA3hhW1KltopjPKPZzA": {
+      "$reqId": 686078803,
+      "$err": 1,
+      "client": 30750849.875,
+      "ref": 30750849.879
+    }
   }
 }
