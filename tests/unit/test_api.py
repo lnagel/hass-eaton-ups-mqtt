@@ -82,11 +82,13 @@ class TestMqttCallbacks:
     def test_on_connect_success(self, mqtt_client):
         """Test on_connect sets connected flag on success."""
         mqtt_client._mqtt_client = MagicMock()
+        reason_code = MagicMock()
+        reason_code.is_failure = False
         mqtt_client._on_connect(
             _client=MagicMock(),
             _userdata=None,
-            _flags={},
-            rc=0,  # Success
+            _connect_flags=MagicMock(),
+            reason_code=reason_code,
         )
         assert mqtt_client._mqtt_connected is True
         mqtt_client._mqtt_client.subscribe.assert_called()
@@ -94,11 +96,13 @@ class TestMqttCallbacks:
     def test_on_connect_failure(self, mqtt_client):
         """Test on_connect sets connected flag False on failure."""
         mqtt_client._mqtt_client = MagicMock()
+        reason_code = MagicMock()
+        reason_code.is_failure = True
         mqtt_client._on_connect(
             _client=MagicMock(),
             _userdata=None,
-            _flags={},
-            rc=5,  # Connection refused
+            _connect_flags=MagicMock(),
+            reason_code=reason_code,
         )
         assert mqtt_client._mqtt_connected is False
 
@@ -108,7 +112,8 @@ class TestMqttCallbacks:
         mqtt_client._on_disconnect(
             _client=MagicMock(),
             _userdata=None,
-            _rc=0,
+            _disconnect_flags=MagicMock(),
+            _reason_code=MagicMock(),
         )
         assert mqtt_client._mqtt_connected is False
 

@@ -109,7 +109,7 @@ class EatonUpsMqttClient:
         # Create the MQTT client
         client_id = f"hass-eaton-ups-{uuid.uuid4()}"
         self._mqtt_client = mqtt.Client(
-            callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
+            callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
             client_id=client_id,
             protocol=MQTTv31,
         )
@@ -213,23 +213,24 @@ class EatonUpsMqttClient:
         self,
         _client: mqtt.Client,
         _userdata: Any,
-        _flags: dict[str, int],
-        rc: int,
+        _connect_flags: mqtt.ConnectFlags,
+        reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle connection callback."""
-        if rc == 0:
+        if reason_code.is_failure:
+            self._mqtt_connected = False
+        else:
             self._mqtt_connected = True
             # Resubscribe to topics on reconnect
             self._subscribe_to_topics()
-        else:
-            self._mqtt_connected = False
 
     def _on_disconnect(
         self,
         _client: mqtt.Client,
         _userdata: Any,
-        _rc: int,
+        _disconnect_flags: mqtt.DisconnectFlags,
+        _reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
