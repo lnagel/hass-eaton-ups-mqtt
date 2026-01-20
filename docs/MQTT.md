@@ -312,7 +312,7 @@ Topic `mbdetnrs/1.0/powerDistributions/1/identification` contains the following:
 
 ## Inputs
 
-There are 1..n inputs with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/outlets/{inputId}/`.
+There are 1..n inputs with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/inputs/{inputId}/`.
 
 Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/measures` contains the following:
 
@@ -342,7 +342,7 @@ Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/status` contains the following
 }
 ```
 
-There are 1..n phases with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/outlets/{inputId}/phases/{phaseId}/`.
+There are 1..n phases with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/inputs/{inputId}/phases/{phaseId}/`.
 
 Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/phases/1/measures` contains the following:
 
