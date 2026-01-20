@@ -64,11 +64,11 @@ class TestBattery:
     @pytest.mark.parametrize(
         ("key", "expected"),
         [
-            ("powerDistributions/1/backupSystem/powerBank/measures$stateOfCharge", 100),
-            ("powerDistributions/1/backupSystem/powerBank/measures$voltage", 52.2),
+            ("powerDistributions/1/backupSystem/powerBank/measures$stateOfCharge", 99),
+            ("powerDistributions/1/backupSystem/powerBank/measures$voltage", 52),
             (
                 "powerDistributions/1/backupSystem/powerBank/measures$remainingTime",
-                14861,
+                15636,
             ),
             ("powerDistributions/1/backupSystem/powerBank/status$operating", "stopped"),
             ("powerDistributions/1/backupSystem/powerBank/status$health", "ok"),
@@ -114,8 +114,8 @@ class TestInputSensors:
     @pytest.mark.parametrize(
         ("key", "expected"),
         [
-            ("powerDistributions/1/inputs/1/measures$voltage", 231.7),
-            ("powerDistributions/1/inputs/1/measures$current", 1.3),
+            ("powerDistributions/1/inputs/1/measures$voltage", 230.8),
+            ("powerDistributions/1/inputs/1/measures$current", 1.1),
             ("powerDistributions/1/inputs/1/measures$frequency", 50),
             ("powerDistributions/1/inputs/1/status$operating", "in service"),
             ("powerDistributions/1/inputs/1/status$health", "ok"),
@@ -134,14 +134,14 @@ class TestOutputSensors:
     @pytest.mark.parametrize(
         ("key", "expected"),
         [
-            ("powerDistributions/1/outputs/1/measures$activePower", 192),
-            ("powerDistributions/1/outputs/1/measures$apparentPower", 275),
-            ("powerDistributions/1/outputs/1/measures$percentLoad", 18),
+            ("powerDistributions/1/outputs/1/measures$activePower", 174),
+            ("powerDistributions/1/outputs/1/measures$apparentPower", 267),
+            ("powerDistributions/1/outputs/1/measures$percentLoad", 17),
             ("powerDistributions/1/outputs/1/measures$efficiency", 99),
-            ("powerDistributions/1/outputs/1/measures$voltage", 231.7),
-            ("powerDistributions/1/outputs/1/measures$current", 1.2),
-            ("powerDistributions/1/outputs/1/measures$frequency", 49.9),
-            ("powerDistributions/1/outputs/1/measures$powerFactor", 0.69),
+            ("powerDistributions/1/outputs/1/measures$voltage", 231.9),
+            ("powerDistributions/1/outputs/1/measures$current", 1.1),
+            ("powerDistributions/1/outputs/1/measures$frequency", 50),
+            ("powerDistributions/1/outputs/1/measures$powerFactor", 0.65),
         ],
     )
     def test_output_values(self, mock_coordinator, key, expected):
@@ -157,9 +157,9 @@ class TestOutlets:
     @pytest.mark.parametrize(
         ("outlet_num", "expected_name", "expected_power", "expected_switchable"),
         [
-            (1, "PRIMARY", 47, False),
-            (2, "GROUP 1", 55, True),
-            (3, "GROUP 2", 77, True),
+            (1, "PRIMARY", 0, False),
+            (2, "GROUP 1", 58, True),
+            (3, "GROUP 2", 72, True),
         ],
     )
     def test_outlet_identification(
@@ -197,18 +197,18 @@ class TestOutlets:
         ("outlet_num", "field", "expected"),
         [
             # Outlet 1 (PRIMARY)
-            (1, "apparentPower", 62),
-            (1, "current", 0.1),
-            (1, "voltage", 231.7),
-            (1, "powerFactor", 0.75),
+            (1, "apparentPower", 0),
+            (1, "current", 0),
+            (1, "voltage", 231.9),
+            (1, "powerFactor", 0),
             # Outlet 2 (GROUP 1)
-            (2, "apparentPower", 96),
-            (2, "current", 0.5),
-            (2, "powerFactor", 0.84),
+            (2, "apparentPower", 79),
+            (2, "current", 0.4),
+            (2, "powerFactor", 0.73),
             # Outlet 3 (GROUP 2)
             (3, "apparentPower", 131),
             (3, "current", 0.7),
-            (3, "powerFactor", 0.58),
+            (3, "powerFactor", 0.54),
         ],
     )
     def test_outlet_measurements(self, mock_coordinator, outlet_num, field, expected):
