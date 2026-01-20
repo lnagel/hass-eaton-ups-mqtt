@@ -62,11 +62,10 @@ class MqttDataDumper:
             # Subscribe to all relevant topics
             client.subscribe(
                 [
-                    (MQTT_PREFIX + "managers/#", 0),
-                    (MQTT_PREFIX + "powerDistributions/#", 0),
+                    (MQTT_PREFIX + "#", 0),
                 ]
             )
-            print("Subscribed to managers/# and powerDistributions/#")
+            print("Subscribed to #")
         else:
             print(f"Connection failed with code {rc}")
             self.connected = False

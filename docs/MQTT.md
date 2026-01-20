@@ -6,25 +6,25 @@ Topic `mbdetnrs/1.0/managers/1/identification` contains the following:
 
 ```json
 {
-	"firmwareVersion": "3.1.15",
-	"physicalName": "Eaton Gigabit Network Card",
-	"uuid": "9c7ee7d3-d046-5120-a766-b2c11ce7fafa",
-	"vendor": "Eaton",
-	"product": "Gigabit Network Card",
-	"serialNumber": "G312N07BB4",
-	"type": "management card",
-	"partNumber": "744-A3983-02",
-	"hwVersion": "0",
-	"name": "Eaton5PX",
-	"contact": "",
-	"location": "",
-	"firmwareInstallationDate": 1738146293,
-	"firmwareActivationDate": 1738146605,
-	"firmwareDate": 1726232600,
-	"firmwareSha": "f21a1ed",
-	"bootloaderVersion": "3.0.2",
-	"manufacturer": "Eaton",
-	"macAddress": "00:20:85:D2:23:E8"
+  "firmwareVersion": "3.1.15",
+  "physicalName": "Eaton Gigabit Network Card",
+  "uuid": "390c8c7d-7247-442c-9810-0f2f6f770d65",
+  "vendor": "Eaton",
+  "product": "Gigabit Network Card",
+  "serialNumber": "GZZPQK51FPK",
+  "type": "management card",
+  "partNumber": "320-Y6514-14",
+  "hwVersion": "0",
+  "name": "Eaton5PX",
+  "contact": "",
+  "location": "",
+  "firmwareInstallationDate": 1707301493,
+  "firmwareActivationDate": 1707301805,
+  "firmwareDate": 1695387800,
+  "firmwareSha": "cb8f68d",
+  "bootloaderVersion": "3.0.2",
+  "manufacturer": "Eaton",
+  "macAddress": "2F:C2:31:B7:B0:87"
 }
 ```
 
@@ -97,6 +97,25 @@ Topic `mbdetnrs/1.0/alarmService/mostCritical` contains the following:
 
 There are 1..n powerService suppliers with prefix `mbdetnrs/1.0/powerService/suppliers/{supplierId}`.
 
+Topic `mbdetnrs/1.0/powerService/suppliers` contains the following:
+
+```json
+{
+  "members@count": 3,
+  "members": [
+    {
+      "@id": "mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg"
+    },
+    {
+      "@id": "mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg"
+    },
+    {
+      "@id": "mbdetnrs/1.0/powerService/suppliers/sM_i2O-TVIa87BqzMc3FDA"
+    }
+  ]
+}
+```
+
 Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/controllers` contains the following:
 
 ```json
@@ -148,11 +167,11 @@ Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/configuration`
   "isSwitchable": true,
   "automaticSwitchOnEnabled": true,
   "automaticSwitchOnDelay": 0,
-  "nominalActivePower": 1.50000000e+03,
-  "nominalApparentPower": 1.50000000e+03,
-  "nominalCurrent": 6.52173901e+00,
-  "nominalFrequency": 5.00000000e+01,
-  "nominalVoltage": 2.30000000e+02,
+  "nominalActivePower": 1500.0,
+  "nominalApparentPower": 1500.0,
+  "nominalCurrent": 6.52173901,
+  "nominalFrequency": 50.0,
+  "nominalVoltage": 230.0,
   "powerCycleDuration": 10
 }
 ```
@@ -165,11 +184,11 @@ Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/summary` conta
   "quality": 4,
   "poweringFor": -1,
   "estimatedPoweringFor": -1,
-  "protectingFor": 18971,
-  "loadPercent": 1.50000000e+01,
-  "protectionCapacityPercent": 1.00000000e+02,
+  "protectingFor": 15636,
+  "loadPercent": 17.0,
+  "protectionCapacityPercent": 99.0,
   "protectionLowCapacityAlarm": false,
-  "protectionCapacityRuntime": 18971
+  "protectionCapacityRuntime": 15636
 }
 ```
 
@@ -196,12 +215,31 @@ Topic `mbdetnrs/1.0/powerService/suppliers/acWPSUdxWmSxL4f849URrg/measures` cont
 
 ```json
 {
-  "activePower": 8.80000000e+01,
-  "apparentPower": 1.61000000e+02,
-  "current": 5.00000000e-01,
-  "frequency": 4.99000015e+01,
-  "powerFactor": 5.40000021e-01,
-  "voltage": 2.32900009e+02
+  "activePower": 0.0,
+  "apparentPower": 0.0,
+  "current": 0.0,
+  "frequency": 50.0,
+  "powerFactor": 0.0,
+  "voltage": 231.900009
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg/shutdownDurations` contains the following:
+
+```json
+{
+  "normal": 0,
+  "critical": 0
+}
+```
+
+Topic `mbdetnrs/1.0/powerService/suppliers/suNLcr7pWISz7bK79b_dkg/estimatedPowerdownCommand` contains the following:
+
+```json
+{
+  "timepoint": 4294967295,
+  "severity": 0,
+  "delay": -1
 }
 ```
 
@@ -215,17 +253,17 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/chargers/1/statu
 
 ```json
 {
-	"operating": "in service",
-	"health": "ok",
-	"active": true,
-	"chargerStatus": "on not charging",
-	"enabled": true,
-	"installed": true,
-	"internalFailure": false,
-	"supply": true,
-	"voltageTooHigh": false,
-	"voltageTooLow": false,
-	"mode": "abm"
+  "operating": "in service",
+  "health": "ok",
+  "active": true,
+  "chargerStatus": "on not charging",
+  "enabled": true,
+  "installed": true,
+  "internalFailure": false,
+  "supply": true,
+  "voltageTooHigh": false,
+  "voltageTooLow": false,
+  "mode": "abm"
 }
 ```
 
@@ -233,9 +271,9 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/measures` contai
 
 ```json
 {
-	"remainingTime": 18971,
-	"stateOfCharge": 100,
-	"voltage": 52.8
+  "remainingTime": 15636,
+  "stateOfCharge": 99,
+  "voltage": 52
 }
 ```
 
@@ -243,9 +281,9 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/settings` contai
 
 ```json
 {
-	"replacementAlarmEnabled": true,
-	"lowRuntimeThreshold": 900,
-	"lowStateOfChargeThreshold": 20
+  "replacementAlarmEnabled": true,
+  "lowRuntimeThreshold": 900,
+  "lowStateOfChargeThreshold": 20
 }
 ```
 
@@ -253,16 +291,16 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/specifications` 
 
 ```json
 {
-	"externalCount": 1,
-	"remoteControlEnabled": true,
-	"technology": "PbAc",
-	"capacityAh": {
-		"nominal": 27
-	},
-	"voltage": {
-		"nominal": 48
-	},
-	"type": "batteries"
+  "externalCount": 1,
+  "remoteControlEnabled": true,
+  "technology": "PbAc",
+  "capacityAh": {
+    "nominal": 27
+  },
+  "voltage": {
+    "nominal": 48
+  },
+  "type": "batteries"
 }
 ```
 
@@ -270,22 +308,22 @@ Topic `mbdetnrs/1.0/powerDistributions/1/backupSystem/powerBank/status` contains
 
 ```json
 {
-	"operating": "stopped",
-	"health": "ok",
-	"criticalLowStateOfCharge": false,
-	"internalFailure": false,
-	"lastTestResult": "success",
-	"lastTestResultDate": "2025-02-25T12:40:02.000Z",
-	"lastSuccessfulTestDate": "2025-02-25T12:40:02.000Z",
-	"lcmInstallationDate": "2022-10-18T12:26:28.000Z",
-	"lcmReplacementDate": "2026-10-17T12:26:28.000Z",
-	"lcmExpired": false,
-	"lowStateOfCharge": false,
-	"storagePresent": "present",
-	"supplied": true,
-	"supply": false,
-	"testFailed": false,
-	"testStatus": 3
+  "operating": "stopped",
+  "health": "ok",
+  "criticalLowStateOfCharge": false,
+  "internalFailure": false,
+  "lastTestResult": "success",
+  "lastTestResultDate": "2025-01-04T14:17:36.000Z",
+  "lastSuccessfulTestDate": "2025-01-04T14:17:36.000Z",
+  "lcmInstallationDate": "2021-10-26T11:11:46.000Z",
+  "lcmReplacementDate": "2025-10-25T11:11:46.000Z",
+  "lcmExpired": false,
+  "lowStateOfCharge": false,
+  "storagePresent": "present",
+  "supplied": true,
+  "supply": false,
+  "testFailed": false,
+  "testStatus": 3
 }
 ```
 
@@ -295,32 +333,32 @@ Topic `mbdetnrs/1.0/powerDistributions/1/identification` contains the following:
 
 ```json
 {
-	"uuid": "50c6eedb-7666-5e51-a07c-5fcf3eae6085",
-	"physicalName": "Eaton 5PX 1500i RT2U G2",
-	"friendlyName": "Eaton 5PX 1500i RT2U G2",
-	"partNumber": "5PX1500IRT2UG2",
-	"referenceNumber": "9910",
-	"vendor": "EATON",
-	"model": "Eaton 5PX 1500i RT2U G2",
-	"serialNumber": "GF21N13275",
-	"type": "PowerDistribution",
-	"productName": "Eaton 5PX",
-	"firmwareVersion": "01.12.0024",
-	"name": "Eaton 5PX 1500i RT2U G2"
+  "uuid": "b9622317-7494-4877-b3c2-8ee8ba53bdb5",
+  "physicalName": "Eaton 5PX 1500i RT2U G2",
+  "friendlyName": "Eaton 5PX 1500i RT2U G2",
+  "partNumber": "5PX1500IRT2UG2",
+  "referenceNumber": "9910",
+  "vendor": "EATON",
+  "model": "Eaton 5PX 1500i RT2U G2",
+  "serialNumber": "GFHJ7XVG0FN9",
+  "type": "PowerDistribution",
+  "productName": "Eaton 5PX",
+  "firmwareVersion": "01.12.0024",
+  "name": "Eaton 5PX 1500i RT2U G2"
 }
 ```
 
 ## Inputs
 
-There are 1..n inputs with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/outlets/{inputId}/`.
+There are 1..n inputs with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/inputs/{inputId}/`.
 
 Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/measures` contains the following:
 
 ```json
 {
-	"current": 1,
-	"frequency": 49.9,
-	"voltage": 234.0
+  "current": 1.1,
+  "frequency": 50,
+  "voltage": 230.8
 }
 ```
 
@@ -328,28 +366,28 @@ Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/status` contains the following
 
 ```json
 {
-	"operating": "in service",
-	"health": "ok",
-	"frequencyOutOfRange": false,
-	"inRange": true,
-	"internalFailure": false,
-	"supplied": true,
-	"supply": true,
-	"voltageOutOfRange": false,
-	"voltageTooHigh": false,
-	"voltageTooLow": false,
-	"wiringFault": false
+  "operating": "in service",
+  "health": "ok",
+  "frequencyOutOfRange": false,
+  "inRange": true,
+  "internalFailure": false,
+  "supplied": true,
+  "supply": true,
+  "voltageOutOfRange": false,
+  "voltageTooHigh": false,
+  "voltageTooLow": false,
+  "wiringFault": false
 }
 ```
 
-There are 1..n phases with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/outlets/{inputId}/phases/{phaseId}/`.
+There are 1..n phases with prefix `mbdetnrs/1.0/powerDistributions/{powerDistributionId}/inputs/{inputId}/phases/{phaseId}/`.
 
 Topic `mbdetnrs/1.0/powerDistributions/1/inputs/1/phases/1/measures` contains the following:
 
 ```json
 {
-	"current": 1.0,
-	"voltage": 234.0
+  "current": 1.1,
+  "voltage": 230.8
 }
 ```
 
@@ -361,9 +399,9 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outlets/1/identification` contains the 
 
 ```json
 {
-	"uuid": "48d4d642-82c3-594e-b830-9004677d8bbd",
-	"physicalName": "PRIMARY",
-	"friendlyName": "PRIMARY"
+  "uuid": "70a61c75-10a1-4d89-a16c-a16cffcaea49",
+  "physicalName": "PRIMARY",
+  "friendlyName": "PRIMARY"
 }
 ```
 
@@ -371,14 +409,14 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outlets/1/measures` contains the follow
 
 ```json
 {
-	"activePower": 85,
-	"apparentPower": 146,
-	"averageEnergy": 83,
-	"cumulatedEnergy": 1123102.9778719,
-	"current": 0.5,
-	"frequency": 49.9,
-	"powerFactor": 0.59,
-	"voltage": 234.0
+  "activePower": 0,
+  "apparentPower": 0,
+  "averageEnergy": 1,
+  "cumulatedEnergy": 1257753.0741692,
+  "current": 0,
+  "frequency": 50,
+  "powerFactor": 0,
+  "voltage": 231.9
 }
 ```
 
@@ -386,8 +424,8 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outlets/1/specifications` contains the 
 
 ```json
 {
-	"feed": "Outputs.1",
-	"switchable": false
+  "feed": "Outputs.1",
+  "switchable": false
 }
 ```
 
@@ -395,13 +433,13 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outlets/1/status` contains the followin
 
 ```json
 {
-	"operating": "in service",
-	"health": "ok",
-	"delayBeforeSwitchOff": -1,
-	"delayBeforeSwitchOn": -1,
-	"supply": true,
-	"switchedOn": true,
-	"supplierPowerQuality": "protecting"
+  "operating": "in service",
+  "health": "ok",
+  "delayBeforeSwitchOff": -1,
+  "delayBeforeSwitchOn": -1,
+  "supply": true,
+  "switchedOn": true,
+  "supplierPowerQuality": "protecting"
 }
 ```
 
@@ -420,16 +458,16 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outputs/1/measures` contains the follow
 
 ```json
 {
-	"activePower": 146,
-	"apparentPower": 226,
-	"averageEnergy": 158,
-	"cumulatedEnergy": 3201624.1550446,
-	"current": 1,
-	"efficiency": 99,
-	"frequency": 49.9,
-	"percentLoad": 15,
-	"powerFactor": 0.65,
-	"voltage": 234.0
+  "activePower": 174,
+  "apparentPower": 267,
+  "averageEnergy": 179,
+  "cumulatedEnergy": 4686421.1559296,
+  "current": 1.1,
+  "efficiency": 99,
+  "frequency": 50,
+  "percentLoad": 17,
+  "powerFactor": 0.65,
+  "voltage": 231.9
 }
 ```
 
@@ -439,12 +477,12 @@ Topic `mbdetnrs/1.0/powerDistributions/1/outputs/1/phases/1/measures` contains t
 
 ```json
 {
-	"activePower": 146,
-	"apparentPower": 226,
-	"current": 1,
-	"percentLoad": 15,
-	"powerFactor": 0.65,
-	"voltage": 234.0
+  "activePower": 174,
+  "apparentPower": 267,
+  "current": 1.1,
+  "percentLoad": 17,
+  "powerFactor": 0.65,
+  "voltage": 231.9
 }
 ```
 
@@ -454,15 +492,15 @@ Topic `mbdetnrs/1.0/powerDistributions/1/settings` contains the following:
 
 ```json
 {
-	"audibleAlarm": "disabled on battery",
-	"automaticRestartEnabled": true,
-	"automaticRestartLevel": 0,
-	"forcedRebootEnabled": true,
-	"nominalVoltage": 230,
-	"remoteControlEnabled": true,
-	"sensitivityMode": "high sensitivity",
-	"voltageHighDetection": 294,
-	"voltageLowDetection": 160
+  "audibleAlarm": "disabled on battery",
+  "automaticRestartEnabled": true,
+  "automaticRestartLevel": 0,
+  "forcedRebootEnabled": true,
+  "nominalVoltage": 230,
+  "remoteControlEnabled": true,
+  "sensitivityMode": "high sensitivity",
+  "voltageHighDetection": 294,
+  "voltageLowDetection": 160
 }
 ```
 
@@ -472,29 +510,29 @@ Topic `mbdetnrs/1.0/powerDistributions/1/specifications` contains the following:
 
 ```json
 {
-	"powerCycleDuration": 10,
-	"supported": true,
-	"topology": "line interactive",
-	"voltageRange": "high voltage",
-	"activePower": {
-		"nominal": 1500
-	},
-	"apparentPower": {
-		"nominal": 1500
-	},
-	"current": {
-		"nominal": 6.5217
-	},
-	"frequency": {
-		"nominal": 50
-	},
-	"percentLoad": {
-		"highWarningThreshold": 102
-	},
-	"voltage": {
-		"nominal": 230
-	},
-	"type": "ups"
+  "powerCycleDuration": 10,
+  "supported": true,
+  "topology": "line interactive",
+  "voltageRange": "high voltage",
+  "activePower": {
+    "nominal": 1500
+  },
+  "apparentPower": {
+    "nominal": 1500
+  },
+  "current": {
+    "nominal": 6.5217
+  },
+  "frequency": {
+    "nominal": 50
+  },
+  "percentLoad": {
+    "highWarningThreshold": 102
+  },
+  "voltage": {
+    "nominal": 230
+  },
+  "type": "ups"
 }
 ```
 
@@ -504,20 +542,20 @@ Topic `mbdetnrs/1.0/powerDistributions/1/status` contains the following:
 
 ```json
 {
-	"operating": "in service",
-	"health": "ok",
-	"bootloaderMode": false,
-	"communicationFault": false,
-	"configurationFault": false,
-	"delayBeforeSwitchOff": -1,
-	"delayBeforeSwitchOn": -1,
-	"emergencySwitchOff": false,
-	"fanFault": false,
-	"internalFailure": false,
-	"shutdownImminent": false,
-	"systemAlarm": false,
-	"temperatureOutOfRange": false,
-	"mode": "on line interactive normal"
+  "operating": "in service",
+  "health": "ok",
+  "bootloaderMode": false,
+  "communicationFault": false,
+  "configurationFault": false,
+  "delayBeforeSwitchOff": -1,
+  "delayBeforeSwitchOn": -1,
+  "emergencySwitchOff": false,
+  "fanFault": false,
+  "internalFailure": false,
+  "shutdownImminent": false,
+  "systemAlarm": false,
+  "temperatureOutOfRange": false,
+  "mode": "on line interactive normal"
 }
 ```
 
@@ -527,9 +565,9 @@ Topic `mbdetnrs/1.0/powerDistributions/1/environment/status` contains the follow
 
 ```json
 {
-	"health": "ok",
-	"buildingAlarm1": false,
-	"temperatureTooHigh": false
+  "health": "ok",
+  "buildingAlarm1": false,
+  "temperatureTooHigh": false
 }
 ```
 
