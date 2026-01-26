@@ -54,7 +54,7 @@ BASE_ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="powerDistributions/1/status$shutdownImminent",
         name="Shutdown Imminent",
-        device_class=BinarySensorDeviceClass.PROBLEM,
+        device_class=BinarySensorDeviceClass.SAFETY,
     ),
     BinarySensorEntityDescription(
         key="powerDistributions/1/status$systemAlarm",
@@ -70,7 +70,7 @@ BASE_ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/status$criticalLowStateOfCharge",
         name="Critical Low Battery",
-        device_class=BinarySensorDeviceClass.BATTERY,
+        device_class=BinarySensorDeviceClass.SAFETY,
     ),
     BinarySensorEntityDescription(
         key="powerDistributions/1/backupSystem/powerBank/status$internalFailure",
