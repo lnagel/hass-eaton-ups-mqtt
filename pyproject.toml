@@ -1,6 +1,6 @@
 [project]
 name = "hass-eaton-ups-mqtt"
-version = "0.2.3"
+version = "0.2.4"
 description = "Home Assistant integration for Eaton UPS devices via MQTT"
 authors = [
     { name = "lnagel", email = "lnagel@users.noreply.github.com" }
@@ -119,7 +119,7 @@ include = ["custom_components"]
 python-version = "3.13"
 
 [tool.bumpversion]
-current_version = "0.2.3"
+current_version = "0.2.4"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 commit = true
