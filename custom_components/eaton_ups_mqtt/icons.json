@@ -1,0 +1,258 @@
+{
+  "entity": {
+    "sensor": {
+      "manager_firmware_version": {
+        "default": "mdi:information-outline"
+      },
+      "manager_physical_name": {
+        "default": "mdi:information-outline"
+      },
+      "manager_uuid": {
+        "default": "mdi:identifier"
+      },
+      "manager_vendor": {
+        "default": "mdi:domain"
+      },
+      "manager_product": {
+        "default": "mdi:package-variant"
+      },
+      "manager_serial_number": {
+        "default": "mdi:barcode"
+      },
+      "manager_type": {
+        "default": "mdi:card-text-outline"
+      },
+      "manager_part_number": {
+        "default": "mdi:numeric"
+      },
+      "manager_hardware_version": {
+        "default": "mdi:chip"
+      },
+      "manager_name": {
+        "default": "mdi:account-outline"
+      },
+      "manager_contact": {
+        "default": "mdi:account-outline"
+      },
+      "manager_location": {
+        "default": "mdi:map-marker-outline"
+      },
+      "manager_firmware_installation_date": {
+        "default": "mdi:calendar-clock"
+      },
+      "manager_firmware_activation_date": {
+        "default": "mdi:calendar-clock"
+      },
+      "manager_firmware_date": {
+        "default": "mdi:calendar-clock"
+      },
+      "manager_firmware_sha": {
+        "default": "mdi:checkbox-marked-circle-outline"
+      },
+      "manager_bootloader_version": {
+        "default": "mdi:information-outline"
+      },
+      "manager_manufacturer": {
+        "default": "mdi:factory"
+      },
+      "manager_mac_address": {
+        "default": "mdi:ethernet"
+      },
+      "ups_uuid": {
+        "default": "mdi:identifier"
+      },
+      "ups_physical_name": {
+        "default": "mdi:label-outline"
+      },
+      "ups_friendly_name": {
+        "default": "mdi:label-outline"
+      },
+      "ups_part_number": {
+        "default": "mdi:numeric"
+      },
+      "ups_reference_number": {
+        "default": "mdi:numeric-9-plus-box-outline"
+      },
+      "ups_vendor": {
+        "default": "mdi:domain"
+      },
+      "ups_model": {
+        "default": "mdi:information-outline"
+      },
+      "ups_serial_number": {
+        "default": "mdi:information-outline"
+      },
+      "ups_type": {
+        "default": "mdi:card-text-outline"
+      },
+      "ups_product_name": {
+        "default": "mdi:package-variant"
+      },
+      "ups_firmware_version": {
+        "default": "mdi:information-outline"
+      },
+      "ups_name": {
+        "default": "mdi:label-outline"
+      },
+      "ups_operating_status": {
+        "default": "mdi:power-settings"
+      },
+      "ups_health": {
+        "default": "mdi:heart-pulse"
+      },
+      "ups_mode": {
+        "default": "mdi:power-settings"
+      },
+      "backup_remaining_time": {
+        "default": "mdi:timer-outline"
+      },
+      "backup_state_of_charge": {
+        "default": "mdi:battery"
+      },
+      "backup_voltage": {
+        "default": "mdi:flash"
+      },
+      "backup_low_runtime_threshold": {
+        "default": "mdi:timer-alert-outline"
+      },
+      "backup_low_charge_threshold": {
+        "default": "mdi:battery-alert"
+      },
+      "backup_external_count": {
+        "default": "mdi:battery-check"
+      },
+      "backup_technology": {
+        "default": "mdi:battery-heart-variant"
+      },
+      "backup_nominal_capacity": {
+        "default": "mdi:battery-charging"
+      },
+      "backup_nominal_voltage": {
+        "default": "mdi:flash"
+      },
+      "backup_operating_status": {
+        "default": "mdi:battery-heart-outline"
+      },
+      "backup_health": {
+        "default": "mdi:heart-pulse"
+      },
+      "backup_last_test_result": {
+        "default": "mdi:test-tube"
+      },
+      "backup_last_test_date": {
+        "default": "mdi:calendar-clock"
+      },
+      "backup_installation_date": {
+        "default": "mdi:calendar-plus"
+      },
+      "backup_replacement_date": {
+        "default": "mdi:calendar-refresh"
+      },
+      "charger_operating_status": {
+        "default": "mdi:battery-charging"
+      },
+      "charger_health": {
+        "default": "mdi:heart-pulse"
+      },
+      "charger_status": {
+        "default": "mdi:battery-charging-outline"
+      },
+      "charger_mode": {
+        "default": "mdi:battery-charging-high"
+      },
+      "audible_alarm": {
+        "default": "mdi:volume-high"
+      },
+      "nominal_voltage": {
+        "default": "mdi:flash-alert"
+      },
+      "sensitivity_mode": {
+        "default": "mdi:tune"
+      },
+      "voltage_high_detection": {
+        "default": "mdi:flash-alert"
+      },
+      "voltage_low_detection": {
+        "default": "mdi:flash-alert"
+      },
+      "input_voltage": {
+        "default": "mdi:flash"
+      },
+      "input_frequency": {
+        "default": "mdi:sine-wave"
+      },
+      "input_current": {
+        "default": "mdi:current-ac"
+      },
+      "output_voltage": {
+        "default": "mdi:flash"
+      },
+      "output_frequency": {
+        "default": "mdi:sine-wave"
+      },
+      "output_current": {
+        "default": "mdi:current-ac"
+      },
+      "output_active_power": {
+        "default": "mdi:power-plug"
+      },
+      "output_apparent_power": {
+        "default": "mdi:power-plug"
+      },
+      "output_load": {
+        "default": "mdi:gauge"
+      },
+      "output_power_factor": {
+        "default": "mdi:sine-wave"
+      },
+      "output_efficiency": {
+        "default": "mdi:lightning-bolt-outline"
+      },
+      "output_energy": {
+        "default": "mdi:lightning-bolt"
+      },
+      "output_average_power": {
+        "default": "mdi:lightning-bolt"
+      },
+      "outlet_energy": {
+        "default": "mdi:lightning-bolt"
+      },
+      "outlet_average_power": {
+        "default": "mdi:lightning-bolt"
+      },
+      "outlet_active_power": {
+        "default": "mdi:power-plug"
+      },
+      "outlet_apparent_power": {
+        "default": "mdi:power-plug"
+      },
+      "outlet_current": {
+        "default": "mdi:current-ac"
+      },
+      "outlet_frequency": {
+        "default": "mdi:sine-wave"
+      },
+      "outlet_voltage": {
+        "default": "mdi:flash"
+      },
+      "outlet_power_factor": {
+        "default": "mdi:sine-wave"
+      },
+      "outlet_delay_before_switch_off": {
+        "default": "mdi:timer-off-outline"
+      },
+      "outlet_delay_before_switch_on": {
+        "default": "mdi:timer-outline"
+      },
+      "outlet_operating_status": {
+        "default": "mdi:power-settings"
+      },
+      "outlet_health": {
+        "default": "mdi:heart-pulse"
+      },
+      "outlet_power_quality": {
+        "default": "mdi:power-plug"
+      }
+    }
+  }
+}
