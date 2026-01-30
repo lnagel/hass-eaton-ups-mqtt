@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/lnagel/hass-eaton-ups",
+                "description": "Set up your Eaton UPS with Network-M2 or Network-M3 card.",
                 "data": {
                     "username": "Username",
                     "password": "Password"
