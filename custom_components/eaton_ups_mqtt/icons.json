@@ -253,6 +253,116 @@
       "outlet_power_quality": {
         "default": "mdi:power-plug"
       }
+    },
+    "binary_sensor": {
+      "bootloader_mode": {
+        "default": "mdi:cog-refresh"
+      },
+      "communication_fault": {
+        "default": "mdi:network-off"
+      },
+      "configuration_fault": {
+        "default": "mdi:cog-off"
+      },
+      "emergency_switch_off": {
+        "default": "mdi:power-off"
+      },
+      "fan_fault": {
+        "default": "mdi:fan-alert"
+      },
+      "internal_failure": {
+        "default": "mdi:alert-circle"
+      },
+      "shutdown_imminent": {
+        "default": "mdi:power-cycle"
+      },
+      "system_alarm": {
+        "default": "mdi:alarm-light"
+      },
+      "temperature_out_of_range": {
+        "default": "mdi:thermometer-alert"
+      },
+      "critical_low_battery": {
+        "default": "mdi:battery-alert-variant"
+      },
+      "battery_internal_failure": {
+        "default": "mdi:battery-off"
+      },
+      "battery_expired": {
+        "default": "mdi:battery-clock"
+      },
+      "low_battery": {
+        "default": "mdi:battery-low"
+      },
+      "battery_supplied": {
+        "default": "mdi:battery-check"
+      },
+      "battery_supply": {
+        "default": "mdi:battery-arrow-down"
+      },
+      "battery_test_failed": {
+        "default": "mdi:battery-remove"
+      },
+      "charger_active": {
+        "default": "mdi:battery-charging"
+      },
+      "charger_enabled": {
+        "default": "mdi:battery-charging-wireless"
+      },
+      "charger_installed": {
+        "default": "mdi:battery-plus-variant"
+      },
+      "charger_internal_failure": {
+        "default": "mdi:battery-charging-wireless-alert"
+      },
+      "charger_supply": {
+        "default": "mdi:battery-charging-100"
+      },
+      "charger_voltage_too_high": {
+        "default": "mdi:flash-alert"
+      },
+      "charger_voltage_too_low": {
+        "default": "mdi:flash-off"
+      },
+      "building_alarm": {
+        "default": "mdi:office-building-cog"
+      },
+      "temperature_too_high": {
+        "default": "mdi:thermometer-high"
+      },
+      "input_frequency_out_of_range": {
+        "default": "mdi:sine-wave"
+      },
+      "input_in_range": {
+        "default": "mdi:check-circle"
+      },
+      "input_internal_failure": {
+        "default": "mdi:alert-circle"
+      },
+      "input_supplied": {
+        "default": "mdi:power-plug-outline"
+      },
+      "input_supply": {
+        "default": "mdi:power-plug"
+      },
+      "input_voltage_out_of_range": {
+        "default": "mdi:flash-triangle"
+      },
+      "input_voltage_too_high": {
+        "default": "mdi:flash-alert"
+      },
+      "input_voltage_too_low": {
+        "default": "mdi:flash-off"
+      },
+      "input_wiring_fault": {
+        "default": "mdi:cable-data"
+      },
+      "outlet_supply": {
+        "default": "mdi:power-socket"
+      },
+      "outlet_switched_on": {
+        "default": "mdi:power-socket"
+      }
     }
   }
 }
