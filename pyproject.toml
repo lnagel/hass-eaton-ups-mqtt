@@ -14,16 +14,14 @@ dependencies = [
     "paho-mqtt>=2.1.0",
 ]
 
-[project.optional-dependencies]
-test = [
+[dependency-groups]
+dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.20.0",
     "pytest-cov>=4.0.0",
     "pytest-homeassistant-custom-component>=0.13.285",
-]
-dev = [
-    "hass-eaton-ups-mqtt[test]",
     "bump-my-version>=1.1.0",
+    "diff-cover>=9.0.0",
     "ruff>=0.14.10",
     "ty>=0.0.1a11",
 ]

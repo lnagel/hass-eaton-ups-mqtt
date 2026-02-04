@@ -25,7 +25,7 @@ This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
 
 ```bash
 # Install dependencies
-uv sync --all-extras
+uv sync --dev
 
 # Run tests
 uv run pytest

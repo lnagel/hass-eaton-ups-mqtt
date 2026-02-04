@@ -32,7 +32,7 @@ jobs:
         run: python --version
 
       - name: Install dependencies
-        run: uv sync --extra test
+        run: uv sync --dev
 
       - name: Run tests with coverage
         run: uv run pytest --cov=custom_components/eaton_ups_mqtt --cov-branch --cov-report=xml --cov-report=term --junitxml=junit.xml -o junit_family=legacy
