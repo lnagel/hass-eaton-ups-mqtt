@@ -72,6 +72,9 @@ tests/                               # Test suite
 
 ## Testing Requirements
 
+### Test Coverage
+- **Overall**: 85% minimum (enforced in pyproject.toml and CI)
+
 ### Bug Fixes: Reproduce First
 
 When fixing bugs:
