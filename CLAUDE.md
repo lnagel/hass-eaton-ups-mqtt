@@ -68,7 +68,17 @@ custom_components/eaton_ups_mqtt/    # Main integration code
 tests/                               # Test suite
 ├── conftest.py                      # Pytest fixtures
 └── test_*.py                        # Unit tests
+
+docs/                                # Documentation
+├── MQTT.md                          # MQTT communication documentation
+└── eaton-network-m2-openapi.yaml    # Network-M2 OpenAPI spec
 ```
+
+## Documentation Synchronization
+
+The `docs/` directory contains MQTT protocol documentation and API specifications.
+
+When making changes to MQTT handling or API communication, ensure the documentation stays in sync.
 
 ## Testing Requirements
 
@@ -149,7 +159,16 @@ uv run pytest && uv run ruff format . && uv run ruff check . --fix && uv run ty 
 git commit
 ```
 
-### 3. Fixing Bugs Without Tests
+### 3. Not Updating Documentation
+
+```python
+# WRONG - Added new entity without documenting
+# (creates silent drift between docs and code)
+
+# RIGHT - Update docs/ with new entity details
+```
+
+### 4. Fixing Bugs Without Tests
 
 ```python
 # WRONG - Just fix the code
@@ -163,7 +182,7 @@ def test_some_function_edge_case():
     assert some_function(edge_case) == expected
 ```
 
-### 4. Floating-Point Equality in Tests
+### 5. Floating-Point Equality in Tests
 Use `pytest.approx()` for asserting float values that have passed through
 any computation (division, interpolation, averaging). Direct assign-and-read
 without computation can use `==`. Dictionary comparisons with nested floats
