@@ -1,7 +1,7 @@
 # Eaton UPS MQTT Integration for Home Assistant
 
 [![GitHub Release](https://img.shields.io/github/v/release/lnagel/hass-eaton-ups-mqtt?style=flat-square)](https://github.com/lnagel/hass-eaton-ups-mqtt/releases)
-[![License](https://img.shields.io/github/license/lnagel/hass-eaton-ups-mqtt?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/lnagel/hass-eaton-ups-mqtt?style=flat-square)](https://github.com/lnagel/hass-eaton-ups-mqtt/blob/main/LICENSE)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=flat-square)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
 [![CI](https://img.shields.io/github/actions/workflow/status/lnagel/hass-eaton-ups-mqtt/checks.yml?branch=main&style=flat-square&label=tests)](https://github.com/lnagel/hass-eaton-ups-mqtt/actions)
 [![codecov](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt)
