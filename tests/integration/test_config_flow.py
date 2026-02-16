@@ -163,6 +163,88 @@ class TestUserFlow:
         assert result["reason"] == "already_configured"
 
 
+class TestReauthFlow:
+    """Tests for reauth flow."""
+
+    async def test_reauth_form_display(self, hass: HomeAssistant, valid_user_input):
+        """Test that reauth form displays with current values."""
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            title="Test UPS",
+            data=valid_user_input,
+            unique_id="00:11:22:33:44:55",
+        )
+        entry.add_to_hass(hass)
+
+        result = await entry.start_reauth_flow(hass)
+
+        assert result["type"] == FlowResultType.FORM
+        assert result["step_id"] == "reauth_confirm"
+
+    async def test_reauth_success(
+        self, hass: HomeAssistant, valid_user_input, mock_identification
+    ):
+        """Test successful reauthentication updates entry and aborts."""
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            title="Test UPS",
+            data=valid_user_input,
+            unique_id="00:11:22:33:44:55",
+        )
+        entry.add_to_hass(hass)
+
+        updated_input = {
+            **valid_user_input,
+            CONF_CLIENT_KEY: "-----BEGIN PRIVATE KEY-----\nNEWKEY\n-----END PRIVATE KEY-----",
+        }
+
+        with patch(
+            "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._test_credentials",
+            new_callable=AsyncMock,
+        ):
+            result = await entry.start_reauth_flow(hass)
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"], updated_input
+            )
+
+        assert result["type"] == FlowResultType.ABORT
+        assert result["reason"] == "reauth_successful"
+        assert entry.data[CONF_CLIENT_KEY] == updated_input[CONF_CLIENT_KEY]
+
+    @pytest.mark.parametrize(
+        ("exception", "error_key"),
+        [
+            (EatonUpsClientAuthenticationError("Auth failed"), "auth"),
+            (EatonUpsClientCommunicationError("Connection failed"), "connection"),
+            (EatonUpsClientError("Unknown error"), "unknown"),
+        ],
+    )
+    async def test_reauth_error_handling(
+        self, hass: HomeAssistant, valid_user_input, exception, error_key
+    ):
+        """Test reauth error handling for various failure modes."""
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            title="Test UPS",
+            data=valid_user_input,
+            unique_id="00:11:22:33:44:55",
+        )
+        entry.add_to_hass(hass)
+
+        with patch(
+            "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._test_credentials",
+            new_callable=AsyncMock,
+            side_effect=exception,
+        ):
+            result = await entry.start_reauth_flow(hass)
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"], valid_user_input
+            )
+
+        assert result["type"] == FlowResultType.FORM
+        assert result["errors"]["base"] == error_key
+
+
 class TestReconfigureFlow:
     """Tests for reconfigure flow."""
 

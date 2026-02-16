@@ -7,15 +7,26 @@
                     "username": "Username",
                     "password": "Password"
                 }
+            },
+            "reauth_confirm": {
+                "description": "Re-authenticate your Eaton UPS connection.",
+                "data": {
+                    "host": "Host",
+                    "port": "Port",
+                    "server_cert": "Server Certificate",
+                    "client_cert": "Client Certificate",
+                    "client_key": "Client Key"
+                }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
+            "auth": "Authentication failed. Check your certificates.",
             "connection": "Unable to connect to the server.",
             "unknown": "Unknown error occurred."
         },
         "abort": {
-            "already_configured": "This entry is already configured."
+            "already_configured": "This entry is already configured.",
+            "reauth_successful": "Re-authentication was successful."
         }
     }
 }

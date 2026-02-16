@@ -149,6 +149,76 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
+    async def async_step_reauth(
+        self,
+        _entry_data: dict[str, Any],
+    ) -> config_entries.ConfigFlowResult:
+        """Handle reauth triggered by ConfigEntryAuthFailed."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self,
+        user_input: dict | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Handle reauth confirmation step."""
+        reauth_entry = self._get_reauth_entry()
+        _errors = {}
+
+        if user_input is not None:
+            try:
+                await self._test_credentials(
+                    host=user_input[CONF_HOST],
+                    port=user_input[CONF_PORT],
+                    server_cert=user_input[CONF_SERVER_CERT],
+                    client_cert=user_input[CONF_CLIENT_CERT],
+                    client_key=user_input[CONF_CLIENT_KEY],
+                )
+            except EatonUpsClientAuthenticationError as exception:
+                LOGGER.warning(exception)
+                _errors["base"] = "auth"
+            except EatonUpsClientCommunicationError as exception:
+                LOGGER.error(exception)
+                _errors["base"] = "connection"
+            except EatonUpsClientError as exception:
+                LOGGER.exception(exception)
+                _errors["base"] = "unknown"
+            else:
+                return self.async_update_reload_and_abort(
+                    reauth_entry,
+                    data=user_input,
+                )
+
+        current_state = user_input or reauth_entry.data
+
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HOST,
+                        default=current_state.get(CONF_HOST, vol.UNDEFINED),
+                    ): HOST_SELECTOR,
+                    vol.Required(
+                        CONF_PORT,
+                        default=current_state.get(CONF_PORT, DEFAULT_PORT),
+                    ): PORT_SELECTOR,
+                    vol.Required(
+                        CONF_SERVER_CERT,
+                        default=current_state.get(CONF_SERVER_CERT, vol.UNDEFINED),
+                    ): PEM_CERT_SELECTOR,
+                    vol.Required(
+                        CONF_CLIENT_CERT,
+                        default=current_state.get(CONF_CLIENT_CERT, vol.UNDEFINED),
+                    ): PEM_CERT_SELECTOR,
+                    vol.Required(
+                        CONF_CLIENT_KEY,
+                        default=current_state.get(CONF_CLIENT_KEY, vol.UNDEFINED),
+                    ): PEM_KEY_SELECTOR,
+                },
+            ),
+            errors=_errors,
+        )
+
     async def async_step_reconfigure(
         self,
         user_input: dict | None = None,

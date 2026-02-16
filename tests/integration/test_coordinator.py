@@ -123,6 +123,7 @@ class TestCoordinatorErrorHandling:
         ) as mock_client_class:
             mock_client = MagicMock()
             mock_client.async_setup = AsyncMock(side_effect=exception)
+            mock_client.async_disconnect = AsyncMock()
             mock_client_class.return_value = mock_client
 
             # Setup will fail due to the exception - entry goes to SETUP_RETRY
