@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/lnagel/hass-eaton-ups-mqtt?style=flat-square)](https://github.com/lnagel/hass-eaton-ups-mqtt/releases)
 [![License](https://img.shields.io/github/license/lnagel/hass-eaton-ups-mqtt?style=flat-square)](LICENSE)
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=flat-square)](https://hacs.xyz/)
+[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=flat-square)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
 [![CI](https://img.shields.io/github/actions/workflow/status/lnagel/hass-eaton-ups-mqtt/checks.yml?branch=main&style=flat-square&label=tests)](https://github.com/lnagel/hass-eaton-ups-mqtt/actions)
 [![codecov](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt)
 
@@ -40,6 +40,8 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 - HACS 2.0.1 or newer
 
 ## Installation
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
 
 1. Add this repository to HACS or copy the `custom_components/eaton_ups_mqtt` folder to your Home Assistant configuration directory.
 2. Restart Home Assistant.
