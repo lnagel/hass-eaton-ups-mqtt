@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -299,61 +300,41 @@ class TestReloadEntry:
         assert mock_entry.state == ConfigEntryState.LOADED
 
 
-class TestClientCertDownloadView:
-    """Tests for the client certificate download HTTP endpoint."""
+class TestClientCertFile:
+    """Tests for client certificate file saving."""
 
-    async def test_download_cert_success(
+    async def test_cert_file_saved_on_successful_setup(
         self,
         hass: HomeAssistant,
         mock_entry,
         mock_mqtt_setup,
-        hass_client,
     ):
-        """Test successful certificate download."""
+        """Test that cert file is always saved to www/ during setup."""
         mock_entry.add_to_hass(hass)
 
         await hass.config_entries.async_setup(mock_entry.entry_id)
         await hass.async_block_till_done()
 
-        client = await hass_client()
-        resp = await client.get(
-            f"/api/eaton_ups_mqtt/client_cert/{mock_entry.entry_id}"
+        cert_path = Path(
+            hass.config.path(
+                "www",
+                DOMAIN,
+                f"eaton_ups_client_{mock_entry.entry_id}.pem",
+            )
         )
+        assert cert_path.exists()
+        assert cert_path.read_text() == MOCK_CLIENT_CERT
 
-        assert resp.status == 200
-        body = await resp.text()
-        assert body == MOCK_CLIENT_CERT
-        assert resp.headers["Content-Type"] == "application/x-pem-file"
-        assert "eaton_ups_client.pem" in resp.headers["Content-Disposition"]
-
-    async def test_download_cert_not_found(
-        self,
-        hass: HomeAssistant,
-        mock_entry,
-        mock_mqtt_setup,
-        hass_client,
-    ):
-        """Test 404 for nonexistent entry."""
-        mock_entry.add_to_hass(hass)
-
-        await hass.config_entries.async_setup(mock_entry.entry_id)
-        await hass.async_block_till_done()
-
-        client = await hass_client()
-        resp = await client.get("/api/eaton_ups_mqtt/client_cert/nonexistent_id")
-
-        assert resp.status == 404
-
-    async def test_download_cert_empty(
+    async def test_cert_file_saved_on_cert_generation(
         self,
         hass: HomeAssistant,
         mock_entry_no_certs,
         mock_mqtt_setup,
-        hass_client,
     ):
-        """Test 404 when client cert is empty."""
+        """Test that cert file is saved when certs are auto-generated."""
         mock_entry_no_certs.add_to_hass(hass)
 
+        generated_cert = "-----BEGIN CERTIFICATE-----\nGEN\n-----END CERTIFICATE-----"
         generated_key = (
             "-----BEGIN RSA PRIVATE KEY-----\nGEN\n-----END RSA PRIVATE KEY-----"
         )
@@ -366,15 +347,18 @@ class TestClientCertDownloadView:
             ),
             patch(
                 "custom_components.eaton_ups_mqtt.async_generate_client_certificate",
-                return_value=("", generated_key),
+                return_value=(generated_cert, generated_key),
             ),
         ):
             await hass.config_entries.async_setup(mock_entry_no_certs.entry_id)
             await hass.async_block_till_done()
 
-        client = await hass_client()
-        resp = await client.get(
-            f"/api/eaton_ups_mqtt/client_cert/{mock_entry_no_certs.entry_id}"
+        cert_path = Path(
+            hass.config.path(
+                "www",
+                DOMAIN,
+                f"eaton_ups_client_{mock_entry_no_certs.entry_id}.pem",
+            )
         )
-
-        assert resp.status == 404
+        assert cert_path.exists()
+        assert cert_path.read_text() == generated_cert

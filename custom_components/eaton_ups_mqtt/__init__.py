@@ -7,10 +7,9 @@ https://github.com/lnagel/hass-eaton-ups
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from aiohttp import web
-from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -85,8 +84,8 @@ async def async_setup_entry(
     if certs_generated:
         hass.config_entries.async_update_entry(entry, data=data)
 
-    # Register HTTP view for certificate download
-    hass.http.register_view(ClientCertDownloadView())
+    # Always save client cert to www/ for download via /local/ URL
+    _save_client_cert_file(hass, entry.entry_id, data[CONF_CLIENT_CERT])
 
     issue_id = ISSUE_ID_CERT_UPLOAD.format(entry_id=entry.entry_id)
     host = data[CONF_HOST]
@@ -149,15 +148,19 @@ async def async_reload_entry(
     await async_setup_entry(hass, entry)
 
 
-def _get_download_url(hass: HomeAssistant, entry_id: str) -> str:
-    """Build absolute download URL for the client certificate."""
-    path = f"/api/eaton_ups_mqtt/client_cert/{entry_id}"
-    try:
-        from homeassistant.helpers.network import get_url  # noqa: PLC0415
+def _get_cert_filename(entry_id: str) -> str:
+    """Get the client certificate filename for a config entry."""
+    return f"eaton_ups_client_{entry_id}.pem"
 
-        return f"{get_url(hass, allow_external=False)}{path}"
-    except Exception:  # noqa: BLE001
-        return path
+
+def _save_client_cert_file(
+    hass: HomeAssistant, entry_id: str, client_cert: str
+) -> None:
+    """Save client certificate PEM to www/ for download via /local/ URL."""
+    www_dir = Path(hass.config.path("www", DOMAIN))
+    www_dir.mkdir(parents=True, exist_ok=True)
+    cert_path = www_dir / _get_cert_filename(entry_id)
+    cert_path.write_text(client_cert)
 
 
 def _create_cert_upload_issue(
@@ -167,6 +170,7 @@ def _create_cert_upload_issue(
     issue_id: str,
 ) -> None:
     """Create a repairs issue with client certificate upload instructions."""
+    download_url = f"/local/{DOMAIN}/{_get_cert_filename(entry.entry_id)}"
     async_create_issue(
         hass,
         DOMAIN,
@@ -178,36 +182,8 @@ def _create_cert_upload_issue(
             "instructions": CERT_UPLOAD_INSTRUCTIONS.format(
                 host=host,
                 download_step=CERT_DOWNLOAD_STEP_LINK.format(
-                    download_url=_get_download_url(hass, entry.entry_id),
+                    download_url=download_url,
                 ),
             ),
         },
     )
-
-
-class ClientCertDownloadView(HomeAssistantView):
-    """View to download client certificate PEM file."""
-
-    url = "/api/eaton_ups_mqtt/client_cert/{entry_id}"
-    name = "api:eaton_ups_mqtt:client_cert"
-    requires_auth = False
-
-    async def get(self, request: web.Request, entry_id: str) -> web.Response:
-        """Handle GET request for client certificate download."""
-        hass: HomeAssistant = request.app["hass"]
-        entry = hass.config_entries.async_get_entry(entry_id)
-
-        if entry is None or entry.domain != DOMAIN:
-            return web.Response(status=404, text="Config entry not found")
-
-        client_cert = entry.data.get(CONF_CLIENT_CERT, "")
-        if not client_cert:
-            return web.Response(status=404, text="No client certificate available")
-
-        return web.Response(
-            body=client_cert,
-            content_type="application/x-pem-file",
-            headers={
-                "Content-Disposition": 'attachment; filename="eaton_ups_client.pem"',
-            },
-        )

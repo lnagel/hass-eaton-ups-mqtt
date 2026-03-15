@@ -33,7 +33,10 @@ CERT_UPLOAD_INSTRUCTIONS = (
     " is uploaded. You may need to reload the integration after uploading."
 )
 
-CERT_DOWNLOAD_STEP_LINK = "[Download the client certificate]({download_url})"
+CERT_DOWNLOAD_STEP_LINK = (
+    "Right-click [this link]({download_url}) and **Save link as** to"
+    " download the client certificate"
+)
 CERT_DOWNLOAD_STEP_REPAIRS = (
     "Check **Settings \u2192 System \u2192 Repairs** to download the client certificate"
 )
