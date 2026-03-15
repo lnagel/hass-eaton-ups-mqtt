@@ -70,7 +70,7 @@ def mock_config_entry() -> MagicMock:
     entry.title = "Test UPS"
     entry.data = {
         "host": "ups.example.local",
-        "port": "8883",
+        "port": 8883,
         "server_cert": "-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----",
         "client_cert": "-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----",
         "client_key": "-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----",
