@@ -85,7 +85,9 @@ async def async_setup_entry(
         hass.config_entries.async_update_entry(entry, data=data)
 
     # Always save client cert to www/ for download via /local/ URL
-    _save_client_cert_file(hass, entry.entry_id, data[CONF_CLIENT_CERT])
+    await hass.async_add_executor_job(
+        _write_cert_file, hass.config.config_dir, entry.entry_id, data[CONF_CLIENT_CERT]
+    )
 
     issue_id = ISSUE_ID_CERT_UPLOAD.format(entry_id=entry.entry_id)
     host = data[CONF_HOST]
@@ -153,11 +155,9 @@ def _get_cert_filename(entry_id: str) -> str:
     return f"eaton_ups_client_{entry_id}.pem"
 
 
-def _save_client_cert_file(
-    hass: HomeAssistant, entry_id: str, client_cert: str
-) -> None:
-    """Save client certificate PEM to www/ for download via /local/ URL."""
-    www_dir = Path(hass.config.path("www", DOMAIN))
+def _write_cert_file(config_path: str, entry_id: str, client_cert: str) -> None:
+    """Write client certificate PEM to www/ (runs in executor)."""
+    www_dir = Path(config_path) / "www" / DOMAIN
     www_dir.mkdir(parents=True, exist_ok=True)
     cert_path = www_dir / _get_cert_filename(entry_id)
     cert_path.write_text(client_cert)
