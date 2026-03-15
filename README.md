@@ -32,10 +32,6 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 ## Requirements
 
 - An Eaton UPS device with Network-M2 or Network-M3 management card
-- TLS certificates (mandatory):
-  - Server certificate for the Network-M card
-  - Client certificate and private key for authentication
-  - These must be uploaded to the Network-M card's web interface
 - Home Assistant 2025.3.1 or newer
 - HACS 2.0.1 or newer
 
@@ -46,7 +42,8 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 1. Add this repository to HACS or copy the `custom_components/eaton_ups_mqtt` folder to your Home Assistant configuration directory.
 2. Restart Home Assistant.
 3. Add the integration through the Home Assistant UI.
-4. Configure with your UPS's MQTT connection details and certificates.
+4. Enter your UPS hostname/IP and MQTT port (certificates are auto-generated).
+5. Check **Settings > System > Repairs** to download the client certificate and upload it to your UPS web interface.
 
 ## Repository Overview
 
