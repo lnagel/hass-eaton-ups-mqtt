@@ -11,7 +11,6 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.config_entries import SOURCE_RECONFIGURE
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
@@ -22,6 +21,10 @@ from .api import (
     EatonUpsClientError,
     EatonUpsMqttClient,
     EatonUpsMqttConfig,
+)
+from .certificates import (
+    async_fetch_server_certificate,
+    async_generate_client_certificate,
 )
 from .const import (
     CONF_CLIENT_CERT,
@@ -78,47 +81,20 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """
         Handle initial configuration flow.
 
-        Prompts user for:
-        - UPS Network-M2/M3 card hostname/IP
-        - MQTT port (default 8883)
-        - Server certificate (PEM format)
-        - Client certificate (PEM format)
-        - Client private key (PEM format)
+        Prompts user for UPS hostname/IP and MQTT port only.
+        Certificates are auto-generated during setup.
         """
-        _errors = {}
-
         if user_input is not None:
-            try:
-                await self._test_credentials(
-                    host=user_input[CONF_HOST],
-                    port=user_input[CONF_PORT],
-                    server_cert=user_input[CONF_SERVER_CERT],
-                    client_cert=user_input[CONF_CLIENT_CERT],
-                    client_key=user_input[CONF_CLIENT_KEY],
-                )
-            except EatonUpsClientAuthenticationError as exception:
-                LOGGER.warning(exception)
-                _errors["base"] = "auth"
-            except EatonUpsClientCommunicationError as exception:
-                LOGGER.error(exception)
-                _errors["base"] = "connection"
-            except EatonUpsClientError as exception:
-                LOGGER.exception(exception)
-                _errors["base"] = "unknown"
-            else:
-                identification = await self.hass.async_add_executor_job(
-                    try_connection,
-                    user_input,
-                )
-
-                if identification and "macAddress" in identification:
-                    await self.async_set_unique_id(identification["macAddress"])
-                    self._abort_if_unique_id_configured()
-                    return self.async_create_entry(
-                        title=user_input[CONF_HOST],
-                        data=user_input,
-                    )
-                _errors["base"] = "cannot_connect"
+            return self.async_create_entry(
+                title=user_input[CONF_HOST],
+                data={
+                    CONF_HOST: user_input[CONF_HOST],
+                    CONF_PORT: user_input[CONF_PORT],
+                    CONF_SERVER_CERT: "",
+                    CONF_CLIENT_CERT: "",
+                    CONF_CLIENT_KEY: "",
+                },
+            )
 
         return self.async_show_form(
             step_id="user",
@@ -132,21 +108,9 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_PORT,
                         default=(user_input or {}).get(CONF_PORT, DEFAULT_PORT),
                     ): PORT_SELECTOR,
-                    vol.Required(
-                        CONF_SERVER_CERT,
-                        default=(user_input or {}).get(CONF_SERVER_CERT, vol.UNDEFINED),
-                    ): PEM_CERT_SELECTOR,
-                    vol.Required(
-                        CONF_CLIENT_CERT,
-                        default=(user_input or {}).get(CONF_CLIENT_CERT, vol.UNDEFINED),
-                    ): PEM_CERT_SELECTOR,
-                    vol.Required(
-                        CONF_CLIENT_KEY,
-                        default=(user_input or {}).get(CONF_CLIENT_KEY, vol.UNDEFINED),
-                    ): PEM_KEY_SELECTOR,
                 },
             ),
-            errors=_errors,
+            errors={},
         )
 
     async def async_step_reauth(
@@ -165,28 +129,36 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
 
         if user_input is not None:
+            final_data = dict(user_input)
+
+            # Auto-generate certs for any cleared fields
             try:
-                await self._test_credentials(
-                    host=user_input[CONF_HOST],
-                    port=user_input[CONF_PORT],
-                    server_cert=user_input[CONF_SERVER_CERT],
-                    client_cert=user_input[CONF_CLIENT_CERT],
-                    client_key=user_input[CONF_CLIENT_KEY],
-                )
-            except EatonUpsClientAuthenticationError as exception:
-                LOGGER.warning(exception)
-                _errors["base"] = "auth"
-            except EatonUpsClientCommunicationError as exception:
-                LOGGER.error(exception)
-                _errors["base"] = "connection"
-            except EatonUpsClientError as exception:
-                LOGGER.exception(exception)
-                _errors["base"] = "unknown"
+                final_data = await self._auto_fill_certs(final_data)
+            except (OSError, TimeoutError):
+                _errors["base"] = "cert_fetch_failed"
             else:
-                return self.async_update_reload_and_abort(
-                    reauth_entry,
-                    data=user_input,
-                )
+                try:
+                    await self._test_credentials(
+                        host=final_data[CONF_HOST],
+                        port=final_data[CONF_PORT],
+                        server_cert=final_data[CONF_SERVER_CERT],
+                        client_cert=final_data[CONF_CLIENT_CERT],
+                        client_key=final_data[CONF_CLIENT_KEY],
+                    )
+                except EatonUpsClientAuthenticationError as exception:
+                    LOGGER.warning(exception)
+                    _errors["base"] = "auth"
+                except EatonUpsClientCommunicationError as exception:
+                    LOGGER.error(exception)
+                    _errors["base"] = "connection"
+                except EatonUpsClientError as exception:
+                    LOGGER.exception(exception)
+                    _errors["base"] = "unknown"
+                else:
+                    return self.async_update_reload_and_abort(
+                        reauth_entry,
+                        data=final_data,
+                    )
 
         current_state = user_input or reauth_entry.data
 
@@ -202,15 +174,15 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_PORT,
                         default=current_state.get(CONF_PORT, DEFAULT_PORT),
                     ): PORT_SELECTOR,
-                    vol.Required(
+                    vol.Optional(
                         CONF_SERVER_CERT,
                         default=current_state.get(CONF_SERVER_CERT, vol.UNDEFINED),
                     ): PEM_CERT_SELECTOR,
-                    vol.Required(
+                    vol.Optional(
                         CONF_CLIENT_CERT,
                         default=current_state.get(CONF_CLIENT_CERT, vol.UNDEFINED),
                     ): PEM_CERT_SELECTOR,
-                    vol.Required(
+                    vol.Optional(
                         CONF_CLIENT_KEY,
                         default=current_state.get(CONF_CLIENT_KEY, vol.UNDEFINED),
                     ): PEM_KEY_SELECTOR,
@@ -227,35 +199,34 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         Handle reconfiguration flow.
 
         Allows updating connection settings for an existing integration instance.
-        Reuses the same form as initial setup but preserves current values.
         """
-        if is_reconfigure := (self.source == SOURCE_RECONFIGURE):
-            reconfigure_entry = self._get_reconfigure_entry()
+        reconfigure_entry = self._get_reconfigure_entry()
 
         _errors = {}
         if user_input is not None:
-            identification = await self.hass.async_add_executor_job(
-                try_connection,
-                user_input,
-            )
+            final_data = dict(user_input)
 
-            if identification and "macAddress" in identification:
-                if is_reconfigure:
-                    self.hass.config_entries.async_update_entry(
-                        reconfigure_entry,
-                        data=user_input,
-                    )
-                    return self.async_abort(reason="reauth_successful")
-                await self.async_set_unique_id(identification["macAddress"])
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=user_input[CONF_HOST],
-                    data=user_input,
+            # Auto-generate certs for any cleared fields
+            try:
+                final_data = await self._auto_fill_certs(final_data)
+            except (OSError, TimeoutError):
+                _errors["base"] = "cert_fetch_failed"
+            else:
+                identification = await self.hass.async_add_executor_job(
+                    try_connection,
+                    final_data,
                 )
 
-            _errors["base"] = "cannot_connect"
+                if identification and "macAddress" in identification:
+                    self.hass.config_entries.async_update_entry(
+                        reconfigure_entry,
+                        data=final_data,
+                    )
+                    return self.async_abort(reason="reauth_successful")
 
-        current_state = user_input or (reconfigure_entry.data if is_reconfigure else {})
+                _errors["base"] = "cannot_connect"
+
+        current_state = user_input or reconfigure_entry.data
 
         return self.async_show_form(
             step_id="reconfigure",
@@ -269,15 +240,15 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_PORT,
                         default=current_state.get(CONF_PORT, DEFAULT_PORT),
                     ): PORT_SELECTOR,
-                    vol.Required(
+                    vol.Optional(
                         CONF_SERVER_CERT,
                         default=current_state.get(CONF_SERVER_CERT, vol.UNDEFINED),
                     ): PEM_CERT_SELECTOR,
-                    vol.Required(
+                    vol.Optional(
                         CONF_CLIENT_CERT,
                         default=current_state.get(CONF_CLIENT_CERT, vol.UNDEFINED),
                     ): PEM_CERT_SELECTOR,
-                    vol.Required(
+                    vol.Optional(
                         CONF_CLIENT_KEY,
                         default=current_state.get(CONF_CLIENT_KEY, vol.UNDEFINED),
                     ): PEM_KEY_SELECTOR,
@@ -286,15 +257,30 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_credentials(
-        self, host: str, port: str, server_cert: str, client_cert: str, client_key: str
-    ) -> None:
+    async def _auto_fill_certs(self, data: dict[str, Any]) -> dict[str, Any]:
         """
-        Validate MQTT connection credentials.
+        Auto-fill empty certificate fields.
 
-        Tests connection to the UPS Network-M card using provided certificates.
-        Raises appropriate exceptions for authentication or connection failures.
+        Fetches server cert and generates client cert/key for empty fields.
         """
+        if not data.get(CONF_SERVER_CERT):
+            data[CONF_SERVER_CERT] = await async_fetch_server_certificate(
+                self.hass, data[CONF_HOST], data[CONF_PORT]
+            )
+
+        if not data.get(CONF_CLIENT_CERT) or not data.get(CONF_CLIENT_KEY):
+            cert_pem, key_pem = await async_generate_client_certificate(self.hass)
+            if not data.get(CONF_CLIENT_CERT):
+                data[CONF_CLIENT_CERT] = cert_pem
+            if not data.get(CONF_CLIENT_KEY):
+                data[CONF_CLIENT_KEY] = key_pem
+
+        return data
+
+    async def _test_credentials(
+        self, host: str, port: int, server_cert: str, client_cert: str, client_key: str
+    ) -> None:
+        """Validate MQTT connection credentials."""
         config = EatonUpsMqttConfig(
             host=host,
             port=port,

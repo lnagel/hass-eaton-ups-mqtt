@@ -56,10 +56,12 @@ uv run diff-cover coverage.xml --compare-branch=main --fail-under=100
 ```
 custom_components/eaton_ups_mqtt/    # Main integration code
 ├── __init__.py                      # Integration setup and lifecycle
+├── api.py                           # MQTT API client
+├── certificates.py                  # TLS certificate generation and fetching
 ├── config_flow.py                   # UI configuration flow
 ├── const.py                         # Constants and configuration
 ├── coordinator.py                   # Data update coordinator
-├── mqtt.py                          # MQTT client handling
+├── data.py                          # Runtime data types
 ├── sensor.py                        # Sensor entities
 ├── binary_sensor.py                 # Binary sensor entities
 ├── manifest.json                    # Integration manifest

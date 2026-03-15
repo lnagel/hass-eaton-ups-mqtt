@@ -29,7 +29,7 @@ class EatonUpsMqttConfig:
     """Configuration for MQTT client."""
 
     host: str
-    port: str
+    port: int
     server_cert: str
     client_cert: str
     client_key: str
@@ -69,7 +69,7 @@ class EatonUpsMqttClient:
     ) -> None:
         """Initialize Eaton UPS MQTT client."""
         self._host = config.host
-        self._port = int(config.port)
+        self._port = config.port
         self._server_cert = config.server_cert
         self._client_cert = config.client_cert
         self._client_key = config.client_key
