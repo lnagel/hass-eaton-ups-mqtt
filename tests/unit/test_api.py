@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import ssl
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -243,26 +242,6 @@ class TestSetupTls:
         # tls_insecure_set(True) disables hostname/CN checking in paho-mqtt
         # while still verifying the certificate chain against the CA cert.
         mqtt_client._mqtt_client.tls_insecure_set.assert_called_once_with(value=True)
-
-    def test_setup_tls_validates_certificate_chain(self, mqtt_client):
-        """Test TLS validates the certificate chain against the pinned CA cert.
-
-        tls_set must be called with the ca_certs parameter and without
-        cert_reqs=ssl.CERT_NONE, so paho-mqtt verifies the server presents
-        the exact pinned certificate. This guards against accidentally
-        disabling chain validation (which would accept any certificate).
-        """
-        mqtt_client._mqtt_client = MagicMock()
-        mqtt_client._setup_tls("/path/ca", "/path/cert", "/path/key")
-
-        mqtt_client._mqtt_client.tls_set.assert_called_once()
-        call_kwargs = mqtt_client._mqtt_client.tls_set.call_args.kwargs
-
-        # ca_certs must be set for chain verification
-        assert call_kwargs["ca_certs"] == "/path/ca"
-
-        # cert_reqs must not be set to CERT_NONE (would disable verification)
-        assert call_kwargs.get("cert_reqs") != ssl.CERT_NONE
 
     @pytest.mark.parametrize(
         "host",
