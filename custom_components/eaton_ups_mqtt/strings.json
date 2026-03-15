@@ -1,0 +1,50 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Set up your Eaton UPS with Network-M2 or Network-M3 card. Certificates will be generated automatically.\n\nAfter setup, check **Settings → System → Repairs** for instructions to upload the client certificate to your UPS.",
+                "data": {
+                    "host": "Host",
+                    "port": "Port"
+                }
+            },
+            "reauth_confirm": {
+                "description": "Re-authenticate your Eaton UPS connection. Leave certificate fields empty to auto-generate new certificates.",
+                "data": {
+                    "host": "Host",
+                    "port": "Port",
+                    "server_cert": "Server Certificate",
+                    "client_cert": "Client Certificate",
+                    "client_key": "Client Key"
+                }
+            },
+            "reconfigure": {
+                "description": "Reconfigure your Eaton UPS connection. Leave certificate fields empty to auto-generate new certificates.",
+                "data": {
+                    "host": "Host",
+                    "port": "Port",
+                    "server_cert": "Server Certificate",
+                    "client_cert": "Client Certificate",
+                    "client_key": "Client Key"
+                }
+            }
+        },
+        "error": {
+            "auth": "Authentication failed. Check your certificates.",
+            "connection": "Unable to connect to the server.",
+            "unknown": "Unknown error occurred.",
+            "cert_fetch_failed": "Failed to fetch or generate certificates. Check that the host is reachable.",
+            "cannot_connect": "Unable to connect to the UPS."
+        },
+        "abort": {
+            "already_configured": "This entry is already configured.",
+            "reauth_successful": "Re-authentication was successful."
+        }
+    },
+    "issues": {
+        "cert_upload_required": {
+            "title": "Upload client certificate to Eaton UPS",
+            "description": "{instructions}"
+        }
+    }
+}
