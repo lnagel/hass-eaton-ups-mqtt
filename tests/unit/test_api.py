@@ -226,7 +226,62 @@ class TestSetupTls:
             certfile="/path/cert",
             keyfile="/path/key",
         )
-        mqtt_client._mqtt_client.tls_insecure_set.assert_called_once_with(value=False)
+        mqtt_client._mqtt_client.tls_insecure_set.assert_called_once_with(value=True)
+
+    def test_setup_tls_disables_hostname_verification(self, mqtt_client):
+        """Test TLS disables hostname verification for certificate pinning.
+
+        Since we pin the server certificate (using it as the CA cert), hostname
+        verification must be disabled so users can connect by either hostname
+        or IP address with the same certificate. The certificate's CN/SAN
+        fields should not be validated against the connection host.
+        """
+        mqtt_client._mqtt_client = MagicMock()
+        mqtt_client._setup_tls("/path/ca", "/path/cert", "/path/key")
+
+        # tls_insecure_set(True) disables hostname/CN checking in paho-mqtt
+        # while still verifying the certificate chain against the CA cert.
+        mqtt_client._mqtt_client.tls_insecure_set.assert_called_once_with(value=True)
+
+    @pytest.mark.parametrize(
+        "host",
+        [
+            "ups.example.local",
+            "192.168.1.100",
+            "10.0.0.1",
+            "fd12:3456:789a::1",
+        ],
+        ids=["hostname", "ipv4", "ipv4-private", "ipv6"],
+    )
+    def test_setup_tls_same_cert_for_hostname_and_ip(self, host):
+        """Test that TLS setup uses the same config regardless of host type.
+
+        The same pinned server certificate must work for both hostname and IP
+        address connections. This verifies that _setup_tls does not change
+        behavior based on the host value, and always disables hostname
+        verification so the certificate CN is never checked.
+        """
+        config = EatonUpsMqttConfig(
+            host=host,
+            port="8883",
+            server_cert="-----BEGIN CERTIFICATE-----\nSERVER\n-----END CERTIFICATE-----",
+            client_cert="-----BEGIN CERTIFICATE-----\nCLIENT\n-----END CERTIFICATE-----",
+            client_key="-----BEGIN PRIVATE KEY-----\nKEY\n-----END PRIVATE KEY-----",
+        )
+        session = MagicMock()
+        client = EatonUpsMqttClient(config, session)
+        client._mqtt_client = MagicMock()
+
+        client._setup_tls("/path/ca", "/path/cert", "/path/key")
+
+        # Certificate chain verification is still active (tls_set called)
+        client._mqtt_client.tls_set.assert_called_once_with(
+            ca_certs="/path/ca",
+            certfile="/path/cert",
+            keyfile="/path/key",
+        )
+        # But hostname/CN verification is disabled for certificate pinning
+        client._mqtt_client.tls_insecure_set.assert_called_once_with(value=True)
 
 
 class TestAsyncDisconnect:

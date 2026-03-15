@@ -376,7 +376,10 @@ def try_connection(
             certfile=client_cert_file.name,
             keyfile=client_key_file.name,
         )
-        client.tls_insecure_set(value=False)
+        # Disable hostname verification since we pin the server certificate.
+        # This allows connecting by either hostname or IP address with the
+        # same certificate, regardless of the certificate's CN/SAN fields.
+        client.tls_insecure_set(value=True)
         client.enable_logger(logger)
 
         client.connect_async(host=user_input[CONF_HOST], port=user_input[CONF_PORT])
