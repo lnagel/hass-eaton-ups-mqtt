@@ -163,7 +163,10 @@ class EatonUpsMqttClient:
             certfile=certfile,
             keyfile=keyfile,
         )
-        self._mqtt_client.tls_insecure_set(value=False)
+        # Disable hostname verification since we pin the server certificate.
+        # This allows connecting by either hostname or IP address with the
+        # same certificate, regardless of the certificate's CN/SAN fields.
+        self._mqtt_client.tls_insecure_set(value=True)
 
     async def async_get_data(self) -> dict[str, Any]:
         """Get data from the MQTT broker."""
