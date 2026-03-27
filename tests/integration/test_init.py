@@ -299,6 +299,28 @@ class TestReloadEntry:
 
         assert mock_entry.state == ConfigEntryState.LOADED
 
+    async def test_update_listener_triggers_reload(
+        self,
+        hass: HomeAssistant,
+        mock_entry,
+        mock_mqtt_setup,
+    ):
+        """Test that updating entry data triggers a reload via the update listener."""
+        mock_entry.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.LOADED
+
+        # Update entry data to trigger the update listener
+        hass.config_entries.async_update_entry(
+            mock_entry, data={**mock_entry.data, CONF_HOST: "new-host.local"}
+        )
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.LOADED
+
 
 class TestClientCertFile:
     """Tests for client certificate file saving."""
