@@ -64,8 +64,10 @@ class EatonUPSDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._setup_done = True
 
         except EatonUpsClientAuthenticationError as exception:
+            self.logger.exception("Authentication failed for UPS")
             raise ConfigEntryAuthFailed(exception) from exception
         except EatonUpsClientError as exception:
+            self.logger.exception("Connection failed for UPS")
             raise UpdateFailed(exception) from exception
 
     async def async_shutdown(self) -> None:

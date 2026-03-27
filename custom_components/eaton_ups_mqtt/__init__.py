@@ -20,7 +20,11 @@ from homeassistant.helpers.issue_registry import (
 )
 from homeassistant.loader import async_get_loaded_integration
 
-from .api import EatonUpsMqttClient, EatonUpsMqttConfig
+from .api import (
+    EatonUpsClientAuthenticationError,
+    EatonUpsMqttClient,
+    EatonUpsMqttConfig,
+)
 from .certificates import (
     async_fetch_server_certificate,
     async_generate_client_certificate,
@@ -120,9 +124,13 @@ async def async_setup_entry(
 
     try:
         await coordinator.async_config_entry_first_refresh()
-    except Exception:
-        # Connection failed — show cert upload instructions
-        _create_cert_upload_issue(hass, entry, host, issue_id)
+    except Exception as err:
+        # Only show cert upload instructions for authentication/TLS errors
+        cause = err.__cause__ if err.__cause__ else err
+        if isinstance(cause, EatonUpsClientAuthenticationError):
+            _create_cert_upload_issue(hass, entry, host, issue_id)
+        else:
+            LOGGER.error("Failed to connect to UPS at %s: %s", host, err)
         raise
 
     # Connection succeeded — delete any pending cert upload issue

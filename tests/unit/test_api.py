@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+import ssl
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from custom_components.eaton_ups_mqtt.api import (
+    EatonUpsClientAuthenticationError,
+    EatonUpsClientCommunicationError,
     EatonUpsClientError,
     EatonUpsMqttClient,
     EatonUpsMqttConfig,
@@ -113,7 +116,7 @@ class TestMqttCallbacks:
             _client=MagicMock(),
             _userdata=None,
             _disconnect_flags=MagicMock(),
-            _reason_code=MagicMock(),
+            reason_code=MagicMock(),
         )
         assert mqtt_client._mqtt_connected is False
 
@@ -376,3 +379,67 @@ class TestAsyncGetData:
 
             await mqtt_client.async_get_data()
             mock_setup.assert_called_once()
+
+
+class TestAsyncSetupErrors:
+    """Tests for async_setup error handling."""
+
+    @pytest.mark.asyncio
+    async def test_setup_tls_ssl_error_raises_auth_error(self, mqtt_client):
+        """Test that SSLError during TLS setup raises authentication error."""
+        with (
+            patch("paho.mqtt.client.Client") as mock_client_class,
+            patch.object(
+                mqtt_client,
+                "_create_temp_cert_files",
+                new_callable=AsyncMock,
+                return_value=["/tmp/ca", "/tmp/cert", "/tmp/key"],
+            ),
+            patch.object(mqtt_client, "_cleanup_temp_files"),
+            patch.object(
+                mqtt_client,
+                "_setup_tls",
+                side_effect=ssl.SSLError("bad certificate"),
+            ),
+        ):
+            mock_client_class.return_value = MagicMock()
+            mqtt_client._mqtt_client = None
+
+            with pytest.raises(
+                EatonUpsClientAuthenticationError,
+                match="TLS setup failed",
+            ):
+                await mqtt_client.async_setup()
+
+    @pytest.mark.asyncio
+    async def test_setup_connection_timeout_raises_comm_error(self, mqtt_client):
+        """Test that connection timeout raises communication error."""
+        mock_client = MagicMock()
+        mock_client.connect_async = MagicMock()
+        mock_client.loop_start = MagicMock()
+        mock_client.reconnect_delay_set = MagicMock()
+        mock_client.tls_set = MagicMock()
+        mock_client.tls_insecure_set = MagicMock()
+
+        with (
+            patch("paho.mqtt.client.Client", return_value=mock_client),
+            patch.object(
+                mqtt_client,
+                "_create_temp_cert_files",
+                new_callable=AsyncMock,
+                return_value=["/tmp/ca", "/tmp/cert", "/tmp/key"],
+            ),
+            patch.object(mqtt_client, "_cleanup_temp_files"),
+            patch(
+                "custom_components.eaton_ups_mqtt.api.MQTT_CONNECTION_ATTEMPTS",
+                1,
+            ),
+            patch("asyncio.sleep", new_callable=AsyncMock),
+        ):
+            mqtt_client._mqtt_client = None
+
+            with pytest.raises(
+                EatonUpsClientCommunicationError,
+                match=f"after {1} attempts",
+            ):
+                await mqtt_client.async_setup()

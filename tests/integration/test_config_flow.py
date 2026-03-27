@@ -16,6 +16,7 @@ from custom_components.eaton_ups_mqtt.api import (
     EatonUpsClientCommunicationError,
     EatonUpsClientError,
 )
+from custom_components.eaton_ups_mqtt.config_flow import ConnectionResult
 from custom_components.eaton_ups_mqtt.const import (
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
@@ -289,7 +290,7 @@ class TestReconfigureFlow:
         with (
             patch(
                 "custom_components.eaton_ups_mqtt.config_flow.try_connection",
-                return_value=mock_identification,
+                return_value=ConnectionResult(identification=mock_identification),
             ),
             patch(
                 "custom_components.eaton_ups_mqtt.async_setup_entry",
@@ -305,10 +306,23 @@ class TestReconfigureFlow:
         assert result["reason"] == "reconfigure_successful"
         assert entry.data[CONF_HOST] == "new-ups.example.local"
 
-    async def test_reconfigure_connection_failure(
-        self, hass: HomeAssistant, full_entry_data
+    @pytest.mark.parametrize(
+        ("error_key", "error_detail"),
+        [
+            ("host_unreachable", "No route to host"),
+            ("connection_refused", "Connection refused"),
+            ("connection_timeout", "Connection timed out"),
+            ("server_cert_mismatch", "Server certificate verification failed"),
+            ("tls_handshake_failed", "TLS handshake failed"),
+            ("mqtt_connect_refused", "MQTT broker refused connection"),
+            ("no_data_received", "No identification data received"),
+            ("invalid_response", "UPS returned invalid JSON"),
+        ],
+    )
+    async def test_reconfigure_connection_errors(
+        self, hass: HomeAssistant, full_entry_data, error_key, error_detail
     ):
-        """Test reconfigure with connection failure."""
+        """Test reconfigure with specific connection error types."""
         entry = MockConfigEntry(
             domain=DOMAIN,
             title="Test UPS",
@@ -319,7 +333,9 @@ class TestReconfigureFlow:
 
         with patch(
             "custom_components.eaton_ups_mqtt.config_flow.try_connection",
-            return_value=None,
+            return_value=ConnectionResult(
+                error_key=error_key, error_detail=error_detail
+            ),
         ):
             result = await entry.start_reconfigure_flow(hass)
             result = await hass.config_entries.flow.async_configure(
@@ -327,7 +343,7 @@ class TestReconfigureFlow:
             )
 
         assert result["type"] == FlowResultType.FORM
-        assert result["errors"]["base"] == "cannot_connect"
+        assert result["errors"]["base"] == error_key
 
     async def test_reconfigure_auto_generates_cleared_certs(
         self, hass: HomeAssistant, full_entry_data, mock_identification
@@ -366,7 +382,7 @@ class TestReconfigureFlow:
             ),
             patch(
                 "custom_components.eaton_ups_mqtt.config_flow.try_connection",
-                return_value=mock_identification,
+                return_value=ConnectionResult(identification=mock_identification),
             ),
             patch(
                 "custom_components.eaton_ups_mqtt.async_setup_entry",

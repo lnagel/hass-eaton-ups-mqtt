@@ -34,7 +34,14 @@
             "connection": "Unable to connect to the server.",
             "unknown": "Unknown error occurred.",
             "cert_fetch_failed": "Failed to fetch or generate certificates. Check that the host is reachable.",
-            "cannot_connect": "Unable to connect to the UPS."
+            "host_unreachable": "No route to host. Check that the IP address is correct and the device is on the network.",
+            "connection_refused": "Connection refused. Check that the port is correct and MQTT is enabled on the UPS.",
+            "connection_timeout": "Connection timed out. The host may be unreachable or a firewall is blocking the port.",
+            "server_cert_mismatch": "Server certificate does not match. Try clearing the certificate fields to fetch a new one.",
+            "tls_handshake_failed": "TLS handshake failed. The UPS may not trust the client certificate — check that it has been uploaded.",
+            "mqtt_connect_refused": "MQTT broker refused the connection. Check that MQTT is enabled on the UPS.",
+            "no_data_received": "Connected to the UPS but received no identification data within the timeout.",
+            "invalid_response": "Connected to the UPS but received an invalid response."
         },
         "abort": {
             "already_configured": "This entry is already configured.",
