@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import json
 import logging
+import ssl
 import tempfile
 import uuid
 from dataclasses import dataclass
@@ -125,15 +126,20 @@ class EatonUpsMqttClient:
 
         # Set up TLS/SSL certificates in the executor to avoid blocking the event loop
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
-            None,
-            partial(
-                self._setup_tls,
-                self._temp_files[0],
-                self._temp_files[1],
-                self._temp_files[2],
-            ),
-        )
+        try:
+            await loop.run_in_executor(
+                None,
+                partial(
+                    self._setup_tls,
+                    self._temp_files[0],
+                    self._temp_files[1],
+                    self._temp_files[2],
+                ),
+            )
+        except ssl.SSLError as e:
+            self._cleanup_temp_files()
+            msg = f"TLS setup failed for {self._host}:{self._port}: {e}"
+            raise EatonUpsClientAuthenticationError(msg) from e
 
         # Connect to MQTT broker
         self._mqtt_client.connect_async(host=self._host, port=self._port)
@@ -147,7 +153,10 @@ class EatonUpsMqttClient:
 
         if not self._mqtt_connected:
             self._cleanup_temp_files()
-            error_msg = f"Failed to connect to MQTT broker at {self._host}:{self._port}"
+            error_msg = (
+                f"Failed to connect to MQTT broker at {self._host}:{self._port}"
+                f" after {MQTT_CONNECTION_ATTEMPTS} attempts"
+            )
             raise EatonUpsClientCommunicationError(error_msg)
 
         # Initial subscription to topics
@@ -222,8 +231,15 @@ class EatonUpsMqttClient:
     ) -> None:
         """Handle connection callback."""
         if reason_code.is_failure:
+            logger.error(
+                "MQTT connection to %s:%s failed: %s",
+                self._host,
+                self._port,
+                reason_code,
+            )
             self._mqtt_connected = False
         else:
+            logger.debug("MQTT connected to %s:%s", self._host, self._port)
             self._mqtt_connected = True
             # Resubscribe to topics on reconnect
             self._subscribe_to_topics()
@@ -233,10 +249,16 @@ class EatonUpsMqttClient:
         _client: mqtt.Client,
         _userdata: Any,
         _disconnect_flags: mqtt.DisconnectFlags,
-        _reason_code: mqtt.ReasonCode,
+        reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
+        logger.warning(
+            "MQTT disconnected from %s:%s (reason: %s)",
+            self._host,
+            self._port,
+            reason_code,
+        )
         self._mqtt_connected = False
 
     def _on_message(
