@@ -286,9 +286,15 @@ class TestReconfigureFlow:
 
         updated_input = {**full_entry_data, CONF_HOST: "new-ups.example.local"}
 
-        with patch(
-            "custom_components.eaton_ups_mqtt.config_flow.try_connection",
-            return_value=mock_identification,
+        with (
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.try_connection",
+                return_value=mock_identification,
+            ),
+            patch(
+                "custom_components.eaton_ups_mqtt.async_setup_entry",
+                return_value=True,
+            ),
         ):
             result = await entry.start_reconfigure_flow(hass)
             result = await hass.config_entries.flow.async_configure(
@@ -296,7 +302,7 @@ class TestReconfigureFlow:
             )
 
         assert result["type"] == FlowResultType.ABORT
-        assert result["reason"] == "reauth_successful"
+        assert result["reason"] == "reconfigure_successful"
         assert entry.data[CONF_HOST] == "new-ups.example.local"
 
     async def test_reconfigure_connection_failure(
@@ -362,6 +368,10 @@ class TestReconfigureFlow:
                 "custom_components.eaton_ups_mqtt.config_flow.try_connection",
                 return_value=mock_identification,
             ),
+            patch(
+                "custom_components.eaton_ups_mqtt.async_setup_entry",
+                return_value=True,
+            ),
         ):
             result = await entry.start_reconfigure_flow(hass)
             result = await hass.config_entries.flow.async_configure(
@@ -369,7 +379,7 @@ class TestReconfigureFlow:
             )
 
         assert result["type"] == FlowResultType.ABORT
-        assert result["reason"] == "reauth_successful"
+        assert result["reason"] == "reconfigure_successful"
         assert entry.data[CONF_SERVER_CERT] == server_cert
         assert entry.data[CONF_CLIENT_CERT] == generated_cert
         assert entry.data[CONF_CLIENT_KEY] == generated_key

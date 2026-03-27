@@ -218,11 +218,10 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
                 if identification and "macAddress" in identification:
-                    self.hass.config_entries.async_update_entry(
+                    return self.async_update_reload_and_abort(
                         reconfigure_entry,
                         data=final_data,
                     )
-                    return self.async_abort(reason="reauth_successful")
 
                 _errors["base"] = "cannot_connect"
 

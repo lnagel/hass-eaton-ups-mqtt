@@ -103,6 +103,7 @@ async def async_setup_entry(
         hass=hass,
         logger=LOGGER,
         name=DOMAIN,
+        config_entry=entry,
     )
     config = EatonUpsMqttConfig(
         host=host,
@@ -146,8 +147,7 @@ async def async_reload_entry(
     entry: EatonUpsConfigEntry,
 ) -> None:
     """Reload config entry."""
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 def _get_cert_filename(entry_id: str) -> str:
