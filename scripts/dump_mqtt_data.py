@@ -27,7 +27,7 @@ from pathlib import Path
 
 import paho.mqtt.client as mqtt
 
-MQTT_PREFIX = "mbdetnrs/1.0/"
+MQTT_SUPPORTED_PREFIXES = ("mbdetnrs/1.0/", "mbdetnrs/2.0/")
 
 
 class MqttDataDumper:
@@ -45,6 +45,7 @@ class MqttDataDumper:
         self.connected = False
         self.data: dict[str, dict] = {}
         self.message_count = 0
+        self.mqtt_prefix: str | None = None
         self.client: mqtt.Client | None = None
 
     def _on_connect(
@@ -59,13 +60,13 @@ class MqttDataDumper:
         if rc == 0:
             print(f"Connected to {self.host}:{self.port}")
             self.connected = True
-            # Subscribe to all relevant topics
+            # Subscribe to all topics to capture everything
             client.subscribe(
                 [
-                    (MQTT_PREFIX + "#", 0),
+                    ("mbdetnrs/#", 0),
                 ]
             )
-            print("Subscribed to #")
+            print("Subscribed to mbdetnrs/#")
         else:
             print(f"Connection failed with code {rc}")
             self.connected = False
@@ -82,8 +83,19 @@ class MqttDataDumper:
             payload = msg.payload.decode("utf-8")
             data = json.loads(payload)
 
+            # Detect prefix from first message
+            if self.mqtt_prefix is None:
+                for prefix in MQTT_SUPPORTED_PREFIXES:
+                    if topic.startswith(prefix):
+                        self.mqtt_prefix = prefix
+                        print(f"  Detected MQTT prefix: {prefix}")
+                        break
+                else:
+                    print(f"  Warning: Unknown MQTT topic prefix: {topic}")
+                    return
+
             # Store without prefix
-            key = topic.removeprefix(MQTT_PREFIX)
+            key = topic.removeprefix(self.mqtt_prefix)
             self.data[key] = data
             self.message_count += 1
             print(f"  [{self.message_count}] {key}")

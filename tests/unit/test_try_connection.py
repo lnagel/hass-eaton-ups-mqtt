@@ -17,7 +17,7 @@ from custom_components.eaton_ups_mqtt.const import (
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
     CONF_SERVER_CERT,
-    MQTT_PREFIX,
+    MQTT_SUPPORTED_PREFIXES,
 )
 
 
@@ -42,7 +42,7 @@ def _make_mock_client_with_success():
 
     def fake_loop_start():
         msg = MagicMock()
-        msg.topic = MQTT_PREFIX + "managers/1/identification"
+        msg.topic = MQTT_SUPPORTED_PREFIXES[0] + "managers/1/identification"
         msg.payload = json.dumps({"macAddress": "00:11:22:33:44:55"}).encode()
         mock_client.on_message(mock_client, None, msg)
 
@@ -230,7 +230,7 @@ class TestTryConnection:
 
         def fake_loop_start():
             msg = MagicMock()
-            msg.topic = MQTT_PREFIX + "managers/1/identification"
+            msg.topic = MQTT_SUPPORTED_PREFIXES[0] + "managers/1/identification"
             msg.payload = b"not valid json"
             mock_client.on_message(mock_client, None, msg)
 
@@ -245,3 +245,33 @@ class TestTryConnection:
 
         assert result.error_key == "invalid_response"
         assert "invalid JSON" in result.error_detail
+
+    @pytest.mark.parametrize(
+        "prefix",
+        MQTT_SUPPORTED_PREFIXES,
+        ids=[p.strip("/").replace("/", "_") for p in MQTT_SUPPORTED_PREFIXES],
+    )
+    def test_successful_connection_with_prefix(self, user_input, prefix):
+        """Test successful connection works with both M2 and M3 prefixes."""
+        mock_client = MagicMock()
+
+        def fake_connect(host, port):
+            mock_client.on_connect(mock_client, None, {}, 0)
+
+        def fake_loop_start():
+            msg = MagicMock()
+            msg.topic = prefix + "managers/1/identification"
+            msg.payload = json.dumps({"macAddress": "AA:BB:CC:DD:EE:FF"}).encode()
+            mock_client.on_message(mock_client, None, msg)
+
+        mock_client.connect = MagicMock(side_effect=fake_connect)
+        mock_client.loop_start = MagicMock(side_effect=fake_loop_start)
+
+        with patch(
+            "homeassistant.components.mqtt.async_client.AsyncMQTTClient",
+            return_value=mock_client,
+        ):
+            result = try_connection(user_input)
+
+        assert result.identification == {"macAddress": "AA:BB:CC:DD:EE:FF"}
+        assert result.error_key is None
