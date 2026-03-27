@@ -90,7 +90,7 @@ class TestMqttCallbacks:
         mqtt_client._on_connect(
             _client=MagicMock(),
             _userdata=None,
-            _connect_flags=MagicMock(),
+            connect_flags=MagicMock(),
             reason_code=reason_code,
         )
         assert mqtt_client._mqtt_connected is True
@@ -104,7 +104,7 @@ class TestMqttCallbacks:
         mqtt_client._on_connect(
             _client=MagicMock(),
             _userdata=None,
-            _connect_flags=MagicMock(),
+            connect_flags=MagicMock(),
             reason_code=reason_code,
         )
         assert mqtt_client._mqtt_connected is False
@@ -115,7 +115,7 @@ class TestMqttCallbacks:
         mqtt_client._on_disconnect(
             _client=MagicMock(),
             _userdata=None,
-            _disconnect_flags=MagicMock(),
+            disconnect_flags=MagicMock(),
             reason_code=MagicMock(),
         )
         assert mqtt_client._mqtt_connected is False

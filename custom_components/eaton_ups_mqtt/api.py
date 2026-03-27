@@ -115,6 +115,7 @@ class EatonUpsMqttClient:
             protocol=MQTTv31,
         )
         self._mqtt_client.reconnect_delay_set(min_delay=1, max_delay=30)
+        self._mqtt_client.enable_logger(logger)
 
         # Set up callbacks
         self._mqtt_client.on_connect = self._on_connect
@@ -158,9 +159,6 @@ class EatonUpsMqttClient:
                 f" after {MQTT_CONNECTION_ATTEMPTS} attempts"
             )
             raise EatonUpsClientCommunicationError(error_msg)
-
-        # Initial subscription to topics
-        self._subscribe_to_topics()
 
     def _setup_tls(self, ca_certs: str, certfile: str, keyfile: str) -> None:
         """Set up TLS with certificates - runs in executor."""
@@ -225,7 +223,7 @@ class EatonUpsMqttClient:
         self,
         _client: mqtt.Client,
         _userdata: Any,
-        _connect_flags: mqtt.ConnectFlags,
+        connect_flags: mqtt.ConnectFlags,
         reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
@@ -239,7 +237,12 @@ class EatonUpsMqttClient:
             )
             self._mqtt_connected = False
         else:
-            logger.debug("MQTT connected to %s:%s", self._host, self._port)
+            logger.info(
+                "MQTT connected to %s:%s (session_present=%s)",
+                self._host,
+                self._port,
+                connect_flags.session_present,
+            )
             self._mqtt_connected = True
             # Resubscribe to topics on reconnect
             self._subscribe_to_topics()
@@ -248,16 +251,17 @@ class EatonUpsMqttClient:
         self,
         _client: mqtt.Client,
         _userdata: Any,
-        _disconnect_flags: mqtt.DisconnectFlags,
+        disconnect_flags: mqtt.DisconnectFlags,
         reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
         logger.warning(
-            "MQTT disconnected from %s:%s (reason: %s)",
+            "MQTT disconnected from %s:%s (reason: %s, server_sent=%s)",
             self._host,
             self._port,
             reason_code,
+            disconnect_flags.is_disconnect_packet_from_server,
         )
         self._mqtt_connected = False
 
@@ -270,6 +274,7 @@ class EatonUpsMqttClient:
         """Handle incoming messages."""
         try:
             topic = msg.topic
+            logger.debug("MQTT message received: %s", topic)
             payload = msg.payload.decode("utf-8")
 
             # Try to parse as JSON if possible
