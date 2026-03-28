@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -727,19 +726,16 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         return value
 
     def _convert_date(self, value: Any) -> date | None:
-        """Convert value to timestamp if possible."""
+        """Convert value to date if possible."""
         if isinstance(value, int):
-            # Handle Unix timestamp (e.g., 1738146293)
             try:
                 return datetime.fromtimestamp(value, tz=UTC).date()
             except (ValueError, TypeError, OSError):
                 return None
 
         if isinstance(value, str):
-            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
             try:
-                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value).date()
+                return datetime.fromisoformat(value).date()
             except (ValueError, TypeError):
                 pass
 
@@ -748,17 +744,14 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
     def _convert_timestamp(self, value: Any) -> datetime | None:
         """Convert value to timestamp if possible."""
         if isinstance(value, int):
-            # Handle Unix timestamp (e.g., 1738146293)
             try:
                 return datetime.fromtimestamp(value, tz=UTC)
             except (ValueError, TypeError, OSError):
                 return None
 
         if isinstance(value, str):
-            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
             try:
-                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value)
+                return datetime.fromisoformat(value)
             except (ValueError, TypeError):
                 pass
 
