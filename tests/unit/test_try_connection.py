@@ -275,3 +275,34 @@ class TestTryConnection:
 
         assert result.identification == {"macAddress": "AA:BB:CC:DD:EE:FF"}
         assert result.error_key is None
+
+    def test_ignores_non_matching_topic(self, user_input):
+        """Test that messages with non-matching topics are ignored."""
+        mock_client = MagicMock()
+
+        def fake_connect(host, port):
+            mock_client.on_connect(mock_client, None, {}, 0)
+
+        def fake_loop_start():
+            # Send a message with a topic that doesn't match the regex
+            msg = MagicMock()
+            msg.topic = "other/topic/managers/1/identification"
+            msg.payload = json.dumps({"macAddress": "AA:BB:CC:DD:EE:FF"}).encode()
+            mock_client.on_message(mock_client, None, msg)
+
+        mock_client.connect = MagicMock(side_effect=fake_connect)
+        mock_client.loop_start = MagicMock(side_effect=fake_loop_start)
+
+        with (
+            patch(
+                "homeassistant.components.mqtt.async_client.AsyncMQTTClient",
+                return_value=mock_client,
+            ),
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.MQTT_TIMEOUT",
+                0.1,
+            ),
+        ):
+            result = try_connection(user_input)
+
+        assert result.error_key == "no_data_received"
