@@ -227,6 +227,7 @@ class EatonUpsMqttClient:
             topic=[
                 ("mbdetnrs/+/managers/#", 0),
                 ("mbdetnrs/+/powerDistributions/#", 0),
+                ("mbdetnrs/+/sensors/#", 0),
             ]
         )
 
