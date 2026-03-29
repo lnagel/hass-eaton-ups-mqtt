@@ -1,28 +1,26 @@
 """
-Dump MQTT data from Eaton UPS for test fixtures.
+Profile MQTT topic update timing from Eaton UPS.
 
-This script connects to a real Eaton UPS MQTT broker and captures
-all messages to create test fixtures.
+This script connects to a real Eaton UPS MQTT broker and profiles
+how frequently each topic is updated during the observation period.
 
 Usage:
-    python scripts/dump_mqtt_data.py \
+    python scripts/profile_mqtt_topics.py \
         --host ups.example.local \
         --port 8883 \
         --server-cert /path/to/server.pem \
         --client-cert /path/to/client.pem \
         --client-key /path/to/client.key \
-        --output tests/fixtures/raw_ups_data.json \
         --duration 30
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import ssl
 import sys
 import time
-from datetime import UTC, datetime
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import paho.mqtt.client as mqtt
@@ -30,21 +28,41 @@ import paho.mqtt.client as mqtt
 MQTT_SUPPORTED_PREFIXES = ("mbdetnrs/1.0/", "mbdetnrs/2.0/")
 
 
-class MqttDataDumper:
-    """Captures MQTT messages from Eaton UPS."""
+@dataclass
+class TopicStats:
+    """Statistics for a single MQTT topic."""
+
+    timestamps: list[float] = field(default_factory=list)
+
+    @property
+    def count(self) -> int:
+        return len(self.timestamps)
+
+    def interval_stats(self) -> tuple[float, float, float] | None:
+        """Return (min, avg, max) interval in seconds, or None if < 2 messages."""
+        if len(self.timestamps) < 2:
+            return None
+        intervals = [
+            self.timestamps[i + 1] - self.timestamps[i]
+            for i in range(len(self.timestamps) - 1)
+        ]
+        return min(intervals), sum(intervals) / len(intervals), max(intervals)
+
+
+class MqttTopicProfiler:
+    """Profiles MQTT topic update frequency from Eaton UPS."""
 
     def __init__(
         self, host: str, port: int, server_cert: str, client_cert: str, client_key: str
     ) -> None:
-        """Initialize the dumper."""
+        """Initialize the profiler."""
         self.host = host
         self.port = port
         self.server_cert = server_cert
         self.client_cert = client_cert
         self.client_key = client_key
         self.connected = False
-        self.data: dict[str, dict] = {}
-        self.message_count = 0
+        self.stats: dict[str, TopicStats] = {}
         self.mqtt_prefix: str | None = None
         self.client: mqtt.Client | None = None
 
@@ -60,12 +78,7 @@ class MqttDataDumper:
         if rc == 0:
             print(f"Connected to {self.host}:{self.port}")
             self.connected = True
-            # Subscribe to all topics to capture everything
-            client.subscribe(
-                [
-                    ("mbdetnrs/#", 0),
-                ]
-            )
+            client.subscribe([("mbdetnrs/#", 0)])
             print("Subscribed to mbdetnrs/#")
         else:
             print(f"Connection failed with code {rc}")
@@ -78,32 +91,25 @@ class MqttDataDumper:
         msg: mqtt.MQTTMessage,
     ) -> None:
         """Handle incoming messages."""
-        try:
-            topic = msg.topic
-            payload = msg.payload.decode("utf-8")
-            data = json.loads(payload)
+        topic = msg.topic
+        now = time.monotonic()
 
-            # Detect prefix from first message
-            if self.mqtt_prefix is None:
-                for prefix in MQTT_SUPPORTED_PREFIXES:
-                    if topic.startswith(prefix):
-                        self.mqtt_prefix = prefix
-                        print(f"  Detected MQTT prefix: {prefix}")
-                        break
-                else:
-                    print(f"  Warning: Unknown MQTT topic prefix: {topic}")
-                    return
+        # Detect prefix from first message
+        if self.mqtt_prefix is None:
+            for prefix in MQTT_SUPPORTED_PREFIXES:
+                if topic.startswith(prefix):
+                    self.mqtt_prefix = prefix
+                    print(f"  Detected MQTT prefix: {prefix}")
+                    break
+            else:
+                print(f"  Warning: Unknown MQTT topic prefix: {topic}")
+                return
 
-            # Store without prefix
-            key = topic.removeprefix(self.mqtt_prefix)
-            self.data[key] = data
-            self.message_count += 1
-            print(f"  [{self.message_count}] {key}")
+        key = topic.removeprefix(self.mqtt_prefix)
 
-        except json.JSONDecodeError as e:
-            print(f"  Warning: JSON decode error for {msg.topic}: {e}")
-        except Exception as e:
-            print(f"  Error processing message: {e}")
+        if key not in self.stats:
+            self.stats[key] = TopicStats()
+        self.stats[key].timestamps.append(now)
 
     def _on_disconnect(
         self,
@@ -116,21 +122,18 @@ class MqttDataDumper:
         print(f"Disconnected (rc={rc})")
         self.connected = False
 
-    def run(self, duration: int) -> dict:
-        """Run the data capture for specified duration."""
-        # Create MQTT client
+    def run(self, duration: int) -> None:
+        """Run the profiler for specified duration."""
         self.client = mqtt.Client(
             callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
-            client_id=f"mqtt-dumper-{int(time.time())}",
+            client_id=f"mqtt-profiler-{int(time.time())}",
             protocol=mqtt.MQTTv31,
         )
 
-        # Set up callbacks
         self.client.on_connect = self._on_connect
         self.client.on_message = self._on_message
         self.client.on_disconnect = self._on_disconnect
 
-        # Set up TLS
         self.client.tls_set(
             ca_certs=self.server_cert,
             certfile=self.client_cert,
@@ -140,12 +143,10 @@ class MqttDataDumper:
         )
         self.client.tls_insecure_set(False)
 
-        # Connect
         print(f"Connecting to {self.host}:{self.port}...")
         self.client.connect(self.host, self.port, keepalive=60)
         self.client.loop_start()
 
-        # Wait for connection
         timeout = 10
         while not self.connected and timeout > 0:
             time.sleep(1)
@@ -156,29 +157,57 @@ class MqttDataDumper:
             self.client.loop_stop()
             sys.exit(1)
 
-        # Capture messages for duration
-        print(f"\nCapturing messages for {duration} seconds...")
+        print(f"\nProfiling topics for {duration} seconds...")
         print("-" * 50)
         time.sleep(duration)
         print("-" * 50)
 
-        # Disconnect
         self.client.disconnect()
         self.client.loop_stop()
 
-        return {
-            "captured_at": datetime.now(UTC).isoformat(),
-            "host": self.host,
-            "port": self.port,
-            "duration_seconds": duration,
-            "message_count": self.message_count,
-            "data": self.data,
-        }
+        self._print_report(duration)
+
+    def _print_report(self, duration: int) -> None:
+        """Print the profiling report."""
+        total_messages = sum(s.count for s in self.stats.values())
+        print(f"\nMQTT Topic Profile Report ({duration}s observation)")
+        print(f"Total messages: {total_messages}")
+        print(f"Unique topics: {len(self.stats)}")
+        print()
+
+        # Header
+        print(
+            f"{'Topic':<55} {'Count':>6} {'Rate (/s)':>10} "
+            f"{'Min (s)':>8} {'Avg (s)':>8} {'Max (s)':>8}"
+        )
+        print("-" * 100)
+
+        # Sort by count descending
+        for topic, stats in sorted(
+            self.stats.items(), key=lambda x: x[1].count, reverse=True
+        ):
+            rate = stats.count / duration
+            intervals = stats.interval_stats()
+            if intervals:
+                min_i, avg_i, max_i = intervals
+                print(
+                    f"{topic:<55} {stats.count:>6} {rate:>10.3f} "
+                    f"{min_i:>8.2f} {avg_i:>8.2f} {max_i:>8.2f}"
+                )
+            else:
+                print(
+                    f"{topic:<55} {stats.count:>6} {rate:>10.3f} "
+                    f"{'n/a':>8} {'n/a':>8} {'n/a':>8}"
+                )
+
+        print("-" * 100)
 
 
 def main() -> None:
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Dump MQTT data from Eaton UPS")
+    parser = argparse.ArgumentParser(
+        description="Profile MQTT topic update timing from Eaton UPS"
+    )
     parser.add_argument("--host", required=True, help="MQTT broker hostname")
     parser.add_argument("--port", type=int, default=8883, help="MQTT broker port")
     parser.add_argument(
@@ -188,21 +217,18 @@ def main() -> None:
         "--client-cert", required=True, help="Path to client certificate"
     )
     parser.add_argument("--client-key", required=True, help="Path to client key")
-    parser.add_argument("--output", required=True, help="Output JSON file path")
     parser.add_argument(
-        "--duration", type=int, default=30, help="Capture duration in seconds"
+        "--duration", type=int, default=30, help="Observation duration in seconds"
     )
 
     args = parser.parse_args()
 
-    # Validate certificate files exist
     for cert_path in [args.server_cert, args.client_cert, args.client_key]:
         if not Path(cert_path).exists():
             print(f"Error: Certificate file not found: {cert_path}")
             sys.exit(1)
 
-    # Create dumper and run
-    dumper = MqttDataDumper(
+    profiler = MqttTopicProfiler(
         host=args.host,
         port=args.port,
         server_cert=args.server_cert,
@@ -210,18 +236,7 @@ def main() -> None:
         client_key=args.client_key,
     )
 
-    result = dumper.run(args.duration)
-
-    # Write output
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with output_path.open("w") as f:
-        json.dump(result, f, indent=2)
-
-    print(f"\nCaptured {result['message_count']} messages")
-    print(f"Topics captured: {len(result['data'])}")
-    print(f"Output written to: {args.output}")
+    profiler.run(args.duration)
 
 
 if __name__ == "__main__":

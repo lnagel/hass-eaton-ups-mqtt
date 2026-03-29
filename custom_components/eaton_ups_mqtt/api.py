@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import Client, MQTTv31
 
-from .const import MQTT_CONNECTION_ATTEMPTS, MQTT_PREFIX
+from .const import MQTT_CONNECTION_ATTEMPTS, MQTT_SUPPORTED_PREFIXES
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -61,6 +61,7 @@ class EatonUpsMqttClient:
     _mqtt_client: Client | None
     _mqtt_connected: bool
     _mqtt_data: dict[str, Any]
+    _mqtt_prefix: str | None
     _temp_files: list[str]
     _update_callbacks: list[Callable[[dict[str, Any]], None]]
     _loop: asyncio.AbstractEventLoop | None
@@ -78,9 +79,15 @@ class EatonUpsMqttClient:
         self._mqtt_client = None
         self._mqtt_connected = False
         self._mqtt_data = {}
+        self._mqtt_prefix = None
         self._temp_files = []
         self._update_callbacks = []
         self._loop = None
+
+    @property
+    def mqtt_prefix(self) -> str | None:
+        """Return the detected MQTT topic prefix."""
+        return self._mqtt_prefix
 
     def subscribe_to_updates(
         self, callback: Callable[[dict[str, Any]], None]
@@ -115,6 +122,7 @@ class EatonUpsMqttClient:
             protocol=MQTTv31,
         )
         self._mqtt_client.reconnect_delay_set(min_delay=1, max_delay=30)
+        self._mqtt_client.enable_logger(logger)
 
         # Set up callbacks
         self._mqtt_client.on_connect = self._on_connect
@@ -159,9 +167,6 @@ class EatonUpsMqttClient:
             )
             raise EatonUpsClientCommunicationError(error_msg)
 
-        # Initial subscription to topics
-        self._subscribe_to_topics()
-
     def _setup_tls(self, ca_certs: str, certfile: str, keyfile: str) -> None:
         """Set up TLS with certificates - runs in executor."""
         if self._mqtt_client is None:
@@ -194,9 +199,13 @@ class EatonUpsMqttClient:
             msg = "MQTT client not initialized"
             raise EatonUpsClientError(msg)
 
+        if self._mqtt_prefix is None:
+            msg = "MQTT prefix not yet detected"
+            raise EatonUpsClientError(msg)
+
         # This is a placeholder for actual command sending
         # In a real implementation, you would publish to a specific topic
-        topic = MQTT_PREFIX + "powerDistributions/1/command"
+        topic = self._mqtt_prefix + "powerDistributions/1/command"
         payload = json.dumps({"command": value})
         self._mqtt_client.publish(topic, payload)
         return {"success": True}
@@ -216,8 +225,8 @@ class EatonUpsMqttClient:
             return
         self._mqtt_client.subscribe(
             topic=[
-                (MQTT_PREFIX + "managers/#", 0),
-                (MQTT_PREFIX + "powerDistributions/#", 0),
+                ("mbdetnrs/+/managers/#", 0),
+                ("mbdetnrs/+/powerDistributions/#", 0),
             ]
         )
 
@@ -225,7 +234,7 @@ class EatonUpsMqttClient:
         self,
         _client: mqtt.Client,
         _userdata: Any,
-        _connect_flags: mqtt.ConnectFlags,
+        connect_flags: mqtt.ConnectFlags,
         reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
@@ -239,7 +248,12 @@ class EatonUpsMqttClient:
             )
             self._mqtt_connected = False
         else:
-            logger.debug("MQTT connected to %s:%s", self._host, self._port)
+            logger.info(
+                "MQTT connected to %s:%s (session_present=%s)",
+                self._host,
+                self._port,
+                connect_flags.session_present,
+            )
             self._mqtt_connected = True
             # Resubscribe to topics on reconnect
             self._subscribe_to_topics()
@@ -248,16 +262,17 @@ class EatonUpsMqttClient:
         self,
         _client: mqtt.Client,
         _userdata: Any,
-        _disconnect_flags: mqtt.DisconnectFlags,
+        disconnect_flags: mqtt.DisconnectFlags,
         reason_code: mqtt.ReasonCode,
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
         logger.warning(
-            "MQTT disconnected from %s:%s (reason: %s)",
+            "MQTT disconnected from %s:%s (reason: %s, server_sent=%s)",
             self._host,
             self._port,
             reason_code,
+            disconnect_flags.is_disconnect_packet_from_server,
         )
         self._mqtt_connected = False
 
@@ -270,17 +285,31 @@ class EatonUpsMqttClient:
         """Handle incoming messages."""
         try:
             topic = msg.topic
+            logger.debug("MQTT message received: %s", topic)
             payload = msg.payload.decode("utf-8")
 
             # Try to parse as JSON if possible
             data = json.loads(payload)
 
+            # Detect prefix from first message
+            if self._mqtt_prefix is None:
+                for prefix in MQTT_SUPPORTED_PREFIXES:
+                    if topic.startswith(prefix):
+                        self._mqtt_prefix = prefix
+                        logger.info("Detected MQTT prefix: %s", prefix)
+                        break
+                else:
+                    logger.warning("Unknown MQTT topic prefix: %s", topic)
+                    return
+
+            if not topic.startswith(self._mqtt_prefix):
+                return
+
             # Store in the data dictionary using flat structure
-            # Note: Topics are stored without `mbdetnrs/1.0/` prefix and payload data
-            # is stored without modifications. This will make it possible to use the
-            # storage key to make direct lookups in the data dictionary and provide
-            # more efficient callbacks to sensor updates.
-            key = topic.removeprefix(MQTT_PREFIX)
+            # Topics are stored without the version prefix and payload data
+            # is stored without modifications. This makes it possible to use
+            # the storage key for direct lookups in the data dictionary.
+            key = topic.removeprefix(self._mqtt_prefix)
             self._mqtt_data[key] = data
 
             # Use the event loop to safely notify callbacks

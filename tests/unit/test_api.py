@@ -15,7 +15,7 @@ from custom_components.eaton_ups_mqtt.api import (
     EatonUpsMqttClient,
     EatonUpsMqttConfig,
 )
-from custom_components.eaton_ups_mqtt.const import MQTT_PREFIX
+from custom_components.eaton_ups_mqtt.const import MQTT_SUPPORTED_PREFIXES
 
 
 @pytest.fixture
@@ -90,7 +90,7 @@ class TestMqttCallbacks:
         mqtt_client._on_connect(
             _client=MagicMock(),
             _userdata=None,
-            _connect_flags=MagicMock(),
+            connect_flags=MagicMock(),
             reason_code=reason_code,
         )
         assert mqtt_client._mqtt_connected is True
@@ -104,7 +104,7 @@ class TestMqttCallbacks:
         mqtt_client._on_connect(
             _client=MagicMock(),
             _userdata=None,
-            _connect_flags=MagicMock(),
+            connect_flags=MagicMock(),
             reason_code=reason_code,
         )
         assert mqtt_client._mqtt_connected is False
@@ -115,7 +115,7 @@ class TestMqttCallbacks:
         mqtt_client._on_disconnect(
             _client=MagicMock(),
             _userdata=None,
-            _disconnect_flags=MagicMock(),
+            disconnect_flags=MagicMock(),
             reason_code=MagicMock(),
         )
         assert mqtt_client._mqtt_connected is False
@@ -123,7 +123,7 @@ class TestMqttCallbacks:
     def test_on_message_valid_json(self, mqtt_client):
         """Test on_message parses valid JSON messages."""
         msg = MagicMock()
-        msg.topic = MQTT_PREFIX + "managers/1/identification"
+        msg.topic = MQTT_SUPPORTED_PREFIXES[0] + "managers/1/identification"
         msg.payload = json.dumps({"model": "Test UPS"}).encode()
 
         mqtt_client._on_message(
@@ -140,7 +140,7 @@ class TestMqttCallbacks:
     def test_on_message_invalid_json(self, mqtt_client):
         """Test on_message handles invalid JSON gracefully."""
         msg = MagicMock()
-        msg.topic = MQTT_PREFIX + "managers/1/test"
+        msg.topic = MQTT_SUPPORTED_PREFIXES[0] + "managers/1/test"
         msg.payload = b"not valid json"
 
         # Should not raise
@@ -160,7 +160,7 @@ class TestMqttCallbacks:
         mqtt_client._update_callbacks.append(callback)
 
         msg = MagicMock()
-        msg.topic = MQTT_PREFIX + "test/topic"
+        msg.topic = MQTT_SUPPORTED_PREFIXES[0] + "test/topic"
         msg.payload = json.dumps({"value": 42}).encode()
 
         mqtt_client._on_message(
@@ -174,7 +174,7 @@ class TestMqttCallbacks:
     def test_on_message_handles_general_exception(self, mqtt_client):
         """Test on_message handles general exceptions gracefully."""
         msg = MagicMock()
-        msg.topic = MQTT_PREFIX + "test/topic"
+        msg.topic = MQTT_SUPPORTED_PREFIXES[0] + "test/topic"
         # Configure payload.decode to raise an exception
         msg.payload.decode.side_effect = UnicodeDecodeError("utf-8", b"", 0, 1, "test")
 
@@ -335,6 +335,7 @@ class TestAsyncSetTitle:
         """Test set_title publishes to MQTT."""
         mqtt_client._mqtt_connected = True
         mqtt_client._mqtt_client = MagicMock()
+        mqtt_client._mqtt_prefix = "mbdetnrs/1.0/"
 
         result = await mqtt_client.async_set_title("test_command")
 
@@ -348,6 +349,16 @@ class TestAsyncSetTitle:
         mqtt_client._mqtt_client = None
 
         with pytest.raises(EatonUpsClientError, match="MQTT client not initialized"):
+            await mqtt_client.async_set_title("test")
+
+    @pytest.mark.asyncio
+    async def test_set_title_raises_when_prefix_not_detected(self, mqtt_client):
+        """Test set_title raises error when prefix not yet detected."""
+        mqtt_client._mqtt_connected = True
+        mqtt_client._mqtt_client = MagicMock()
+        mqtt_client._mqtt_prefix = None
+
+        with pytest.raises(EatonUpsClientError, match="MQTT prefix not yet detected"):
             await mqtt_client.async_set_title("test")
 
 
@@ -443,3 +454,64 @@ class TestAsyncSetupErrors:
                 match=f"after {1} attempts",
             ):
                 await mqtt_client.async_setup()
+
+
+class TestPrefixDetection:
+    """Tests for MQTT prefix auto-detection."""
+
+    @pytest.mark.parametrize(
+        "prefix",
+        MQTT_SUPPORTED_PREFIXES,
+        ids=[p.strip("/").replace("/", "_") for p in MQTT_SUPPORTED_PREFIXES],
+    )
+    def test_detects_supported_prefix(self, mqtt_client, prefix):
+        """Test that supported prefixes are detected from first message."""
+        msg = MagicMock()
+        msg.topic = prefix + "managers/1/identification"
+        msg.payload = json.dumps({"model": "Test UPS"}).encode()
+
+        mqtt_client._on_message(
+            _client=MagicMock(),
+            _userdata=None,
+            msg=msg,
+        )
+
+        assert mqtt_client._mqtt_prefix == prefix
+        assert mqtt_client.mqtt_prefix == prefix
+        assert "managers/1/identification" in mqtt_client._mqtt_data
+
+    def test_ignores_unknown_prefix(self, mqtt_client):
+        """Test that unknown prefixes are ignored."""
+        msg = MagicMock()
+        msg.topic = "mbdetnrs/9.9/managers/1/identification"
+        msg.payload = json.dumps({"model": "Test UPS"}).encode()
+
+        mqtt_client._on_message(
+            _client=MagicMock(),
+            _userdata=None,
+            msg=msg,
+        )
+
+        assert mqtt_client._mqtt_prefix is None
+        assert len(mqtt_client._mqtt_data) == 0
+
+    def test_prefix_locked_after_detection(self, mqtt_client):
+        """Test that prefix doesn't change after initial detection."""
+        # First message with 1.0 prefix
+        msg1 = MagicMock()
+        msg1.topic = "mbdetnrs/1.0/managers/1/identification"
+        msg1.payload = json.dumps({"model": "UPS 1"}).encode()
+
+        mqtt_client._on_message(_client=MagicMock(), _userdata=None, msg=msg1)
+        assert mqtt_client._mqtt_prefix == "mbdetnrs/1.0/"
+
+        # Second message with 2.0 prefix should be ignored
+        msg2 = MagicMock()
+        msg2.topic = "mbdetnrs/2.0/managers/1/identification"
+        msg2.payload = json.dumps({"model": "UPS 2"}).encode()
+
+        mqtt_client._on_message(_client=MagicMock(), _userdata=None, msg=msg2)
+
+        # Prefix unchanged, and 2.0 data not stored
+        assert mqtt_client._mqtt_prefix == "mbdetnrs/1.0/"
+        assert mqtt_client._mqtt_data["managers/1/identification"]["model"] == "UPS 1"

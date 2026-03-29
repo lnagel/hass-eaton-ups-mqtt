@@ -31,8 +31,10 @@ class TestTimestampConversion:
         ("value", "expected_date"),
         [
             (1707301493, date(2024, 2, 7)),  # Unix timestamp
-            ("2025-01-04T14:17:36.000Z", date(2025, 1, 4)),  # ISO format
-            ("2021-10-26T11:12:04.000Z", date(2021, 10, 26)),  # Another ISO
+            ("2025-01-04T14:17:36.000Z", date(2025, 1, 4)),  # ISO with ms
+            ("2021-10-26T11:12:04.000Z", date(2021, 10, 26)),  # Another ISO with ms
+            ("2025-04-14T10:10:17Z", date(2025, 4, 14)),  # ISO without ms (M3)
+            ("2025-11-25T16:29:40Z", date(2025, 11, 25)),  # ISO without ms (M3)
         ],
     )
     def test_convert_timestamp_valid(self, mock_sensor, value, expected_date):
@@ -41,12 +43,17 @@ class TestTimestampConversion:
         assert result is not None
         assert result.date() == expected_date
 
+    def test_convert_timestamp_date_only_string(self, mock_sensor):
+        """Test date-only string is parsed as midnight timestamp."""
+        result = mock_sensor._convert_timestamp("2025-01-04")
+        assert result is not None
+        assert result.date() == date(2025, 1, 4)
+
     @pytest.mark.parametrize(
         "value",
         [
             None,
             "not a date",
-            "2025-01-04",  # Missing time component
             [],
             {},
             -999999999999999,  # Out of range
@@ -66,15 +73,21 @@ class TestDateConversion:
             (1707301493, date(2024, 2, 7)),
             ("2021-10-26T11:12:04.000Z", date(2021, 10, 26)),
             ("2025-10-25T11:12:04.000Z", date(2025, 10, 25)),
+            ("2025-04-14T10:10:17Z", date(2025, 4, 14)),  # ISO without ms (M3)
+            ("2025-11-25T16:31:35Z", date(2025, 11, 25)),  # ISO without ms (M3)
         ],
     )
     def test_convert_date_valid(self, mock_sensor, value, expected):
         """Test valid date conversions."""
         assert mock_sensor._convert_date(value) == expected
 
+    def test_convert_date_date_only_string(self, mock_sensor):
+        """Test date-only string is parsed correctly."""
+        assert mock_sensor._convert_date("2025-01-04") == date(2025, 1, 4)
+
     @pytest.mark.parametrize(
         "value",
-        [None, "invalid", "2025-01-04", [], {}],
+        [None, "invalid", [], {}],
     )
     def test_convert_date_invalid(self, mock_sensor, value):
         """Test invalid date values return None."""

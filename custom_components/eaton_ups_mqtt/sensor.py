@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -23,6 +22,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import EntityCategory
 
+from .const import MQTT_PREFIX_V1
 from .entity import EatonUpsEntity
 
 if TYPE_CHECKING:
@@ -90,12 +90,6 @@ BASE_ENTITY_DESCRIPTIONS = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
-        key="managers/1/identification$name",
-        name="Manager Name",
-        translation_key="manager_name",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
         key="managers/1/identification$contact",
         name="Manager Contact",
         translation_key="manager_contact",
@@ -138,12 +132,6 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="managers/1/identification$bootloaderVersion",
         name="Manager Bootloader Version",
         translation_key="manager_bootloader_version",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
-        key="managers/1/identification$manufacturer",
-        name="Manager Manufacturer",
-        translation_key="manager_manufacturer",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
@@ -636,6 +624,38 @@ def get_entity_descriptions(
     """Get entity descriptions based on available MQTT topics."""
     descriptions = list(BASE_ENTITY_DESCRIPTIONS)
 
+    # Version-dependent manager identification fields
+    prefix = coordinator.config_entry.runtime_data.client.mqtt_prefix
+    if prefix == MQTT_PREFIX_V1:
+        # M2 has name and manufacturer as separate fields
+        descriptions.extend(
+            [
+                SensorEntityDescription(
+                    key="managers/1/identification$name",
+                    name="Manager Name",
+                    translation_key="manager_name",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+                SensorEntityDescription(
+                    key="managers/1/identification$manufacturer",
+                    name="Manager Manufacturer",
+                    translation_key="manager_manufacturer",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ]
+        )
+    else:
+        # M3 uses friendlyName instead of name; manufacturer is absent
+        # and vendor from the base descriptions covers that role
+        descriptions.append(
+            SensorEntityDescription(
+                key="managers/1/identification$friendlyName",
+                name="Manager Friendly Name",
+                translation_key="manager_friendly_name",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        )
+
     # Detect inputs
     for input_num in range(1, 10):  # Check reasonable range
         if any(
@@ -727,19 +747,16 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         return value
 
     def _convert_date(self, value: Any) -> date | None:
-        """Convert value to timestamp if possible."""
+        """Convert value to date if possible."""
         if isinstance(value, int):
-            # Handle Unix timestamp (e.g., 1738146293)
             try:
                 return datetime.fromtimestamp(value, tz=UTC).date()
             except (ValueError, TypeError, OSError):
                 return None
 
         if isinstance(value, str):
-            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
             try:
-                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value).date()
+                return datetime.fromisoformat(value).date()
             except (ValueError, TypeError):
                 pass
 
@@ -748,17 +765,14 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
     def _convert_timestamp(self, value: Any) -> datetime | None:
         """Convert value to timestamp if possible."""
         if isinstance(value, int):
-            # Handle Unix timestamp (e.g., 1738146293)
             try:
                 return datetime.fromtimestamp(value, tz=UTC)
             except (ValueError, TypeError, OSError):
                 return None
 
         if isinstance(value, str):
-            # Handle ISO format timestamps (e.g., "2026-10-17T12:26:32.000Z")
             try:
-                if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z", value):
-                    return datetime.fromisoformat(value)
+                return datetime.fromisoformat(value)
             except (ValueError, TypeError):
                 pass
 

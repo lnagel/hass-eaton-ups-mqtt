@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import queue
+import re
 import ssl
 import tempfile
 import uuid
@@ -35,7 +36,6 @@ from .const import (
     DEFAULT_PORT,
     DOMAIN,
     LOGGER,
-    MQTT_PREFIX,
     MQTT_TIMEOUT,
 )
 
@@ -356,7 +356,7 @@ def try_connection(  # noqa: PLR0911
     ) -> None:
         """Handle connection result."""
         if result_code == mqtt.CONNACK_ACCEPTED:
-            client.subscribe(MQTT_PREFIX + "managers/1/identification")
+            client.subscribe("mbdetnrs/+/managers/1/identification")
         else:
             result.put(
                 ConnectionResult(
@@ -374,7 +374,7 @@ def try_connection(  # noqa: PLR0911
         msg: mqtt.MQTTMessage,
     ) -> None:
         """Handle received messages."""
-        if msg.topic == MQTT_PREFIX + "managers/1/identification":
+        if re.match(r"^mbdetnrs/\d+\.\d+/managers/1/identification$", msg.topic):
             try:
                 identification = json.loads(msg.payload)
                 result.put(ConnectionResult(identification=identification))
