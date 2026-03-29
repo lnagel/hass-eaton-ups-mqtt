@@ -1,0 +1,511 @@
+{
+  "managers/1/identification": {
+    "physicalName": "Eaton Gigabit Network Card 3",
+    "uuid": "cdbd401a-1938-5ecb-bc43-d3132909bde4",
+    "vendor": "Eaton",
+    "productName": "Gigabit Network Card 3",
+    "serialNumber": "**REDACTED**",
+    "type": "management card",
+    "hwVersion": "0",
+    "product": "network-m3_0",
+    "modelNumber": "NETWORK-M3",
+    "partNumber": "744-A4920-00",
+    "bootloaderVersion": "4.0.4",
+    "macAddress": "00:20:85:AA:BB:CC",
+    "firmwareVersion": "2.2.0",
+    "firmwareSha": "1c0bac1",
+    "firmwareType": "PROD",
+    "firmwareDate": "2025-04-14T10:10:17Z",
+    "firmwareInstallationDate": "2025-11-25T16:29:40Z",
+    "firmwareActivationDate": "2025-11-25T16:31:35Z",
+    "friendlyName": "Gigabit Network Card 3",
+    "contact": "",
+    "location": ""
+  },
+  "powerDistributions/1/backupSystem/powerBank/chargers/1/mostCriticalAlarm": null,
+  "powerDistributions/1/backupSystem/powerBank/chargers/1/status": {
+    "operating": "in service",
+    "health": "ok",
+    "active": true,
+    "chargerStatus": "on not charging",
+    "enabled": true,
+    "installed": true,
+    "internalFailure": false,
+    "supply": true,
+    "voltageTooHigh": false,
+    "voltageTooLow": false,
+    "mode": "abm"
+  },
+  "powerDistributions/1/backupSystem/powerBank/measures": {
+    "remainingTime": 4781,
+    "stateOfCharge": 100,
+    "voltage": 78.1
+  },
+  "powerDistributions/1/backupSystem/powerBank/settings": {
+    "replacementAlarmEnabled": true,
+    "lowRuntimeThreshold": 180,
+    "lowStateOfChargeThreshold": 0
+  },
+  "powerDistributions/1/backupSystem/powerBank/specifications": {
+    "externalCount": 1,
+    "remoteControlEnabled": true,
+    "technology": "PbAc",
+    "capacityAh": {
+      "nominal": 25
+    },
+    "voltage": {
+      "nominal": 72
+    },
+    "type": "batteries"
+  },
+  "powerDistributions/1/backupSystem/powerBank/mostCriticalAlarm": null,
+  "powerDistributions/1/backupSystem/powerBank/status": {
+    "operating": "stopped",
+    "health": "ok",
+    "criticalLowStateOfCharge": false,
+    "internalFailure": false,
+    "lastTestResult": "success",
+    "lastTestResultDate": "2026-03-16T09:21:02.000Z",
+    "lastSuccessfulTestDate": "2026-03-16T09:21:02.000Z",
+    "lcmInstallationDate": "2024-09-13T09:55:34.000Z",
+    "lcmReplacementDate": "2028-09-12T09:55:34.000Z",
+    "lcmExpired": false,
+    "lowStateOfCharge": false,
+    "storagePresent": "present",
+    "supplied": true,
+    "supply": false,
+    "testFailed": false,
+    "testStatus": "done"
+  },
+  "powerDistributions/1/identification": {
+    "uuid": "39987c42-8aba-5adf-a47c-e4380a254bec",
+    "physicalName": "Eaton 5PX 2200i RT3U G2",
+    "friendlyName": "Eaton 5PX 2200i RT3U G2",
+    "serialNumber": "**REDACTED**",
+    "partNumber": "5PX2200IRT3UG2",
+    "referenceNumber": "9910",
+    "manufacturer": "EATON",
+    "vendor": "EATON",
+    "model": "Eaton 5PX 2200i RT3U G2",
+    "type": "PowerDistribution",
+    "productName": "Eaton 5PX",
+    "firmwareVersion": "01.12.0024",
+    "name": "Eaton 5PX 2200i RT3U G2"
+  },
+  "powerDistributions/1/inputs": {
+    "@id": "/mbdetnrs/2.0/powerDistributions/1/inputs",
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/inputs/1"
+      }
+    ]
+  },
+  "powerDistributions/1/inputs/1/measures": {
+    "current": 3.7,
+    "frequency": 49.9,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/inputs/1/phases": {
+    "@id": "/mbdetnrs/2.0/powerDistributions/1/inputs/1/phases",
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/inputs/1/phases/1"
+      }
+    ]
+  },
+  "powerDistributions/1/inputs/1/phases/1/measures": {
+    "current": 3.7,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/inputs/1/mostCriticalAlarm": null,
+  "powerDistributions/1/inputs/1/status": {
+    "operating": "in service",
+    "health": "ok",
+    "frequencyOutOfRange": false,
+    "inRange": true,
+    "internalFailure": false,
+    "supplied": true,
+    "supply": true,
+    "voltageOutOfRange": false,
+    "voltageTooHigh": false,
+    "voltageTooLow": false,
+    "wiringFault": false
+  },
+  "powerDistributions/1/outlets": {
+    "@id": "/mbdetnrs/2.0/powerDistributions/1/outlets",
+    "members@count": 3,
+    "members": [
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/outlets/1"
+      },
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/outlets/2"
+      },
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/outlets/3"
+      }
+    ]
+  },
+  "powerDistributions/1/outlets/1/identification": {
+    "uuid": "72a615e4-6e97-562f-a711-230d6f0cbbac",
+    "physicalName": "PRIMARY",
+    "friendlyName": "PRIMARY"
+  },
+  "powerDistributions/1/outlets/1/measures": {
+    "activePower": 759,
+    "apparentPower": 880,
+    "averageEnergy": 762,
+    "cumulatedEnergy": 8607925.1766204,
+    "current": 3.7,
+    "frequency": 49.9,
+    "powerFactor": 0.86,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/outlets/1/specifications": {
+    "feed": "Outputs.1",
+    "switchable": false
+  },
+  "powerDistributions/1/outlets/1/status": {
+    "operating": "in service",
+    "health": "ok",
+    "delayBeforeSwitchOff": -1,
+    "delayBeforeSwitchOn": -1,
+    "supply": true,
+    "switchedOn": true,
+    "supplierPowerQuality": "protecting"
+  },
+  "powerDistributions/1/outlets/2/identification": {
+    "uuid": "4c33ef1b-fdfc-5816-b9c1-3b509205003e",
+    "physicalName": "GROUP 1",
+    "friendlyName": "GROUP 1"
+  },
+  "powerDistributions/1/outlets/2/measures": {
+    "activePower": 0,
+    "apparentPower": 0,
+    "averageEnergy": 0,
+    "cumulatedEnergy": 0,
+    "current": 0,
+    "frequency": 49.9,
+    "powerFactor": 0,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/outlets/2/specifications": {
+    "feed": "Outputs.1",
+    "switchable": true
+  },
+  "powerDistributions/1/outlets/2/status": {
+    "operating": "in service",
+    "health": "ok",
+    "delayBeforeSwitchOff": -1,
+    "delayBeforeSwitchOn": -1,
+    "supply": true,
+    "switchedOn": true,
+    "supplierPowerQuality": "protecting"
+  },
+  "powerDistributions/1/outlets/3/identification": {
+    "uuid": "1b12134b-5df8-52b3-a047-86ecf4df2363",
+    "physicalName": "GROUP 2",
+    "friendlyName": "GROUP 2"
+  },
+  "powerDistributions/1/outlets/3/measures": {
+    "activePower": 0,
+    "apparentPower": 0,
+    "averageEnergy": 0,
+    "cumulatedEnergy": 0,
+    "current": 0,
+    "frequency": 49.9,
+    "powerFactor": 0,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/outlets/3/specifications": {
+    "feed": "Outputs.1",
+    "switchable": true
+  },
+  "powerDistributions/1/outlets/3/status": {
+    "operating": "in service",
+    "health": "ok",
+    "delayBeforeSwitchOff": -1,
+    "delayBeforeSwitchOn": -1,
+    "supply": true,
+    "switchedOn": true,
+    "supplierPowerQuality": "protecting"
+  },
+  "powerDistributions/1/outputs": {
+    "@id": "/mbdetnrs/2.0/powerDistributions/1/outputs",
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/outputs/1"
+      }
+    ]
+  },
+  "powerDistributions/1/outputs/1/measures": {
+    "activePower": 763,
+    "apparentPower": 880,
+    "averageEnergy": 762,
+    "cumulatedEnergy": 8607929.944992,
+    "current": 3.7,
+    "efficiency": 99,
+    "frequency": 49.9,
+    "percentLoad": 40,
+    "powerFactor": 0.86,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/outputs/1/mostCriticalAlarm": null,
+  "powerDistributions/1/outputs/1/status": {
+    "operating": "in service",
+    "health": "ok",
+    "overload": false,
+    "shortCircuit": false,
+    "supply": true,
+    "supplierPowerQuality": "protecting"
+  },
+  "powerDistributions/1/outputs/1/phases": {
+    "@id": "/mbdetnrs/2.0/powerDistributions/1/outputs/1/phases",
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "/mbdetnrs/2.0/powerDistributions/1/outputs/1/phases/1"
+      }
+    ]
+  },
+  "powerDistributions/1/outputs/1/phases/1/measures": {
+    "activePower": 763,
+    "apparentPower": 880,
+    "current": 3.7,
+    "percentLoad": 40,
+    "powerFactor": 0.86,
+    "voltage": 238.5
+  },
+  "powerDistributions/1/powerConverters/avr/mostCriticalAlarm": null,
+  "powerDistributions/1/powerConverters/avr/status": {
+    "operating": "in service",
+    "health": "ok",
+    "onBoost": false,
+    "onBuck": false,
+    "supplied": true,
+    "supply": true
+  },
+  "powerDistributions/1/powerConverters/inverter/mostCriticalAlarm": null,
+  "powerDistributions/1/powerConverters/inverter/status": {
+    "operating": "stopped",
+    "health": "ok",
+    "supplied": false,
+    "supply": false
+  },
+  "powerDistributions/1/settings": {
+    "audibleAlarm": "enabled",
+    "automaticRestartEnabled": true,
+    "automaticRestartLevel": 0,
+    "forcedRebootEnabled": true,
+    "nominalVoltage": 230,
+    "remoteControlEnabled": true,
+    "sensitivityMode": "high sensitivity",
+    "voltageHighDetection": 294,
+    "voltageLowDetection": 160
+  },
+  "powerDistributions/1/specifications": {
+    "powerCycleDuration": 10,
+    "supported": true,
+    "topology": "line interactive",
+    "voltageRange": "high voltage",
+    "activePower": {
+      "nominal": 2200
+    },
+    "apparentPower": {
+      "nominal": 2200
+    },
+    "current": {
+      "nominal": 9.5652
+    },
+    "frequency": {
+      "nominal": 50
+    },
+    "percentLoad": {
+      "highWarningThreshold": 102
+    },
+    "voltage": {
+      "nominal": 230
+    },
+    "type": "ups"
+  },
+  "powerDistributions/1/status": {
+    "operating": "in service",
+    "health": "ok",
+    "bootloaderMode": false,
+    "communicationFault": false,
+    "configurationFault": false,
+    "delayBeforeSwitchOff": -1,
+    "delayBeforeSwitchOn": -1,
+    "emergencySwitchOff": false,
+    "fanFault": false,
+    "internalFailure": false,
+    "shutdownImminent": false,
+    "systemAlarm": false,
+    "temperatureOutOfRange": false,
+    "mode": "on line interactive normal"
+  },
+  "powerDistributions/1/environment/status": {
+    "health": "ok",
+    "buildingAlarm1": false,
+    "temperatureTooHigh": false
+  },
+  "powerDistributions/1/environment/measures": null,
+  "sensors/devices": {
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ"
+      }
+    ]
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/identification": {
+    "uuid": "65550d46f06d5ac6a5a57e38087c5f79",
+    "manufacturer": "Eaton",
+    "model": "EMPDT1H1C2",
+    "serial": "REDACTED0001",
+    "physicalName": "Eaton EMPDT1H1C2",
+    "name": "SI-NW-UV-1",
+    "interface": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ",
+    "version": "01.04.0011",
+    "location": "",
+    "contact": ""
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/deviceInformation": {
+    "modbusAddress": 1
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/communicationStatus": {
+    "state": "ok",
+    "since": "2026-03-16T09:20:07.962Z",
+    "reason": "none"
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/temperatures": {
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/temperatures/PoOj7VPqWUqjDMyPYd4yYw"
+      }
+    ]
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/temperatures/PoOj7VPqWUqjDMyPYd4yYw/identification": {
+    "uuid": "3e83a3ed53ea594aa30ccc8f61de3263",
+    "manufacturer": "Eaton",
+    "model": "AnalogChannel",
+    "serial": "",
+    "physicalName": "T1",
+    "name": "SI-NW-UV-1@1-T1",
+    "interface": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/temperatures/PoOj7VPqWUqjDMyPYd4yYw",
+    "version": "",
+    "location": "",
+    "contact": ""
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/temperatures/PoOj7VPqWUqjDMyPYd4yYw/configuration": {
+    "enabled": true,
+    "offset": 0.0
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/temperatures/PoOj7VPqWUqjDMyPYd4yYw/measures": {
+    "current": 301.049988,
+    "min": {
+      "value": 296.350006,
+      "since": "2026-02-16T13:40:10Z"
+    },
+    "max": {
+      "value": 303.350006,
+      "since": "2025-12-11T16:40:45Z"
+    }
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/humidities": {
+    "members@count": 1,
+    "members": [
+      {
+        "@id": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/humidities/8lzsWUapUT29-7VuxYSUuA"
+      }
+    ]
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/humidities/8lzsWUapUT29-7VuxYSUuA/identification": {
+    "uuid": "f25cec5946a9513dbdfbb56ec58494b8",
+    "manufacturer": "Eaton",
+    "model": "AnalogChannel",
+    "serial": "",
+    "physicalName": "H1",
+    "name": "SI-NW-UV-1@1-H1",
+    "interface": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/humidities/8lzsWUapUT29-7VuxYSUuA",
+    "version": "",
+    "location": "",
+    "contact": ""
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/humidities/8lzsWUapUT29-7VuxYSUuA/configuration": {
+    "enabled": true,
+    "offset": 0.0
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/humidities/8lzsWUapUT29-7VuxYSUuA/measures": {
+    "current": 14.3000002,
+    "min": {
+      "value": 6.80000019,
+      "since": "2026-01-12T04:48:11Z"
+    },
+    "max": {
+      "value": 30.2999992,
+      "since": "2026-03-12T11:16:39Z"
+    }
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs": {
+    "members@count": 2,
+    "members": [
+      {
+        "@id": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TBiMVm3eXwSsEF4t12ZRBQ"
+      },
+      {
+        "@id": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TSSBRyDYW8Sn3md8tA9Z4w"
+      }
+    ]
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TBiMVm3eXwSsEF4t12ZRBQ/identification": {
+    "uuid": "4c188c566dde5f04ac105e2dd7665105",
+    "manufacturer": "Eaton",
+    "model": "DigitalChannel",
+    "serial": "",
+    "physicalName": "C2",
+    "name": "SI-NW-UV-1@1-C2",
+    "interface": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TBiMVm3eXwSsEF4t12ZRBQ",
+    "version": "",
+    "location": "",
+    "contact": ""
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TBiMVm3eXwSsEF4t12ZRBQ/configuration": {
+    "enabled": true,
+    "activeLow": false,
+    "debounceTime": 0.0
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TBiMVm3eXwSsEF4t12ZRBQ/measures": {
+    "active": false,
+    "since": "2025-12-11T15:37:39Z"
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TSSBRyDYW8Sn3md8tA9Z4w/identification": {
+    "uuid": "4d24814720d85bc4a7de677cb40f59e3",
+    "manufacturer": "Eaton",
+    "model": "DigitalChannel",
+    "serial": "",
+    "physicalName": "C1",
+    "name": "SI-NW-UV-1@1-C1",
+    "interface": "mbdetnrs/2.0/sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TSSBRyDYW8Sn3md8tA9Z4w",
+    "version": "",
+    "location": "",
+    "contact": ""
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TSSBRyDYW8Sn3md8tA9Z4w/configuration": {
+    "enabled": true,
+    "activeLow": false,
+    "debounceTime": 0.0
+  },
+  "sensors/devices/ZVUNRvBtWsalpX44CHxfeQ/channels/digitalInputs/TSSBRyDYW8Sn3md8tA9Z4w/measures": {
+    "active": false,
+    "since": "2025-12-11T15:37:39Z"
+  },
+  "sensors/status": {
+    "operating": "in service",
+    "health": "ok"
+  }
+}

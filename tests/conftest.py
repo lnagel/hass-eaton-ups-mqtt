@@ -45,6 +45,14 @@ def ups_5px_g2_full() -> dict[str, Any]:
 
 
 @pytest.fixture
+def ups_5px_2200_g2_m3_data() -> dict[str, Any]:
+    """Load 5PX 2200 G2 with Network-M3 card fixture data."""
+    fixture_path = FIXTURES_DIR / "mqtt_data_5px_2200_g2_m3.json"
+    with fixture_path.open() as f:
+        return json.load(f)
+
+
+@pytest.fixture
 def mock_mqtt_client() -> Generator[MagicMock]:
     """Mock paho MQTT client."""
     with patch("paho.mqtt.client.Client") as mock_client_class:
