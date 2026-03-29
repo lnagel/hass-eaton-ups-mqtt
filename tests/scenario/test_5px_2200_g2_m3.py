@@ -10,11 +10,16 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntityDescr
 
 from custom_components.eaton_ups_mqtt.binary_sensor import (
     EatonUpsBinarySensor,
+    _get_env_channel_name,
+    _get_env_device_name,
     get_binary_entity_descriptions,
 )
 from custom_components.eaton_ups_mqtt.const import MQTT_PREFIX_V2
 from custom_components.eaton_ups_mqtt.sensor import (
+    ENV_HUMIDITY_PATTERN,
+    ENV_TEMP_PATTERN,
     EatonUpsSensor,
+    _get_channel_name,
     get_entity_descriptions,
 )
 
@@ -124,3 +129,131 @@ class TestM3SpecificValues:
         sensor = EatonUpsSensor(mock_coordinator, desc)
         # M2 returns int (3), M3 returns string ("done")
         assert sensor.native_value == "done"
+
+
+class TestEnvironmentalSensorProbes:
+    """Tests for environmental sensor probe support."""
+
+    def test_temperature_sensor_detected(self, mock_coordinator):
+        """Test that temperature sensor description is generated."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        temp_keys = [
+            d.key for d in descriptions if ENV_TEMP_PATTERN.match(d.key.split("$")[0])
+        ]
+        assert len(temp_keys) == 1
+
+    def test_humidity_sensor_detected(self, mock_coordinator):
+        """Test that humidity sensor description is generated."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        humidity_keys = [
+            d.key
+            for d in descriptions
+            if ENV_HUMIDITY_PATTERN.match(d.key.split("$")[0])
+        ]
+        assert len(humidity_keys) == 1
+
+    def test_digital_input_sensors_detected(self, mock_coordinator):
+        """Test that digital input binary sensors are generated."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        di_keys = [d.key for d in descriptions if "channels/digitalInputs/" in d.key]
+        assert len(di_keys) == 2
+
+    def test_communication_status_detected(self, mock_coordinator):
+        """Test that communication status binary sensor is generated."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        comm_keys = [d.key for d in descriptions if "communicationStatus" in d.key]
+        assert len(comm_keys) == 1
+
+    def test_temperature_value(self, mock_coordinator):
+        """Test temperature sensor reads Kelvin value correctly."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        temp_desc = next(
+            d for d in descriptions if ENV_TEMP_PATTERN.match(d.key.split("$")[0])
+        )
+        sensor = EatonUpsSensor(mock_coordinator, temp_desc)
+        assert sensor.native_value == pytest.approx(301.049988)
+
+    def test_humidity_value(self, mock_coordinator):
+        """Test humidity sensor reads value correctly."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        humidity_desc = next(
+            d for d in descriptions if ENV_HUMIDITY_PATTERN.match(d.key.split("$")[0])
+        )
+        sensor = EatonUpsSensor(mock_coordinator, humidity_desc)
+        assert sensor.native_value == pytest.approx(14.3000002)
+
+    def test_digital_input_values(self, mock_coordinator):
+        """Test digital input binary sensors read correctly."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        di_descs = [d for d in descriptions if "channels/digitalInputs/" in d.key]
+        for desc in di_descs:
+            sensor = EatonUpsBinarySensor(mock_coordinator, desc)
+            assert sensor.is_on is False
+
+    def test_communication_status_value(self, mock_coordinator):
+        """Test communication status reads 'ok' as True."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        comm_desc = next(d for d in descriptions if "communicationStatus" in d.key)
+        sensor = EatonUpsBinarySensor(mock_coordinator, comm_desc)
+        assert sensor.is_on is True
+
+    def test_temperature_sensor_name(self, mock_coordinator):
+        """Test temperature sensor uses channel identification name."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        temp_desc = next(
+            d for d in descriptions if ENV_TEMP_PATTERN.match(d.key.split("$")[0])
+        )
+        assert temp_desc.name == "SI-NW-UV-1@1-T1 Temperature"
+
+    def test_humidity_sensor_name(self, mock_coordinator):
+        """Test humidity sensor uses channel identification name."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        humidity_desc = next(
+            d for d in descriptions if ENV_HUMIDITY_PATTERN.match(d.key.split("$")[0])
+        )
+        assert humidity_desc.name == "SI-NW-UV-1@1-H1 Humidity"
+
+    def test_digital_input_sensor_names(self, mock_coordinator):
+        """Test digital input sensors use channel identification names."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        di_descs = [d for d in descriptions if "channels/digitalInputs/" in d.key]
+        names = sorted(d.name for d in di_descs)
+        assert names == ["SI-NW-UV-1@1-C1 Contact", "SI-NW-UV-1@1-C2 Contact"]
+
+    def test_communication_status_name(self, mock_coordinator):
+        """Test communication status uses device identification name."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        comm_desc = next(d for d in descriptions if "communicationStatus" in d.key)
+        assert comm_desc.name == "SI-NW-UV-1 Communication"
+
+
+class TestEnvProbeNameFallbacks:
+    """Tests for name lookup fallbacks when identification data is missing."""
+
+    def test_sensor_channel_name_fallback_non_dict(self):
+        """Test _get_channel_name returns channel_id when data is not a dict."""
+        data = {
+            "sensors/devices/dev1/channels/temperatures/ch1/identification": None,
+        }
+        assert _get_channel_name(data, "temperatures", "dev1", "ch1") == "ch1"
+
+    def test_sensor_channel_name_fallback_missing(self):
+        """Test _get_channel_name returns channel_id when key is missing."""
+        assert _get_channel_name({}, "temperatures", "dev1", "ch1") == "ch1"
+
+    def test_binary_sensor_channel_name_fallback_non_dict(self):
+        """Test _get_env_channel_name returns channel_id for non-dict data."""
+        data = {
+            "sensors/devices/dev1/channels/digitalInputs/ch1/identification": None,
+        }
+        result = _get_env_channel_name(data, "digitalInputs", "dev1", "ch1")
+        assert result == "ch1"
+
+    def test_binary_sensor_device_name_fallback_non_dict(self):
+        """Test _get_env_device_name returns device_id for non-dict data."""
+        data = {"sensors/devices/dev1/identification": None}
+        assert _get_env_device_name(data, "dev1") == "dev1"
+
+    def test_binary_sensor_device_name_fallback_missing(self):
+        """Test _get_env_device_name returns device_id when key is missing."""
+        assert _get_env_device_name({}, "dev1") == "dev1"

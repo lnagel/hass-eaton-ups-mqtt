@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import re
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
+from homeassistant.helpers.entity import EntityCategory
 
 from .entity import EatonUpsEntity
 
@@ -255,6 +257,59 @@ def _generate_outlet_binary_descriptions(
     )
 
 
+ENV_DIGITAL_INPUT_PATTERN = re.compile(
+    r"^sensors/devices/([^/]+)/channels/digitalInputs/([^/]+)/measures$"
+)
+ENV_COMM_STATUS_PATTERN = re.compile(r"^sensors/devices/([^/]+)/communicationStatus$")
+
+
+def _get_env_channel_name(
+    data: dict[str, Any], channel_type: str, device_id: str, channel_id: str
+) -> str:
+    """Get human-readable channel name from identification topic."""
+    id_key = (
+        f"sensors/devices/{device_id}"
+        f"/channels/{channel_type}/{channel_id}/identification"
+    )
+    id_data = data.get(id_key, {})
+    if isinstance(id_data, dict):
+        return id_data.get("name") or id_data.get("physicalName") or channel_id
+    return channel_id
+
+
+def _get_env_device_name(data: dict[str, Any], device_id: str) -> str:
+    """Get human-readable device name from identification topic."""
+    id_key = f"sensors/devices/{device_id}/identification"
+    id_data = data.get(id_key, {})
+    if isinstance(id_data, dict):
+        return id_data.get("name") or id_data.get("physicalName") or device_id
+    return device_id
+
+
+def _generate_env_digital_input_description(
+    device_id: str, channel_id: str, channel_name: str
+) -> BinarySensorEntityDescription:
+    """Generate binary sensor description for an environmental digital input."""
+    return BinarySensorEntityDescription(
+        key=f"sensors/devices/{device_id}/channels/digitalInputs/{channel_id}/measures$active",
+        name=f"{channel_name} Contact",
+        translation_key="env_probe_digital_input",
+    )
+
+
+def _generate_env_comm_status_description(
+    device_id: str, device_name: str
+) -> BinarySensorEntityDescription:
+    """Generate binary sensor description for sensor device communication status."""
+    return BinarySensorEntityDescription(
+        key=f"sensors/devices/{device_id}/communicationStatus$state",
+        name=f"{device_name} Communication",
+        translation_key="env_probe_communication",
+        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    )
+
+
 def get_binary_entity_descriptions(
     coordinator: EatonUPSDataUpdateCoordinator,
 ) -> tuple[BinarySensorEntityDescription, ...]:
@@ -276,6 +331,29 @@ def get_binary_entity_descriptions(
             for key in coordinator.data
         ):
             descriptions.extend(_generate_outlet_binary_descriptions(outlet_num))
+
+    # Detect environmental sensor probe channels
+    for key in coordinator.data:
+        match = ENV_DIGITAL_INPUT_PATTERN.match(key)
+        if match:
+            device_id, channel_id = match.groups()
+            channel_name = _get_env_channel_name(
+                coordinator.data, "digitalInputs", device_id, channel_id
+            )
+            descriptions.append(
+                _generate_env_digital_input_description(
+                    device_id, channel_id, channel_name
+                )
+            )
+            continue
+
+        match = ENV_COMM_STATUS_PATTERN.match(key)
+        if match:
+            device_id = match.group(1)
+            device_name = _get_env_device_name(coordinator.data, device_id)
+            descriptions.append(
+                _generate_env_comm_status_description(device_id, device_name)
+            )
 
     return tuple(descriptions)
 
@@ -340,7 +418,7 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
         if isinstance(value, bool):
             return value
         if isinstance(value, str):
-            return value.lower() in ("true", "yes", "on", "1")
+            return value.lower() in ("true", "yes", "on", "1", "ok")
         if isinstance(value, int | float):
             return value > 0
         return False

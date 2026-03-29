@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, date, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -18,6 +19,7 @@ from homeassistant.const import (
     UnitOfEnergy,
     UnitOfFrequency,
     UnitOfPower,
+    UnitOfTemperature,
     UnitOfTime,
 )
 from homeassistant.helpers.entity import EntityCategory
@@ -618,6 +620,58 @@ def _generate_outlet_descriptions(
     )
 
 
+ENV_TEMP_PATTERN = re.compile(
+    r"^sensors/devices/([^/]+)/channels/temperatures/([^/]+)/measures$"
+)
+ENV_HUMIDITY_PATTERN = re.compile(
+    r"^sensors/devices/([^/]+)/channels/humidities/([^/]+)/measures$"
+)
+
+
+def _get_channel_name(
+    data: dict[str, Any], channel_type: str, device_id: str, channel_id: str
+) -> str:
+    """Get human-readable channel name from identification topic."""
+    id_key = (
+        f"sensors/devices/{device_id}"
+        f"/channels/{channel_type}/{channel_id}/identification"
+    )
+    id_data = data.get(id_key, {})
+    if isinstance(id_data, dict):
+        return id_data.get("name") or id_data.get("physicalName") or channel_id
+    return channel_id
+
+
+def _generate_env_temperature_description(
+    device_id: str, channel_id: str, channel_name: str
+) -> SensorEntityDescription:
+    """Generate sensor description for an environmental temperature channel."""
+    return SensorEntityDescription(
+        key=f"sensors/devices/{device_id}/channels/temperatures/{channel_id}/measures$current",
+        name=f"{channel_name} Temperature",
+        translation_key="env_probe_temperature",
+        native_unit_of_measurement=UnitOfTemperature.KELVIN,
+        suggested_display_precision=1,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    )
+
+
+def _generate_env_humidity_description(
+    device_id: str, channel_id: str, channel_name: str
+) -> SensorEntityDescription:
+    """Generate sensor description for an environmental humidity channel."""
+    return SensorEntityDescription(
+        key=f"sensors/devices/{device_id}/channels/humidities/{channel_id}/measures$current",
+        name=f"{channel_name} Humidity",
+        translation_key="env_probe_humidity",
+        native_unit_of_measurement=PERCENTAGE,
+        suggested_display_precision=1,
+        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=SensorStateClass.MEASUREMENT,
+    )
+
+
 def get_entity_descriptions(
     coordinator: EatonUPSDataUpdateCoordinator,
 ) -> tuple[SensorEntityDescription, ...]:
@@ -679,6 +733,31 @@ def get_entity_descriptions(
             for key in coordinator.data
         ):
             descriptions.extend(_generate_outlet_descriptions(outlet_num))
+
+    # Detect environmental sensor probe channels
+    for key in coordinator.data:
+        match = ENV_TEMP_PATTERN.match(key)
+        if match:
+            device_id, channel_id = match.groups()
+            channel_name = _get_channel_name(
+                coordinator.data, "temperatures", device_id, channel_id
+            )
+            descriptions.append(
+                _generate_env_temperature_description(
+                    device_id, channel_id, channel_name
+                )
+            )
+            continue
+
+        match = ENV_HUMIDITY_PATTERN.match(key)
+        if match:
+            device_id, channel_id = match.groups()
+            channel_name = _get_channel_name(
+                coordinator.data, "humidities", device_id, channel_id
+            )
+            descriptions.append(
+                _generate_env_humidity_description(device_id, channel_id, channel_name)
+            )
 
     return tuple(descriptions)
 
