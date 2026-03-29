@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
 import pytest
 
 from custom_components.eaton_ups_mqtt.binary_sensor import (
     _generate_input_binary_descriptions,
     _generate_outlet_binary_descriptions,
 )
+from custom_components.eaton_ups_mqtt.const import MQTT_PREFIX_V1, MQTT_PREFIX_V2
 from custom_components.eaton_ups_mqtt.sensor import (
     _generate_input_descriptions,
     _generate_outlet_descriptions,
     _generate_output_descriptions,
+    get_entity_descriptions,
 )
 
 
@@ -95,3 +99,36 @@ class TestDescriptionUniqueness:
             all_keys.extend(d.key for d in _generate_input_binary_descriptions(i))
             all_keys.extend(d.key for d in _generate_outlet_binary_descriptions(i))
         assert len(all_keys) == len(set(all_keys))
+
+
+class TestVersionDependentDescriptions:
+    """Tests for version-dependent entity descriptions."""
+
+    @pytest.fixture
+    def make_coordinator(self):
+        """Create a mock coordinator with a given prefix."""
+
+        def _factory(prefix):
+            coordinator = MagicMock()
+            coordinator.config_entry.entry_id = "test"
+            coordinator.config_entry.runtime_data.client.mqtt_prefix = prefix
+            coordinator.data = {}
+            return coordinator
+
+        return _factory
+
+    def test_v1_includes_name_and_manufacturer(self, make_coordinator):
+        """Test V1 descriptions include name and manufacturer."""
+        descriptions = get_entity_descriptions(make_coordinator(MQTT_PREFIX_V1))
+        keys = [d.key for d in descriptions]
+        assert "managers/1/identification$name" in keys
+        assert "managers/1/identification$manufacturer" in keys
+        assert "managers/1/identification$friendlyName" not in keys
+
+    def test_v2_includes_friendly_name(self, make_coordinator):
+        """Test V2 descriptions include friendlyName, not name/manufacturer."""
+        descriptions = get_entity_descriptions(make_coordinator(MQTT_PREFIX_V2))
+        keys = [d.key for d in descriptions]
+        assert "managers/1/identification$friendlyName" in keys
+        assert "managers/1/identification$name" not in keys
+        assert "managers/1/identification$manufacturer" not in keys
