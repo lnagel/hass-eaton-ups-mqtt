@@ -8,18 +8,17 @@ from unittest.mock import MagicMock
 import pytest
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntityDescription
 
+from custom_components.eaton_ups_mqtt import binary_sensor as bs
+from custom_components.eaton_ups_mqtt import sensor as s
 from custom_components.eaton_ups_mqtt.binary_sensor import (
     EatonUpsBinarySensor,
-    _get_env_channel_name,
-    _get_env_device_name,
     get_binary_entity_descriptions,
 )
 from custom_components.eaton_ups_mqtt.const import MQTT_PREFIX_V2
 from custom_components.eaton_ups_mqtt.sensor import (
-    ENV_HUMIDITY_PATTERN,
-    ENV_TEMP_PATTERN,
+    SENSOR_HUMIDITY_PATTERN,
+    SENSOR_TEMP_PATTERN,
     EatonUpsSensor,
-    _get_channel_name,
     get_entity_descriptions,
 )
 
@@ -138,7 +137,9 @@ class TestEnvironmentalSensorProbes:
         """Test that temperature sensor description is generated."""
         descriptions = get_entity_descriptions(mock_coordinator)
         temp_keys = [
-            d.key for d in descriptions if ENV_TEMP_PATTERN.match(d.key.split("$")[0])
+            d.key
+            for d in descriptions
+            if SENSOR_TEMP_PATTERN.match(d.key.split("$")[0])
         ]
         assert len(temp_keys) == 1
 
@@ -148,7 +149,7 @@ class TestEnvironmentalSensorProbes:
         humidity_keys = [
             d.key
             for d in descriptions
-            if ENV_HUMIDITY_PATTERN.match(d.key.split("$")[0])
+            if SENSOR_HUMIDITY_PATTERN.match(d.key.split("$")[0])
         ]
         assert len(humidity_keys) == 1
 
@@ -168,7 +169,7 @@ class TestEnvironmentalSensorProbes:
         """Test temperature sensor reads Kelvin value correctly."""
         descriptions = get_entity_descriptions(mock_coordinator)
         temp_desc = next(
-            d for d in descriptions if ENV_TEMP_PATTERN.match(d.key.split("$")[0])
+            d for d in descriptions if SENSOR_TEMP_PATTERN.match(d.key.split("$")[0])
         )
         sensor = EatonUpsSensor(mock_coordinator, temp_desc)
         assert sensor.native_value == pytest.approx(301.049988)
@@ -177,7 +178,9 @@ class TestEnvironmentalSensorProbes:
         """Test humidity sensor reads value correctly."""
         descriptions = get_entity_descriptions(mock_coordinator)
         humidity_desc = next(
-            d for d in descriptions if ENV_HUMIDITY_PATTERN.match(d.key.split("$")[0])
+            d
+            for d in descriptions
+            if SENSOR_HUMIDITY_PATTERN.match(d.key.split("$")[0])
         )
         sensor = EatonUpsSensor(mock_coordinator, humidity_desc)
         assert sensor.native_value == pytest.approx(14.3000002)
@@ -201,7 +204,7 @@ class TestEnvironmentalSensorProbes:
         """Test temperature sensor uses channel identification name."""
         descriptions = get_entity_descriptions(mock_coordinator)
         temp_desc = next(
-            d for d in descriptions if ENV_TEMP_PATTERN.match(d.key.split("$")[0])
+            d for d in descriptions if SENSOR_TEMP_PATTERN.match(d.key.split("$")[0])
         )
         assert temp_desc.name == "SI-NW-UV-1@1-T1 Temperature"
 
@@ -209,7 +212,9 @@ class TestEnvironmentalSensorProbes:
         """Test humidity sensor uses channel identification name."""
         descriptions = get_entity_descriptions(mock_coordinator)
         humidity_desc = next(
-            d for d in descriptions if ENV_HUMIDITY_PATTERN.match(d.key.split("$")[0])
+            d
+            for d in descriptions
+            if SENSOR_HUMIDITY_PATTERN.match(d.key.split("$")[0])
         )
         assert humidity_desc.name == "SI-NW-UV-1@1-H1 Humidity"
 
@@ -227,33 +232,35 @@ class TestEnvironmentalSensorProbes:
         assert comm_desc.name == "SI-NW-UV-1 Communication"
 
 
-class TestEnvProbeNameFallbacks:
+class TestSensorNameFallbacks:
     """Tests for name lookup fallbacks when identification data is missing."""
 
     def test_sensor_channel_name_fallback_non_dict(self):
-        """Test _get_channel_name returns channel_id when data is not a dict."""
+        """Test sensor _get_sensor_channel_name returns channel_id for non-dict."""
         data = {
             "sensors/devices/dev1/channels/temperatures/ch1/identification": None,
         }
-        assert _get_channel_name(data, "temperatures", "dev1", "ch1") == "ch1"
+        result = s._get_sensor_channel_name(data, "temperatures", "dev1", "ch1")
+        assert result == "ch1"
 
     def test_sensor_channel_name_fallback_missing(self):
-        """Test _get_channel_name returns channel_id when key is missing."""
-        assert _get_channel_name({}, "temperatures", "dev1", "ch1") == "ch1"
+        """Test sensor _get_sensor_channel_name returns channel_id when missing."""
+        result = s._get_sensor_channel_name({}, "temperatures", "dev1", "ch1")
+        assert result == "ch1"
 
     def test_binary_sensor_channel_name_fallback_non_dict(self):
-        """Test _get_env_channel_name returns channel_id for non-dict data."""
+        """Test binary_sensor _get_sensor_channel_name returns channel_id for non-dict."""
         data = {
             "sensors/devices/dev1/channels/digitalInputs/ch1/identification": None,
         }
-        result = _get_env_channel_name(data, "digitalInputs", "dev1", "ch1")
+        result = bs._get_sensor_channel_name(data, "digitalInputs", "dev1", "ch1")
         assert result == "ch1"
 
     def test_binary_sensor_device_name_fallback_non_dict(self):
-        """Test _get_env_device_name returns device_id for non-dict data."""
+        """Test _get_sensor_device_name returns device_id for non-dict data."""
         data = {"sensors/devices/dev1/identification": None}
-        assert _get_env_device_name(data, "dev1") == "dev1"
+        assert bs._get_sensor_device_name(data, "dev1") == "dev1"
 
     def test_binary_sensor_device_name_fallback_missing(self):
-        """Test _get_env_device_name returns device_id when key is missing."""
-        assert _get_env_device_name({}, "dev1") == "dev1"
+        """Test _get_sensor_device_name returns device_id when key is missing."""
+        assert bs._get_sensor_device_name({}, "dev1") == "dev1"

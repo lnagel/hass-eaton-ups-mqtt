@@ -620,15 +620,15 @@ def _generate_outlet_descriptions(
     )
 
 
-ENV_TEMP_PATTERN = re.compile(
+SENSOR_TEMP_PATTERN = re.compile(
     r"^sensors/devices/([^/]+)/channels/temperatures/([^/]+)/measures$"
 )
-ENV_HUMIDITY_PATTERN = re.compile(
+SENSOR_HUMIDITY_PATTERN = re.compile(
     r"^sensors/devices/([^/]+)/channels/humidities/([^/]+)/measures$"
 )
 
 
-def _get_channel_name(
+def _get_sensor_channel_name(
     data: dict[str, Any], channel_type: str, device_id: str, channel_id: str
 ) -> str:
     """Get human-readable channel name from identification topic."""
@@ -642,14 +642,14 @@ def _get_channel_name(
     return channel_id
 
 
-def _generate_env_temperature_description(
+def _generate_sensor_temperature_description(
     device_id: str, channel_id: str, channel_name: str
 ) -> SensorEntityDescription:
     """Generate sensor description for an environmental temperature channel."""
     return SensorEntityDescription(
         key=f"sensors/devices/{device_id}/channels/temperatures/{channel_id}/measures$current",
         name=f"{channel_name} Temperature",
-        translation_key="env_probe_temperature",
+        translation_key="sensor_temperature",
         native_unit_of_measurement=UnitOfTemperature.KELVIN,
         suggested_display_precision=1,
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -657,14 +657,14 @@ def _generate_env_temperature_description(
     )
 
 
-def _generate_env_humidity_description(
+def _generate_sensor_humidity_description(
     device_id: str, channel_id: str, channel_name: str
 ) -> SensorEntityDescription:
     """Generate sensor description for an environmental humidity channel."""
     return SensorEntityDescription(
         key=f"sensors/devices/{device_id}/channels/humidities/{channel_id}/measures$current",
         name=f"{channel_name} Humidity",
-        translation_key="env_probe_humidity",
+        translation_key="sensor_humidity",
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=1,
         device_class=SensorDeviceClass.HUMIDITY,
@@ -736,27 +736,29 @@ def get_entity_descriptions(
 
     # Detect environmental sensor probe channels
     for key in coordinator.data:
-        match = ENV_TEMP_PATTERN.match(key)
+        match = SENSOR_TEMP_PATTERN.match(key)
         if match:
             device_id, channel_id = match.groups()
-            channel_name = _get_channel_name(
+            channel_name = _get_sensor_channel_name(
                 coordinator.data, "temperatures", device_id, channel_id
             )
             descriptions.append(
-                _generate_env_temperature_description(
+                _generate_sensor_temperature_description(
                     device_id, channel_id, channel_name
                 )
             )
             continue
 
-        match = ENV_HUMIDITY_PATTERN.match(key)
+        match = SENSOR_HUMIDITY_PATTERN.match(key)
         if match:
             device_id, channel_id = match.groups()
-            channel_name = _get_channel_name(
+            channel_name = _get_sensor_channel_name(
                 coordinator.data, "humidities", device_id, channel_id
             )
             descriptions.append(
-                _generate_env_humidity_description(device_id, channel_id, channel_name)
+                _generate_sensor_humidity_description(
+                    device_id, channel_id, channel_name
+                )
             )
 
     return tuple(descriptions)

@@ -253,10 +253,10 @@
       "outlet_power_quality": {
         "default": "mdi:power-plug"
       },
-      "env_probe_temperature": {
+      "sensor_temperature": {
         "default": "mdi:thermometer"
       },
-      "env_probe_humidity": {
+      "sensor_humidity": {
         "default": "mdi:water-percent"
       }
     },
@@ -369,10 +369,10 @@
       "outlet_switched_on": {
         "default": "mdi:power-socket"
       },
-      "env_probe_digital_input": {
+      "sensor_digital_input": {
         "default": "mdi:electric-switch"
       },
-      "env_probe_communication": {
+      "sensor_communication": {
         "default": "mdi:lan-connect"
       }
     }
