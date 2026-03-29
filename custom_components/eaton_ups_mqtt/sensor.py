@@ -22,6 +22,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import EntityCategory
 
+from .const import MQTT_PREFIX_V1
 from .entity import EatonUpsEntity
 
 if TYPE_CHECKING:
@@ -89,12 +90,6 @@ BASE_ENTITY_DESCRIPTIONS = (
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
-        key="managers/1/identification$name",
-        name="Manager Name",
-        translation_key="manager_name",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
         key="managers/1/identification$contact",
         name="Manager Contact",
         translation_key="manager_contact",
@@ -137,12 +132,6 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="managers/1/identification$bootloaderVersion",
         name="Manager Bootloader Version",
         translation_key="manager_bootloader_version",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    SensorEntityDescription(
-        key="managers/1/identification$manufacturer",
-        name="Manager Manufacturer",
-        translation_key="manager_manufacturer",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDescription(
@@ -634,6 +623,38 @@ def get_entity_descriptions(
 ) -> tuple[SensorEntityDescription, ...]:
     """Get entity descriptions based on available MQTT topics."""
     descriptions = list(BASE_ENTITY_DESCRIPTIONS)
+
+    # Version-dependent manager identification fields
+    prefix = coordinator.config_entry.runtime_data.client.mqtt_prefix
+    if prefix == MQTT_PREFIX_V1:
+        # M2 has name and manufacturer as separate fields
+        descriptions.extend(
+            [
+                SensorEntityDescription(
+                    key="managers/1/identification$name",
+                    name="Manager Name",
+                    translation_key="manager_name",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+                SensorEntityDescription(
+                    key="managers/1/identification$manufacturer",
+                    name="Manager Manufacturer",
+                    translation_key="manager_manufacturer",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+            ]
+        )
+    else:
+        # M3 uses friendlyName instead of name; manufacturer is absent
+        # and vendor from the base descriptions covers that role
+        descriptions.append(
+            SensorEntityDescription(
+                key="managers/1/identification$friendlyName",
+                name="Manager Friendly Name",
+                translation_key="manager_friendly_name",
+                entity_category=EntityCategory.DIAGNOSTIC,
+            ),
+        )
 
     # Detect inputs
     for input_num in range(1, 10):  # Check reasonable range

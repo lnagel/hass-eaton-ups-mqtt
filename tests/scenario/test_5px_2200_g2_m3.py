@@ -9,21 +9,13 @@ import pytest
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntityDescription
 
 from custom_components.eaton_ups_mqtt.binary_sensor import (
-    BASE_ENTITY_DESCRIPTIONS as BINARY_BASE_DESCRIPTIONS,
-)
-from custom_components.eaton_ups_mqtt.binary_sensor import (
     EatonUpsBinarySensor,
-    _generate_input_binary_descriptions,
-    _generate_outlet_binary_descriptions,
+    get_binary_entity_descriptions,
 )
-from custom_components.eaton_ups_mqtt.sensor import (
-    BASE_ENTITY_DESCRIPTIONS as SENSOR_BASE_DESCRIPTIONS,
-)
+from custom_components.eaton_ups_mqtt.const import MQTT_PREFIX_V2
 from custom_components.eaton_ups_mqtt.sensor import (
     EatonUpsSensor,
-    _generate_input_descriptions,
-    _generate_outlet_descriptions,
-    _generate_output_descriptions,
+    get_entity_descriptions,
 )
 
 
@@ -32,113 +24,50 @@ def mock_coordinator(ups_5px_2200_g2_m3_data):
     """Create a mock coordinator with M3 fixture data."""
     coordinator = MagicMock()
     coordinator.config_entry.entry_id = "test_5px_2200_g2_m3"
+    coordinator.config_entry.runtime_data.client.mqtt_prefix = MQTT_PREFIX_V2
     coordinator.data = ups_5px_2200_g2_m3_data
     return coordinator
 
 
-# --- M3 field differences ---
-# These sensor keys reference fields that exist on M2 but not on M3.
-# They are expected to return None until field aliasing is implemented.
-M3_MISSING_FIELDS = {
-    "managers/1/identification$name",  # M3 uses friendlyName
-    "managers/1/identification$manufacturer",  # M3 uses vendor
-}
+class TestAllSensorsAvailable:
+    """Verify all sensor descriptions return values with M3 data."""
+
+    @pytest.fixture
+    def sensor_descriptions(self, mock_coordinator):
+        """Get M3 sensor descriptions."""
+        return get_entity_descriptions(mock_coordinator)
+
+    def test_all_sensors_have_values(self, mock_coordinator, sensor_descriptions):
+        """Test that every sensor returns a non-None value with M3 data."""
+        for description in sensor_descriptions:
+            sensor = EatonUpsSensor(mock_coordinator, description)
+            assert sensor.native_value is not None, (
+                f"Sensor {description.key} returned None with M3 data"
+            )
+
+    def test_includes_friendly_name(self, sensor_descriptions):
+        """Test that M3 descriptions include friendlyName."""
+        keys = [d.key for d in sensor_descriptions]
+        assert "managers/1/identification$friendlyName" in keys
+
+    def test_excludes_m2_only_fields(self, sensor_descriptions):
+        """Test that M3 descriptions exclude M2-only fields."""
+        keys = [d.key for d in sensor_descriptions]
+        assert "managers/1/identification$name" not in keys
+        assert "managers/1/identification$manufacturer" not in keys
 
 
-class TestAllBaseSensorsAvailable:
-    """Verify all base sensor descriptions return values with M3 data."""
+class TestAllBinarySensorsAvailable:
+    """Verify all binary sensor descriptions return values with M3 data."""
 
-    @pytest.mark.parametrize(
-        "description",
-        [d for d in SENSOR_BASE_DESCRIPTIONS if d.key not in M3_MISSING_FIELDS],
-        ids=[d.key for d in SENSOR_BASE_DESCRIPTIONS if d.key not in M3_MISSING_FIELDS],
-    )
-    def test_sensor_has_value(self, mock_coordinator, description):
-        """Test that sensor returns a non-None value with M3 data."""
-        sensor = EatonUpsSensor(mock_coordinator, description)
-        assert sensor.native_value is not None, (
-            f"Sensor {description.key} returned None with M3 data"
-        )
-
-    @pytest.mark.parametrize(
-        "description",
-        [d for d in SENSOR_BASE_DESCRIPTIONS if d.key in M3_MISSING_FIELDS],
-        ids=[d.key for d in SENSOR_BASE_DESCRIPTIONS if d.key in M3_MISSING_FIELDS],
-    )
-    def test_known_missing_fields_return_none(self, mock_coordinator, description):
-        """Test that known M3-missing fields return None (expected)."""
-        sensor = EatonUpsSensor(mock_coordinator, description)
-        assert sensor.native_value is None
-
-
-class TestAllBaseBinarySensorsAvailable:
-    """Verify all base binary sensor descriptions return values with M3 data."""
-
-    @pytest.mark.parametrize(
-        "description",
-        BINARY_BASE_DESCRIPTIONS,
-        ids=[d.key for d in BINARY_BASE_DESCRIPTIONS],
-    )
-    def test_binary_sensor_has_value(self, mock_coordinator, description):
-        """Test that binary sensor returns a non-None value with M3 data."""
-        sensor = EatonUpsBinarySensor(mock_coordinator, description)
-        assert sensor.is_on is not None, (
-            f"Binary sensor {description.key} returned None with M3 data"
-        )
-
-
-class TestDynamicSensorsAvailable:
-    """Verify dynamically generated sensor descriptions work with M3 data."""
-
-    @pytest.mark.parametrize(
-        "description",
-        _generate_input_descriptions(1),
-        ids=[d.key for d in _generate_input_descriptions(1)],
-    )
-    def test_input_sensors(self, mock_coordinator, description):
-        """Test input sensor values are available."""
-        sensor = EatonUpsSensor(mock_coordinator, description)
-        assert sensor.native_value is not None
-
-    @pytest.mark.parametrize(
-        "description",
-        _generate_output_descriptions(1),
-        ids=[d.key for d in _generate_output_descriptions(1)],
-    )
-    def test_output_sensors(self, mock_coordinator, description):
-        """Test output sensor values are available."""
-        sensor = EatonUpsSensor(mock_coordinator, description)
-        assert sensor.native_value is not None
-
-    @pytest.mark.parametrize(
-        "description",
-        _generate_outlet_descriptions(1),
-        ids=[d.key for d in _generate_outlet_descriptions(1)],
-    )
-    def test_outlet_sensors(self, mock_coordinator, description):
-        """Test outlet sensor values are available."""
-        sensor = EatonUpsSensor(mock_coordinator, description)
-        assert sensor.native_value is not None
-
-    @pytest.mark.parametrize(
-        "description",
-        _generate_input_binary_descriptions(1),
-        ids=[d.key for d in _generate_input_binary_descriptions(1)],
-    )
-    def test_input_binary_sensors(self, mock_coordinator, description):
-        """Test input binary sensor values are available."""
-        sensor = EatonUpsBinarySensor(mock_coordinator, description)
-        assert sensor.is_on is not None
-
-    @pytest.mark.parametrize(
-        "description",
-        _generate_outlet_binary_descriptions(1),
-        ids=[d.key for d in _generate_outlet_binary_descriptions(1)],
-    )
-    def test_outlet_binary_sensors(self, mock_coordinator, description):
-        """Test outlet binary sensor values are available."""
-        sensor = EatonUpsBinarySensor(mock_coordinator, description)
-        assert sensor.is_on is not None
+    def test_all_binary_sensors_have_values(self, mock_coordinator):
+        """Test that every binary sensor returns a non-None value with M3 data."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        for description in descriptions:
+            sensor = EatonUpsBinarySensor(mock_coordinator, description)
+            assert sensor.is_on is not None, (
+                f"Binary sensor {description.key} returned None with M3 data"
+            )
 
 
 class TestM3SpecificValues:
