@@ -8,7 +8,14 @@ from unittest.mock import MagicMock
 import pytest
 from homeassistant.components.sensor import SensorEntityDescription
 
-from custom_components.eaton_ups_mqtt.sensor import EatonUpsSensor
+from custom_components.eaton_ups_mqtt.binary_sensor import (
+    get_binary_entity_descriptions,
+)
+from custom_components.eaton_ups_mqtt.const import MQTT_PREFIX_V1
+from custom_components.eaton_ups_mqtt.sensor import (
+    EatonUpsSensor,
+    get_entity_descriptions,
+)
 
 
 @pytest.fixture
@@ -16,6 +23,7 @@ def mock_coordinator(ups_5px_g2_data):
     """Create a mock coordinator with 5PX G2 fixture data."""
     coordinator = MagicMock()
     coordinator.config_entry.entry_id = "test_5px_g2"
+    coordinator.config_entry.runtime_data.client.mqtt_prefix = MQTT_PREFIX_V1
     coordinator.data = ups_5px_g2_data
     return coordinator
 
@@ -342,3 +350,19 @@ class TestSpecifications:
         desc = SensorEntityDescription(key=key, name="Test")
         sensor = EatonUpsSensor(mock_coordinator, desc)
         assert sensor.native_value == {"nominal": 1500}
+
+
+class TestNoEnvironmentalSensorProbes:
+    """Verify M2 fixture without sensor probes produces no env probe entities."""
+
+    def test_no_env_probe_sensors(self, mock_coordinator):
+        """Test M2 data without sensor probes generates no env probe sensors."""
+        descriptions = get_entity_descriptions(mock_coordinator)
+        env_keys = [d.key for d in descriptions if d.key.startswith("sensors/")]
+        assert env_keys == []
+
+    def test_no_env_probe_binary_sensors(self, mock_coordinator):
+        """Test M2 data without sensor probes generates no env probe binary sensors."""
+        descriptions = get_binary_entity_descriptions(mock_coordinator)
+        env_keys = [d.key for d in descriptions if d.key.startswith("sensors/")]
+        assert env_keys == []

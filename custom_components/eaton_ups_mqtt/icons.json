@@ -252,6 +252,12 @@
       },
       "outlet_power_quality": {
         "default": "mdi:power-plug"
+      },
+      "sensor_temperature": {
+        "default": "mdi:thermometer"
+      },
+      "sensor_humidity": {
+        "default": "mdi:water-percent"
       }
     },
     "binary_sensor": {
@@ -362,6 +368,12 @@
       },
       "outlet_switched_on": {
         "default": "mdi:power-socket"
+      },
+      "sensor_digital_input": {
+        "default": "mdi:electric-switch"
+      },
+      "sensor_communication": {
+        "default": "mdi:lan-connect"
       }
     }
   }
