@@ -651,6 +651,7 @@ def _generate_sensor_temperature_description(
         name=f"{channel_name} Temperature",
         translation_key="sensor_temperature",
         native_unit_of_measurement=UnitOfTemperature.KELVIN,
+        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
         suggested_display_precision=1,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
