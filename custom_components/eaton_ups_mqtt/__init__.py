@@ -10,7 +10,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from homeassistant.const import CONF_HOST, CONF_PORT, Platform
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PORT,
+    EVENT_HOMEASSISTANT_STOP,
+    Platform,
+)
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.issue_registry import (
@@ -42,7 +47,7 @@ from .coordinator import EatonUPSDataUpdateCoordinator
 from .data import EatonUpsData
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
+    from homeassistant.core import Event, HomeAssistant
 
     from .data import EatonUpsConfigEntry
 
@@ -120,6 +125,16 @@ async def async_setup_entry(
         client=EatonUpsMqttClient(config=config, session=async_get_clientsession(hass)),
         integration=async_get_loaded_integration(hass, entry.domain),
         coordinator=coordinator,
+    )
+
+    # Config entries are not unloaded on Home Assistant stop, so the coordinator's
+    # unload-time disconnect never runs. Without this the paho network thread keeps
+    # delivering messages to the closed event loop, raising "Event loop is closed".
+    async def _async_disconnect_on_stop(_event: Event) -> None:
+        await entry.runtime_data.client.async_disconnect()
+
+    entry.async_on_unload(
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _async_disconnect_on_stop)
     )
 
     try:
