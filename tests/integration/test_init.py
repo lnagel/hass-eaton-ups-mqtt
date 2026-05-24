@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PORT, EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.issue_registry import async_get as async_get_issue_registry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -320,6 +320,30 @@ class TestReloadEntry:
         await hass.async_block_till_done()
 
         assert mock_entry.state == ConfigEntryState.LOADED
+
+
+class TestStopDisconnect:
+    """Tests for disconnecting MQTT when Home Assistant stops."""
+
+    async def test_mqtt_disconnects_on_hass_stop(
+        self,
+        hass: HomeAssistant,
+        mock_entry,
+        mock_mqtt_setup,
+    ):
+        """Test that the MQTT client is disconnected on Home Assistant stop."""
+        mock_entry.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.LOADED
+        mock_mqtt_setup.async_disconnect.assert_not_called()
+
+        hass.bus.async_fire(EVENT_HOMEASSISTANT_STOP)
+        await hass.async_block_till_done()
+
+        mock_mqtt_setup.async_disconnect.assert_called_once()
 
 
 class TestClientCertFile:
