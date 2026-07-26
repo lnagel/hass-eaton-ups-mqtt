@@ -49,6 +49,7 @@ target-version = "py314"
 select = ["ALL"]
 ignore = [
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "CPY001", # Missing copyright notice at top of file
     "D203", # no-blank-line-before-class (incompatible with formatter)
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
@@ -68,6 +69,7 @@ max-complexity = 25
 "tests/**" = [
     "ANN", # No type annotations required in tests
     "ARG001", # Allow unused arguments in fixtures
+    "ASYNC240", # Allow blocking pathlib calls in async tests
     "ARG002", # Allow unused method arguments
     "D", # No docstrings required in tests
     "E501", # Allow long lines in tests

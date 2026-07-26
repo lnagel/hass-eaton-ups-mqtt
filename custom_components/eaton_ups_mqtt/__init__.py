@@ -138,7 +138,7 @@ async def async_setup_entry(
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
         # Only show cert upload instructions for authentication/TLS errors
-        cause = err.__cause__ if err.__cause__ else err
+        cause = err.__cause__ or err
         if isinstance(cause, EatonUpsClientAuthenticationError):
             _create_cert_upload_issue(hass, entry, host, issue_id)
         else:

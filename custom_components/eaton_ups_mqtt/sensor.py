@@ -833,13 +833,13 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         if isinstance(value, int):
             try:
                 return datetime.fromtimestamp(value, tz=UTC).date()
-            except (ValueError, TypeError, OSError):
+            except ValueError, TypeError, OSError:
                 return None
 
         if isinstance(value, str):
             try:
                 return datetime.fromisoformat(value).date()
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
 
         return None
@@ -849,13 +849,13 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         if isinstance(value, int):
             try:
                 return datetime.fromtimestamp(value, tz=UTC)
-            except (ValueError, TypeError, OSError):
+            except ValueError, TypeError, OSError:
                 return None
 
         if isinstance(value, str):
             try:
                 return datetime.fromisoformat(value)
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
 
         return None

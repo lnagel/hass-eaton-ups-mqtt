@@ -145,7 +145,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             # Auto-generate certs for any cleared fields
             try:
                 final_data = await self._auto_fill_certs(final_data)
-            except (OSError, TimeoutError):
+            except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
                 try:
@@ -220,7 +220,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             # Auto-generate certs for any cleared fields
             try:
                 final_data = await self._auto_fill_certs(final_data)
-            except (OSError, TimeoutError):
+            except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
                 conn_result = await self.hass.async_add_executor_job(
