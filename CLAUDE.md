@@ -110,7 +110,7 @@ This ensures bugs don't regress and documents the expected behavior.
 ### Ruff Configuration
 
 - Line length: 88 characters
-- Target: Python 3.13+
+- Target: Python 3.14+
 - Select: ALL rules (with specific ignores, see pyproject.toml)
 - Tests have relaxed rules for asserts, magic values, etc.
 

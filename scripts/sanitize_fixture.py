@@ -72,7 +72,7 @@ class PiiSanitizer:
             if "." in date_str:
                 return new_dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")
             return new_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return date_str
 
     def _offset_timestamp(self, ts: int) -> int:

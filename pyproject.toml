@@ -7,10 +7,10 @@ authors = [
 ]
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.13.2"
+requires-python = ">=3.14.2"
 dependencies = [
     "colorlog>=6.10.1",
-    "homeassistant>=2025.10.0",
+    "homeassistant>=2026.3.0",
     "paho-mqtt>=2.1.0",
 ]
 
@@ -43,12 +43,13 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "CPY001", # Missing copyright notice at top of file
     "D203", # no-blank-line-before-class (incompatible with formatter)
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
@@ -68,6 +69,7 @@ max-complexity = 25
 "tests/**" = [
     "ANN", # No type annotations required in tests
     "ARG001", # Allow unused arguments in fixtures
+    "ASYNC240", # Allow blocking pathlib calls in async tests
     "ARG002", # Allow unused method arguments
     "D", # No docstrings required in tests
     "E501", # Allow long lines in tests
@@ -114,7 +116,7 @@ show_missing = true
 include = ["custom_components"]
 
 [tool.ty.environment]
-python-version = "3.13"
+python-version = "3.14"
 
 [tool.bumpversion]
 current_version = "0.4.1"

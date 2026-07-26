@@ -145,7 +145,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             # Auto-generate certs for any cleared fields
             try:
                 final_data = await self._auto_fill_certs(final_data)
-            except (OSError, TimeoutError):
+            except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
                 try:
@@ -213,14 +213,14 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """
         reconfigure_entry = self._get_reconfigure_entry()
 
-        _errors = {}
+        _errors: dict[str, str] = {}
         if user_input is not None:
             final_data = dict(user_input)
 
             # Auto-generate certs for any cleared fields
             try:
                 final_data = await self._auto_fill_certs(final_data)
-            except (OSError, TimeoutError):
+            except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
                 conn_result = await self.hass.async_add_executor_job(
@@ -241,7 +241,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     "Reconfigure connection test failed: %s",
                     conn_result.error_detail,
                 )
-                _errors["base"] = conn_result.error_key
+                _errors["base"] = conn_result.error_key or "unknown"
 
         current_state = user_input or reconfigure_entry.data
 
@@ -386,7 +386,8 @@ def try_connection(  # noqa: PLR0911
                     )
                 )
 
-    client.on_connect = on_connect  # type: ignore[assignment]
+    # The client runs CallbackAPIVersion.VERSION1, paho only types the v2 callback
+    client.on_connect = on_connect  # ty: ignore[invalid-assignment]
     client.on_message = on_message
 
     # Write PEM strings to temporary files
