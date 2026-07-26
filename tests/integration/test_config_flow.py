@@ -134,6 +134,7 @@ class TestReauthFlow:
             result = await hass.config_entries.flow.async_configure(
                 result["flow_id"], updated_input
             )
+            await hass.async_block_till_done()
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reauth_successful"
@@ -184,6 +185,7 @@ class TestReauthFlow:
             result = await hass.config_entries.flow.async_configure(
                 result["flow_id"], input_with_cleared_certs
             )
+            await hass.async_block_till_done()
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reauth_successful"
@@ -301,6 +303,7 @@ class TestReconfigureFlow:
             result = await hass.config_entries.flow.async_configure(
                 result["flow_id"], updated_input
             )
+            await hass.async_block_till_done()
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reconfigure_successful"
@@ -393,6 +396,7 @@ class TestReconfigureFlow:
             result = await hass.config_entries.flow.async_configure(
                 result["flow_id"], input_with_cleared_certs
             )
+            await hass.async_block_till_done()
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reconfigure_successful"
