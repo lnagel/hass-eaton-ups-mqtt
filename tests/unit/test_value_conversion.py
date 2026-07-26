@@ -87,7 +87,13 @@ class TestDateConversion:
 
     @pytest.mark.parametrize(
         "value",
-        [None, "invalid", [], {}],
+        [
+            None,
+            "invalid",
+            [],
+            {},
+            -999999999999999,  # Out of range
+        ],
     )
     def test_convert_date_invalid(self, mock_sensor, value):
         """Test invalid date values return None."""
