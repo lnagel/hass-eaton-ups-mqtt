@@ -7,10 +7,10 @@ authors = [
 ]
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.13.2"
+requires-python = ">=3.14.2"
 dependencies = [
     "colorlog>=6.10.1",
-    "homeassistant>=2025.10.0",
+    "homeassistant>=2026.3.0",
     "paho-mqtt>=2.1.0",
 ]
 
@@ -43,7 +43,7 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -114,7 +114,7 @@ show_missing = true
 include = ["custom_components"]
 
 [tool.ty.environment]
-python-version = "3.13"
+python-version = "3.14"
 
 [tool.bumpversion]
 current_version = "0.4.1"

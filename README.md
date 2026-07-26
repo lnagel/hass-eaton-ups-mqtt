@@ -32,7 +32,7 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 ## Requirements
 
 - An Eaton UPS device with Network-M2 or Network-M3 management card
-- Home Assistant 2025.3.1 or newer
+- Home Assistant 2026.3.0 or newer
 - HACS 2.0.1 or newer
 
 ## Installation
