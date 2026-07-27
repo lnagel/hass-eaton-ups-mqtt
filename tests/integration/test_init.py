@@ -73,22 +73,6 @@ def mock_entry_no_certs(mock_config_entry_data_no_certs):
     )
 
 
-@pytest.fixture
-def mock_mqtt_setup(ups_5px_g2_data):
-    """Mock the MQTT client to prevent actual network connections."""
-    with patch(
-        "custom_components.eaton_ups_mqtt.EatonUpsMqttClient"
-    ) as mock_client_class:
-        mock_client = MagicMock()
-        mock_client.async_setup = AsyncMock()
-        mock_client.async_disconnect = AsyncMock()
-        mock_client.async_get_data = AsyncMock(return_value=ups_5px_g2_data)
-        mock_client.subscribe_to_updates = MagicMock(return_value=lambda: None)
-        mock_client_class.return_value = mock_client
-
-        yield mock_client
-
-
 class TestSetupEntry:
     """Tests for async_setup_entry."""
 
@@ -277,7 +261,7 @@ class TestUnloadEntry:
 
 
 class TestReloadEntry:
-    """Tests for async_reload_entry."""
+    """Tests for reloading a config entry."""
 
     async def test_reload_entry(
         self,

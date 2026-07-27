@@ -171,6 +171,40 @@ class TestMqttCallbacks:
 
         mqtt_client._loop.call_soon_threadsafe.assert_called()
 
+    def test_on_message_passes_topic_key_to_callbacks(self, mqtt_client):
+        """Test callbacks receive the storage key of the updated topic."""
+        received = []
+
+        def run_now(func):
+            func()
+
+        mqtt_client._loop = MagicMock()
+        mqtt_client._loop.call_soon_threadsafe = MagicMock(side_effect=run_now)
+        mqtt_client._update_callbacks.append(
+            lambda data, key: received.append((data, key))
+        )
+
+        msg = MagicMock()
+        msg.topic = (
+            MQTT_SUPPORTED_PREFIXES[0] + "powerDistributions/1/outputs/1/measures"
+        )
+        msg.payload = json.dumps({"value": 42}).encode()
+
+        mqtt_client._on_message(_client=MagicMock(), _userdata=None, msg=msg)
+
+        assert len(received) == 1
+        data, key = received[0]
+        assert key == "powerDistributions/1/outputs/1/measures"
+        assert data[key] == {"value": 42}
+
+    def test_data_property_returns_snapshot(self, mqtt_client):
+        """Test the data property exposes the current snapshot."""
+        assert mqtt_client.data == {}
+
+        mqtt_client._mqtt_data["powerDistributions/1/status"] = {"mode": "normal"}
+
+        assert mqtt_client.data == {"powerDistributions/1/status": {"mode": "normal"}}
+
     def test_on_message_handles_general_exception(self, mqtt_client):
         """Test on_message handles general exceptions gracefully."""
         msg = MagicMock()

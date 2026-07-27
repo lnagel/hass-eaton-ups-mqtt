@@ -45,6 +45,32 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 4. Enter your UPS hostname/IP and MQTT port (certificates are auto-generated).
 5. Check **Settings > System > Repairs** to download the client certificate and upload it to your UPS web interface.
 
+## Configuration
+
+Press **Configure** on the integration card to set the **measurement update interval**.
+
+The Network-M2/M3 card publishes measurements continuously, and every reading that
+changes is written to the Home Assistant database. On a Network-M2 publishing at
+roughly 1.8 messages per second this produces about 11,600 recorder rows per hour
+for a single UPS. The update interval limits how often measurement values —
+voltage, current, power, load — are written to Home Assistant.
+
+| Interval | Rows/hour | Reduction |
+| -------: | --------: | --------: |
+| 0 (off)  |    11,605 |         — |
+| 5s (default) | 10,472 |       10% |
+| 15s      |     5,788 |       50% |
+| 30s      |     3,369 |       71% |
+| 60s      |     1,845 |       84% |
+
+Status changes and alarms — on battery, low battery, operating mode — are always
+written immediately and are never delayed by this setting. Changing the interval
+takes effect straight away without reconnecting to the UPS.
+
+Long-term statistics remain accurate at any interval, since Home Assistant computes
+a time-weighted mean. Longer intervals do reduce the resolution of the 5-minute
+min/max values, so short spikes may be missed.
+
 ## Repository Overview
 
 This repository contains multiple files, here is an overview:

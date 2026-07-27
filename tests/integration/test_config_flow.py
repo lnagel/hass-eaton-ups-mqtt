@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
@@ -20,7 +21,9 @@ from custom_components.eaton_ups_mqtt.config_flow import ConnectionResult
 from custom_components.eaton_ups_mqtt.const import (
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
+    CONF_DEBOUNCE_INTERVAL,
     CONF_SERVER_CERT,
+    DEFAULT_DEBOUNCE_INTERVAL,
     DOMAIN,
 )
 
@@ -435,3 +438,95 @@ class TestReconfigureFlow:
 
         assert result["type"] == FlowResultType.FORM
         assert result["errors"]["base"] == "cert_fetch_failed"
+
+
+class TestOptionsFlow:
+    """Tests for the options flow."""
+
+    async def test_options_flow_shows_form(
+        self, hass: HomeAssistant, full_entry_data, mock_mqtt_setup
+    ):
+        """Test the options flow opens with the init step."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+
+        assert result["type"] == FlowResultType.FORM
+        assert result["step_id"] == "init"
+
+    async def test_options_flow_saves_interval(
+        self, hass: HomeAssistant, full_entry_data, mock_mqtt_setup
+    ):
+        """Test submitting the options flow stores the interval."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], {CONF_DEBOUNCE_INTERVAL: 30}
+        )
+        await hass.async_block_till_done()
+
+        assert result["type"] == FlowResultType.CREATE_ENTRY
+        assert entry.options[CONF_DEBOUNCE_INTERVAL] == 30
+
+    async def test_options_flow_applies_without_reload(
+        self, hass: HomeAssistant, full_entry_data, mock_mqtt_setup
+    ):
+        """Test the new interval is applied in place, keeping the connection."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        coordinator = entry.runtime_data.coordinator
+        assert coordinator.debounce_interval == DEFAULT_DEBOUNCE_INTERVAL
+
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        await hass.config_entries.options.async_configure(
+            result["flow_id"], {CONF_DEBOUNCE_INTERVAL: 45}
+        )
+        await hass.async_block_till_done()
+
+        # Same coordinator instance: the entry was not reloaded
+        assert entry.runtime_data.coordinator is coordinator
+        assert coordinator.debounce_interval == 45
+
+    async def test_options_flow_accepts_zero(
+        self, hass: HomeAssistant, full_entry_data, mock_mqtt_setup
+    ):
+        """Test 0 is accepted and disables the debounce."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        await hass.config_entries.options.async_configure(
+            result["flow_id"], {CONF_DEBOUNCE_INTERVAL: 0}
+        )
+        await hass.async_block_till_done()
+
+        assert entry.runtime_data.coordinator.debounce_interval == 0
+
+    @pytest.mark.parametrize("interval", [-5, 305])
+    async def test_options_flow_rejects_out_of_range(
+        self, hass: HomeAssistant, full_entry_data, mock_mqtt_setup, interval
+    ):
+        """Test values outside the supported range are rejected."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+
+        with pytest.raises(vol.Invalid):
+            await hass.config_entries.options.async_configure(
+                result["flow_id"], {CONF_DEBOUNCE_INTERVAL: interval}
+            )
