@@ -9,4 +9,4 @@ homeassistant:
 logger:
   default: info
   logs:
-    custom_components.eaton_ups: debug
+    custom_components.eaton_ups_mqtt: debug
