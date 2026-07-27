@@ -53,12 +53,11 @@
         "step": {
             "init": {
                 "title": "Eaton UPS options",
-                "description": "The UPS publishes measurements continuously, which can grow the Home Assistant database quickly. The update interval limits how often measurement values (voltage, current, power) are written. Status changes and alarms are always written immediately and are never delayed. Set to 0 to disable throttling. On a Network-M2 publishing at ~1.8 messages per second, 15s cuts recorded rows by about 50%, 30s by 71% and 60s by 84%.",
                 "data": {
                     "debounce_interval": "Measurement update interval"
                 },
                 "data_description": {
-                    "debounce_interval": "Minimum time between measurement updates. Higher values record less data."
+                    "debounce_interval": "Minimum time between recorded measurement updates. 0 disables. Alarms are never delayed."
                 }
             }
         }
