@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+from datetime import timedelta
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -9,7 +12,11 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import UpdateFailed
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_fire_time_changed,
+)
 
 from custom_components.eaton_ups_mqtt.api import (
     EatonUpsClientAuthenticationError,
@@ -18,10 +25,15 @@ from custom_components.eaton_ups_mqtt.api import (
 from custom_components.eaton_ups_mqtt.const import (
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
+    CONF_DEBOUNCE_INTERVAL,
     CONF_SERVER_CERT,
+    DEFAULT_DEBOUNCE_INTERVAL,
     DOMAIN,
 )
 from custom_components.eaton_ups_mqtt.coordinator import EatonUPSDataUpdateCoordinator
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Callable
 
 
 @pytest.fixture
@@ -94,7 +106,7 @@ class TestCoordinatorSetup:
 
             # Simulate MQTT update via callback
             new_data = {"test": "new_data"}
-            callback_holder["callback"](new_data)
+            callback_holder["callback"](new_data, "powerDistributions/1/status")
             await hass.async_block_till_done()
 
             # Verify coordinator received the data
@@ -195,3 +207,231 @@ class TestCoordinatorShutdown:
             # Should not raise
             await coordinator.async_shutdown()
             mock_client.async_disconnect.assert_called()
+
+
+MEASURES_KEY = "powerDistributions/1/outputs/1/measures"
+STATUS_KEY = "powerDistributions/1/status"
+
+
+@asynccontextmanager
+async def _debounced_coordinator(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    data: dict,
+) -> AsyncGenerator[tuple[EatonUPSDataUpdateCoordinator, Callable, MagicMock]]:
+    """Set up the entry with a mocked client and yield the update callback."""
+    entry.add_to_hass(hass)
+
+    with patch(
+        "custom_components.eaton_ups_mqtt.EatonUpsMqttClient"
+    ) as mock_client_class:
+        mock_client = MagicMock()
+        mock_client.async_setup = AsyncMock()
+        mock_client.async_disconnect = AsyncMock()
+        mock_client.async_get_data = AsyncMock(return_value=data)
+        mock_client.data = data
+
+        captured = {}
+
+        def capture_callback(cb):
+            captured["callback"] = cb
+            return lambda: None
+
+        mock_client.subscribe_to_updates = MagicMock(side_effect=capture_callback)
+        mock_client_class.return_value = mock_client
+
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        yield entry.runtime_data.coordinator, captured["callback"], mock_client
+
+
+def _entry_with_interval(
+    mock_config_entry_data: dict, interval: int
+) -> MockConfigEntry:
+    """Build a config entry with the given debounce interval."""
+    return MockConfigEntry(
+        domain=DOMAIN,
+        title="Test UPS",
+        data=mock_config_entry_data,
+        options={CONF_DEBOUNCE_INTERVAL: interval},
+        entry_id="test_entry_id",
+        unique_id="test_unique_id",
+    )
+
+
+class TestCoordinatorDebounce:
+    """Tests for debounced measurement updates."""
+
+    async def test_default_interval_from_options(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test the debounce interval is read from the config entry options."""
+        entry = _entry_with_interval(mock_config_entry_data, 30)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            _callback,
+            _client,
+        ):
+            assert coordinator.debounce_interval == 30
+
+    async def test_falls_back_to_default_without_options(
+        self, hass: HomeAssistant, mock_entry, ups_5px_g2_data
+    ):
+        """Test the default interval applies when no option is stored."""
+        async with _debounced_coordinator(hass, mock_entry, ups_5px_g2_data) as (
+            coordinator,
+            _callback,
+            _client,
+        ):
+            assert coordinator.debounce_interval == DEFAULT_DEBOUNCE_INTERVAL
+
+    async def test_first_measures_update_is_immediate(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test the first measurement update after a quiet period is written."""
+        entry = _entry_with_interval(mock_config_entry_data, 10)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            callback,
+            client,
+        ):
+            listener = MagicMock()
+            coordinator.async_add_listener(listener)
+
+            client.data = {"first": 1}
+            callback(client.data, MEASURES_KEY)
+            await hass.async_block_till_done()
+
+            assert coordinator.data == {"first": 1}
+            assert listener.call_count == 1
+
+    async def test_measures_updates_are_coalesced(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test updates within the cooldown are coalesced into one write."""
+        entry = _entry_with_interval(mock_config_entry_data, 10)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            callback,
+            client,
+        ):
+            client.data = {"value": 1}
+            callback(client.data, MEASURES_KEY)
+            await hass.async_block_till_done()
+
+            listener = MagicMock()
+            coordinator.async_add_listener(listener)
+
+            for value in (2, 3, 4):
+                client.data = {"value": value}
+                callback(client.data, MEASURES_KEY)
+                await hass.async_block_till_done()
+
+            # Still inside the cooldown, so nothing further was written
+            assert listener.call_count == 0
+            assert coordinator.data == {"value": 1}
+
+            async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=15))
+            await hass.async_block_till_done()
+
+            # The final value of the burst is written when the cooldown ends
+            assert listener.call_count == 1
+            assert coordinator.data == {"value": 4}
+
+    async def test_status_topic_bypasses_debounce(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test status topics are written immediately despite a pending burst."""
+        entry = _entry_with_interval(mock_config_entry_data, 60)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            callback,
+            client,
+        ):
+            client.data = {"value": 1}
+            callback(client.data, MEASURES_KEY)
+            await hass.async_block_till_done()
+
+            client.data = {"value": 2}
+            callback(client.data, MEASURES_KEY)
+            await hass.async_block_till_done()
+            assert coordinator.data == {"value": 1}
+
+            alarm = {"alarm": True}
+            callback(alarm, STATUS_KEY)
+            await hass.async_block_till_done()
+
+            assert coordinator.data == alarm
+
+    async def test_zero_interval_disables_debounce(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test an interval of 0 writes every measurement update."""
+        entry = _entry_with_interval(mock_config_entry_data, 0)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            callback,
+            _client,
+        ):
+            listener = MagicMock()
+            coordinator.async_add_listener(listener)
+
+            for value in (1, 2, 3):
+                data = {"value": value}
+                callback(data, MEASURES_KEY)
+                await hass.async_block_till_done()
+                assert coordinator.data == data
+
+            assert listener.call_count == 3
+
+    async def test_interval_can_be_changed_at_runtime(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test the interval setter takes effect without a reconnect."""
+        entry = _entry_with_interval(mock_config_entry_data, 10)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            callback,
+            _client,
+        ):
+            coordinator.debounce_interval = 0
+            assert coordinator.debounce_interval == 0
+
+            for value in (1, 2):
+                data = {"value": value}
+                callback(data, MEASURES_KEY)
+                await hass.async_block_till_done()
+                assert coordinator.data == data
+
+    async def test_shutdown_cancels_pending_write(
+        self, hass: HomeAssistant, mock_config_entry_data, ups_5px_g2_data
+    ):
+        """Test a pending debounced write is dropped on shutdown."""
+        entry = _entry_with_interval(mock_config_entry_data, 10)
+
+        async with _debounced_coordinator(hass, entry, ups_5px_g2_data) as (
+            coordinator,
+            callback,
+            client,
+        ):
+            client.data = {"value": 1}
+            callback(client.data, MEASURES_KEY)
+            await hass.async_block_till_done()
+
+            client.data = {"value": 2}
+            callback(client.data, MEASURES_KEY)
+            await hass.async_block_till_done()
+
+            await coordinator.async_shutdown()
+
+            async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=15))
+            await hass.async_block_till_done()
+
+            assert coordinator.data == {"value": 1}

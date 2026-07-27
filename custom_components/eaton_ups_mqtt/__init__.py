@@ -39,7 +39,9 @@ from .const import (
     CERT_UPLOAD_INSTRUCTIONS,
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
+    CONF_DEBOUNCE_INTERVAL,
     CONF_SERVER_CERT,
+    DEFAULT_DEBOUNCE_INTERVAL,
     DOMAIN,
     LOGGER,
 )
@@ -113,6 +115,7 @@ async def async_setup_entry(
         logger=LOGGER,
         name=DOMAIN,
         config_entry=entry,
+        debounce_interval=_get_debounce_interval(entry),
     )
     config = EatonUpsMqttConfig(
         host=host,
@@ -149,9 +152,14 @@ async def async_setup_entry(
     async_delete_issue(hass, DOMAIN, issue_id)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+    entry.async_on_unload(entry.add_update_listener(async_update_entry))
 
     return True
+
+
+def _get_debounce_interval(entry: EatonUpsConfigEntry) -> float:
+    """Return the configured debounce interval in seconds."""
+    return entry.options.get(CONF_DEBOUNCE_INTERVAL, DEFAULT_DEBOUNCE_INTERVAL)
 
 
 async def async_unload_entry(
@@ -162,12 +170,20 @@ async def async_unload_entry(
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
-async def async_reload_entry(
-    hass: HomeAssistant,
+async def async_update_entry(
+    hass: HomeAssistant,  # noqa: ARG001
     entry: EatonUpsConfigEntry,
 ) -> None:
-    """Reload config entry."""
-    await hass.config_entries.async_reload(entry.entry_id)
+    """
+    Apply updated options without reloading.
+
+    Reloading would tear down the MQTT connection and reconnect, which is
+    needless for a tuning option. Connection changes are reloaded separately
+    by the reauth and reconfigure flows.
+    """
+    coordinator = entry.runtime_data.coordinator
+    coordinator.debounce_interval = _get_debounce_interval(entry)
+    LOGGER.debug("Debounce interval set to %s seconds", coordinator.debounce_interval)
 
 
 def _get_cert_filename(entry_id: str) -> str:

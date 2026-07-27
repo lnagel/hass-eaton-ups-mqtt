@@ -63,7 +63,7 @@ class EatonUpsMqttClient:
     _mqtt_data: dict[str, Any]
     _mqtt_prefix: str | None
     _temp_files: list[str]
-    _update_callbacks: list[Callable[[dict[str, Any]], None]]
+    _update_callbacks: list[Callable[[dict[str, Any], str], None]]
     _loop: asyncio.AbstractEventLoop | None
 
     def __init__(
@@ -89,11 +89,19 @@ class EatonUpsMqttClient:
         """Return the detected MQTT topic prefix."""
         return self._mqtt_prefix
 
+    @property
+    def data(self) -> dict[str, Any]:
+        """Return the current data snapshot without touching the connection."""
+        return self._mqtt_data
+
     def subscribe_to_updates(
-        self, callback: Callable[[dict[str, Any]], None]
+        self, callback: Callable[[dict[str, Any], str], None]
     ) -> Callable[[], None]:
         """
         Subscribe to data updates.
+
+        The callback receives the full data snapshot and the storage key of the
+        topic that triggered the update.
 
         Returns a function that can be called to unsubscribe.
         """
@@ -317,7 +325,7 @@ class EatonUpsMqttClient:
             if self._loop and self._update_callbacks:
                 for callback in self._update_callbacks:
                     self._loop.call_soon_threadsafe(
-                        lambda cb=callback: cb(self._mqtt_data)
+                        lambda cb=callback: cb(self._mqtt_data, key)
                     )
 
         except json.JSONDecodeError as e:

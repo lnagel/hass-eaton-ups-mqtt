@@ -99,3 +99,20 @@ def mock_api_client(ups_5px_g2_data: dict[str, Any]) -> MagicMock:
     client.async_get_data = AsyncMock(return_value=ups_5px_g2_data)
     client.subscribe_to_updates = MagicMock(return_value=MagicMock())
     return client
+
+
+@pytest.fixture
+def mock_mqtt_setup(ups_5px_g2_data: dict[str, Any]) -> Generator[MagicMock]:
+    """Mock the MQTT client to prevent actual network connections."""
+    with patch(
+        "custom_components.eaton_ups_mqtt.EatonUpsMqttClient"
+    ) as mock_client_class:
+        mock_client = MagicMock()
+        mock_client.async_setup = AsyncMock()
+        mock_client.async_disconnect = AsyncMock()
+        mock_client.async_get_data = AsyncMock(return_value=ups_5px_g2_data)
+        mock_client.data = ups_5px_g2_data
+        mock_client.subscribe_to_updates = MagicMock(return_value=lambda: None)
+        mock_client_class.return_value = mock_client
+
+        yield mock_client

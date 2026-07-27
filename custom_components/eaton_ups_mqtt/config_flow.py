@@ -15,6 +15,7 @@ from typing import Any
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -32,11 +33,16 @@ from .certificates import (
 from .const import (
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
+    CONF_DEBOUNCE_INTERVAL,
     CONF_SERVER_CERT,
+    DEFAULT_DEBOUNCE_INTERVAL,
     DEFAULT_PORT,
     DOMAIN,
     LOGGER,
+    MAX_DEBOUNCE_INTERVAL,
+    MIN_DEBOUNCE_INTERVAL,
     MQTT_TIMEOUT,
+    STEP_DEBOUNCE_INTERVAL,
 )
 
 logger = logging.getLogger(__name__)
@@ -69,6 +75,26 @@ PEM_KEY_SELECTOR = selector.TextSelector(
         type=selector.TextSelectorType.TEXT,
     ),
 )
+DEBOUNCE_SELECTOR = vol.All(
+    selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            mode=selector.NumberSelectorMode.SLIDER,
+            min=MIN_DEBOUNCE_INTERVAL,
+            max=MAX_DEBOUNCE_INTERVAL,
+            step=STEP_DEBOUNCE_INTERVAL,
+            unit_of_measurement="seconds",
+        )
+    ),
+    vol.Coerce(int),
+)
+OPTIONS_SCHEMA = vol.Schema(
+    {
+        vol.Optional(
+            CONF_DEBOUNCE_INTERVAL,
+            default=DEFAULT_DEBOUNCE_INTERVAL,
+        ): DEBOUNCE_SELECTOR,
+    }
+)
 
 
 @dataclass
@@ -84,6 +110,14 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow handler for Eaton UPS integration."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,  # noqa: ARG004
+    ) -> config_entries.OptionsFlow:
+        """Get the options flow for this handler."""
+        return EatonUpsOptionsFlowHandler()
 
     async def async_step_user(
         self,
@@ -310,6 +344,25 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             session=async_create_clientsession(self.hass),
         )
         await client.async_get_data()
+
+
+class EatonUpsOptionsFlowHandler(config_entries.OptionsFlow):
+    """Options flow handler for Eaton UPS integration."""
+
+    async def async_step_init(
+        self,
+        user_input: dict | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self.add_suggested_values_to_schema(
+                OPTIONS_SCHEMA, self.config_entry.options
+            ),
+        )
 
 
 def _write_temp_cert(content: str) -> str:

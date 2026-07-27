@@ -49,6 +49,19 @@
             "reconfigure_successful": "Reconfiguration was successful."
         }
     },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Eaton UPS options",
+                "data": {
+                    "debounce_interval": "Measurement update interval"
+                },
+                "data_description": {
+                    "debounce_interval": "Minimum time between recorded measurement updates. 0 disables. Alarms are never delayed."
+                }
+            }
+        }
+    },
     "issues": {
         "cert_upload_required": {
             "title": "Upload client certificate to Eaton UPS",

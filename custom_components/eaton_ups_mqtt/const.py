@@ -46,3 +46,13 @@ MQTT_CONNECTION_ATTEMPTS = 10
 MQTT_PREFIX_V1 = "mbdetnrs/1.0/"
 MQTT_PREFIX_V2 = "mbdetnrs/2.0/"
 MQTT_SUPPORTED_PREFIXES = (MQTT_PREFIX_V1, MQTT_PREFIX_V2)
+
+# Topics with this suffix carry continuously changing numeric readings
+MQTT_MEASURES_SUFFIX = "/measures"
+
+# Minimum seconds between state writes for measurement topics; 0 disables
+CONF_DEBOUNCE_INTERVAL: Final = "debounce_interval"
+DEFAULT_DEBOUNCE_INTERVAL = 5
+MIN_DEBOUNCE_INTERVAL = 0
+MAX_DEBOUNCE_INTERVAL = 300
+STEP_DEBOUNCE_INTERVAL = 5
