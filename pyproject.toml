@@ -23,7 +23,7 @@ dev = [
     "bump-my-version>=1.5.1",
     "diff-cover>=9.0.0",
     "ruff>=0.16.2",
-    "ty>=0.0.69",
+    "ty>=0.0.71",
 ]
 
 [project.urls]
