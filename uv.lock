@@ -1096,7 +1096,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "homeassistant", specifier = ">=2026.3.0" },
-    { name = "paho-mqtt", specifier = ">=2.1.0" },
+    { name = "paho-mqtt" },
 ]
 
 [package.metadata.requires-dev]
