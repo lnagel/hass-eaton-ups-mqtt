@@ -1077,7 +1077,6 @@ name = "hass-eaton-ups-mqtt"
 version = "0.5.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "homeassistant" },
     { name = "paho-mqtt" },
 ]
 
@@ -1085,27 +1084,18 @@ dependencies = [
 dev = [
     { name = "bump-my-version" },
     { name = "diff-cover" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
     { name = "pytest-homeassistant-custom-component" },
     { name = "ruff" },
     { name = "ty" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "homeassistant", specifier = ">=2026.3.0" },
-    { name = "paho-mqtt" },
-]
+requires-dist = [{ name = "paho-mqtt" }]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "bump-my-version" },
     { name = "diff-cover" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
     { name = "pytest-homeassistant-custom-component", specifier = "==0.13.355" },
     { name = "ruff" },
     { name = "ty" },
