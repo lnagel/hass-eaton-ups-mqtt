@@ -78,6 +78,7 @@ class EatonUpsMqttClient:
         self._session = session
         self._mqtt_client = None
         self._mqtt_connected = False
+        self._disconnect_requested = False
         self._mqtt_data = {}
         self._mqtt_prefix = None
         self._temp_files = []
@@ -123,6 +124,7 @@ class EatonUpsMqttClient:
         self._loop = asyncio.get_running_loop()
 
         # Create the MQTT client
+        self._disconnect_requested = False
         client_id = f"hass-eaton-ups-{uuid.uuid4()}"
         self._mqtt_client = mqtt.Client(
             callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
@@ -221,6 +223,7 @@ class EatonUpsMqttClient:
     async def async_disconnect(self) -> None:
         """Disconnect from the MQTT broker."""
         if self._mqtt_client is not None:
+            self._disconnect_requested = True
             self._mqtt_client.disconnect()
             self._mqtt_client.loop_stop()
             self._mqtt_client = None
@@ -276,7 +279,8 @@ class EatonUpsMqttClient:
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
-        logger.warning(
+        log = logger.debug if self._disconnect_requested else logger.warning
+        log(
             "MQTT disconnected from %s:%s (reason: %s, server_sent=%s)",
             self._host,
             self._port,
