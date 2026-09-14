@@ -14,7 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest-homeassistant-custom-component==0.13.362",
+    "pytest-homeassistant-custom-component==0.13.364",
     "bump-my-version",
     "diff-cover",
     "ruff",
