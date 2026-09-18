@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import ssl
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -118,6 +119,37 @@ class TestMqttCallbacks:
             disconnect_flags=MagicMock(),
             reason_code=MagicMock(),
         )
+        assert mqtt_client._mqtt_connected is False
+
+    def test_on_disconnect_warns_when_unexpected(self, mqtt_client, caplog):
+        """Test an unrequested disconnect is reported at warning level."""
+        mqtt_client._mqtt_connected = True
+        mqtt_client._disconnect_requested = False
+
+        with caplog.at_level(logging.DEBUG):
+            mqtt_client._on_disconnect(
+                _client=MagicMock(),
+                _userdata=None,
+                disconnect_flags=MagicMock(),
+                reason_code=MagicMock(),
+            )
+
+        assert any(r.levelno == logging.WARNING for r in caplog.records)
+
+    def test_on_disconnect_quiet_when_requested(self, mqtt_client, caplog):
+        """Test a disconnect we asked for is not reported as a warning."""
+        mqtt_client._mqtt_connected = True
+        mqtt_client._disconnect_requested = True
+
+        with caplog.at_level(logging.DEBUG):
+            mqtt_client._on_disconnect(
+                _client=MagicMock(),
+                _userdata=None,
+                disconnect_flags=MagicMock(),
+                reason_code=MagicMock(),
+            )
+
+        assert not any(r.levelno == logging.WARNING for r in caplog.records)
         assert mqtt_client._mqtt_connected is False
 
     def test_on_message_valid_json(self, mqtt_client):
@@ -337,6 +369,16 @@ class TestAsyncDisconnect:
 
         assert mqtt_client._mqtt_client is None
         assert mqtt_client._mqtt_connected is False
+
+    @pytest.mark.asyncio
+    async def test_disconnect_marks_the_drop_as_requested(self, mqtt_client):
+        """Test disconnect records that the drop was ours before paho reports it."""
+        mqtt_client._mqtt_client = MagicMock()
+        mqtt_client._disconnect_requested = False
+
+        await mqtt_client.async_disconnect()
+
+        assert mqtt_client._disconnect_requested is True
 
     @pytest.mark.asyncio
     async def test_disconnect_with_none_client(self, mqtt_client):
