@@ -7,65 +7,117 @@ Contributing to this project should be as easy and transparent as possible, whet
 - Submitting a fix
 - Proposing new features
 
-## Github is used for everything
+## GitHub is used for everything
 
-Github is used to host code, to track issues and feature requests, as well as accept pull requests.
+GitHub is used to host code, to track bugs in issues, to discuss feature requests in discussions, as well as accept pull requests.
 
-Pull requests are the best way to propose changes to the codebase.
+Pull requests are the best way to propose changes to the codebase, but please read [Scope of contributions](#scope-of-contributions) first.
 
-1. Fork the repo and create your branch from `main`.
-2. If you've changed something, update the documentation.
-3. Make sure your code passes all checks (see below).
-4. Test your contribution.
-5. Issue that pull request!
+1. For anything beyond a small, focused fix, start a thread in [GitHub Discussions](../../discussions) and agree on the approach with the maintainer.
+2. Fork the repo and create your branch from `main`.
+3. If you've changed something, update the documentation.
+4. Make sure your code passes all checks (see below).
+5. Test your contribution.
+6. Issue that pull request, linking the related issue or discussion.
 
-## Development Setup
+## Development setup
 
-This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
+### Using Dev Container (Recommended)
+
+This project includes a dev container configuration for VS Code. Open the project in VS Code and use the "Reopen in Container" command for a pre-configured development environment.
+
+### Manual setup
+
+Install dependencies using [uv](https://docs.astral.sh/uv/):
 
 ```bash
-# Install dependencies
 uv sync --dev
+```
 
-# Run tests
+This installs all dependencies including dev tools (pytest, ruff, ty).
+
+## Pre-commit checklist
+
+**Before committing any changes, run ALL of these checks in order:**
+
+```bash
+# 1. Run tests first - ensures code works correctly
 uv run pytest
 
-# Run tests with coverage
-uv run pytest --cov=custom_components/eaton_ups_mqtt --cov-branch
-
-# Format code
+# 2. Format code with ruff (auto-fixes formatting issues)
 uv run ruff format .
 
-# Lint and auto-fix
+# 3. Lint with ruff (auto-fixes what it can)
 uv run ruff check . --fix
 
-# Type check
+# 4. Type check with ty
 uv run ty check
+```
 
-# Full pre-commit check
+Or run all checks in one command:
+
+```bash
 uv run pytest && uv run ruff format . && uv run ruff check . --fix && uv run ty check
 ```
 
-## Use a Consistent Coding Style
+**All checks must pass before committing.** CI will reject PRs that fail any of these.
 
-This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting. All code must pass:
+## Testing
 
-- `uv run ruff check .` - Linting
-- `uv run ruff format . --check` - Formatting
-- `uv run ty check` - Type checking
+New contributions must not lower test coverage. New and changed code should come with tests that exercise it. CI reports coverage on every pull request and fails if it drops below what the project requires; the exact thresholds are configured per project in `pyproject.toml` and `codecov.yaml`.
 
-## Any contributions you make will be under the MIT Software License
+When fixing bugs:
 
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
+1. Write a failing test case first that reproduces the bug
+2. Verify the test fails as expected
+3. Implement the fix
+4. Verify the test now passes
 
-## Report bugs using Github's [issues](../../issues)
+To check coverage locally, including which of your changed lines are not covered:
+
+```bash
+uv run pytest --cov --cov-branch --cov-report=term --cov-report=xml
+uv run diff-cover coverage.xml --compare-branch=main
+```
+
+## Code quality standards
+
+This project uses:
+
+- **[Ruff](https://docs.astral.sh/ruff/)** for linting and formatting (line length: 88, Python 3.14+)
+- **[ty](https://github.com/astral-sh/ty)** for type checking
+
+Use type hints for all function signatures.
+
+## CI workflows
+
+The CI runs three workflow files on PRs:
+
+1. **checks.yml** - Unit tests with pytest and coverage
+2. **lint.yml** - Ruff check, Ruff format, ty type check
+3. **validate.yml** - Hassfest and HACS validation
+
+All must pass for PR approval.
+
+## Scope of contributions
+
+Small, focused fixes are welcome as pull requests directly. For anything larger:
+
+- **Discuss refactoring and behavior changes first.** Pull requests that refactor code or change behavior without prior agreement are unlikely to be merged. If a fix needs refactoring, start a thread in [GitHub Discussions](../../discussions) and agree on the approach with the maintainer before writing code.
+- **Automated contributions.** Pull requests created by bots or AI agents without a prior discussion may be closed without review. Writing the code is rarely the hard part; deciding whether and how a change should be made is.
+
+AI tools are fine to use, and the maintainer uses them too, but you are responsible for what you submit. Review and understand every change, and be able to explain it in your own words. This follows the principles of the [Open Home Foundation AI Policy](https://developers.home-assistant.io/docs/ai_policy/).
+
+Bug reports must come from a real installation: logs, diagnostics and reproduction steps must be what you actually observed, not generated.
+
+## Report bugs using GitHub's [issues](../../issues)
 
 GitHub issues are used to track public bugs.
-Report a bug by [opening a new issue](../../issues/new/choose); it's that easy!
+Report a bug by [opening a new issue](../../issues/new/choose) using the **Bug report** template.
 
-## Write bug reports with detail, background, and sample code
+**Bug reports must follow the template.** Fill in every required field, including System Health details, reproduction steps and debug logs, and attach diagnostics where possible. Bug reports that do not follow the template may be closed.
 
-**Great Bug Reports** tend to have:
+Beyond the template, **great bug reports** tend to have:
 
 - A quick summary and/or background
 - Steps to reproduce
@@ -77,37 +129,13 @@ Report a bug by [opening a new issue](../../issues/new/choose); it's that easy!
 
 People *love* thorough bug reports. I'm not even kidding.
 
-## Test your code modification
+## Request features using GitHub's [discussions](../../discussions)
 
-This custom component is based on [integration_blueprint template](https://github.com/ludeeus/integration_blueprint).
-
-It comes with development environment in a container, easy to launch
-if you use Visual Studio Code. With this container you will have a stand alone
-Home Assistant instance running and already configured with the included
-[`configuration.yaml`](./config/configuration.yaml)
-file.
-
-## Contributing Test Fixtures
-
-To capture MQTT data from your UPS for test fixtures:
-
-```bash
-# 1. Capture raw data (requires TLS certs from UPS web interface)
-uv run python scripts/dump_mqtt_data.py \
-  --host YOUR_UPS --server-cert ca.pem --client-cert client.pem \
-  --client-key client.key --output tests/fixtures/raw_ups_data.json
-
-# 2. Sanitize PII (serial numbers, MACs, UUIDs, dates)
-uv run python scripts/sanitize_fixture.py \
-  --input tests/fixtures/raw_ups_data.json \
-  --output tests/fixtures/mqtt_data_YOUR_MODEL.json
-
-# 3. Delete raw data and submit PR with sanitized fixture
-rm tests/fixtures/raw_ups_data.json
-```
-
-Existing fixtures: `mqtt_data_5px_g2.json` (Eaton 5PX 1500i RT2U G2)
+Feature requests and ideas are preferably discussed in GitHub Discussions.
+Start a [new discussion](../../discussions/new/choose) describing the problem you are trying to solve, not only the solution you have in mind.
+Feature requests opened as issues may be converted into a discussion.
+If the maintainer agrees on the approach, it can then be implemented in a pull request.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+By contributing, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).
