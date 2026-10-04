@@ -9,9 +9,9 @@ from urllib.parse import urlparse
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ec
 
-from .const import CERT_DEFAULT_CN, CERT_KEY_SIZE, CERT_VALIDITY_YEARS
+from .const import CERT_DEFAULT_CN, CERT_VALIDITY_YEARS
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -24,13 +24,13 @@ def fetch_server_certificate(host: str, port: int) -> str:
 
 def generate_client_certificate(common_name: str) -> tuple[str, str]:
     """
-    Generate a self-signed client certificate and private key.
+    Generate a self-signed client certificate and EC (P-256) private key.
 
     Returns:
         Tuple of (certificate PEM, private key PEM).
 
     """
-    key = rsa.generate_private_key(public_exponent=65537, key_size=CERT_KEY_SIZE)
+    key = ec.generate_private_key(ec.SECP256R1())
 
     subject = issuer = x509.Name(
         [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]

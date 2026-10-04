@@ -22,6 +22,8 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
+from custom_components.eaton_ups_mqtt.certificates import generate_client_certificate
+
 
 def _generate_self_signed_cert(cn: str) -> tuple[str, str]:
     """Generate a self-signed certificate with the given CN."""
@@ -224,6 +226,22 @@ class TestTlsCertificatePinning:
         )
 
         _do_tls_handshake(server_ctx, client_ctx, server_hostname="ups.example.local")
+
+    def test_generated_client_cert_accepted(self, server_cert_pair):
+        """Test mutual TLS with the integration's generated EC client certificate.
+
+        The server keeps its RSA certificate (as the UPS does) and trusts the
+        generated client certificate, which must complete client authentication.
+        """
+        server_cert, server_key = server_cert_pair
+        client_cert, client_key = generate_client_certificate("homeassistant.local")
+
+        server_ctx = _make_server_context(server_cert, server_key, client_cert)
+        client_ctx = _make_client_context(
+            server_cert, client_cert, client_key, check_hostname=False
+        )
+
+        _do_tls_handshake(server_ctx, client_ctx, server_hostname="127.0.0.1")
 
     def test_hostname_mismatch_rejected_when_verification_enabled(
         self, server_cert_pair, client_cert_pair
