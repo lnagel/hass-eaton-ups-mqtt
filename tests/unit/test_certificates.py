@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from cryptography import x509
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
@@ -46,6 +47,13 @@ class TestGenerateClientCertificate:
         cert = x509.load_pem_x509_certificate(cert_pem.encode())
         key = load_pem_private_key(key_pem.encode(), password=None)
         assert cert.public_key() == key.public_key()
+
+    def test_signed_with_sha512(self):
+        """Test that the certificate is signed with ECDSA using SHA-512."""
+        cert_pem, _key_pem = generate_client_certificate("test-host")
+
+        cert = x509.load_pem_x509_certificate(cert_pem.encode())
+        assert isinstance(cert.signature_hash_algorithm, hashes.SHA512)
 
     def test_correct_subject_cn(self):
         """Test that the certificate has the correct common name."""

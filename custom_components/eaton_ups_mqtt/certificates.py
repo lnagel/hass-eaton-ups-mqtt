@@ -45,7 +45,7 @@ def generate_client_certificate(common_name: str) -> tuple[str, str]:
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
         .not_valid_after(now + datetime.timedelta(days=365 * CERT_VALIDITY_YEARS))
-        .sign(key, hashes.SHA256())
+        .sign(key, hashes.SHA512())
     )
 
     cert_pem = cert.public_bytes(serialization.Encoding.PEM).decode()
