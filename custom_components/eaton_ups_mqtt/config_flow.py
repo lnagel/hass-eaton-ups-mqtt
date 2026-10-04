@@ -17,7 +17,10 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
 from homeassistant.helpers import selector
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from homeassistant.helpers.aiohttp_client import (
+    async_create_clientsession,
+    async_get_clientsession,
+)
 
 from .api import (
     EatonUpsClientAuthenticationError,
@@ -44,6 +47,7 @@ from .const import (
     MQTT_TIMEOUT,
     STEP_DEBOUNCE_INTERVAL,
 )
+from .enrolment import async_enrol_client_certificate
 
 logger = logging.getLogger(__name__)
 
@@ -312,7 +316,8 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """
         Auto-fill empty certificate fields.
 
-        Fetches server cert and generates client cert/key for empty fields.
+        Fetches server cert and generates client cert/key for empty fields,
+        then enrols the client cert with the UPS when it allows that.
         """
         if not data.get(CONF_SERVER_CERT):
             data[CONF_SERVER_CERT] = await async_fetch_server_certificate(
@@ -325,6 +330,12 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 data[CONF_CLIENT_CERT] = cert_pem
             if not data.get(CONF_CLIENT_KEY):
                 data[CONF_CLIENT_KEY] = key_pem
+
+        await async_enrol_client_certificate(
+            async_get_clientsession(self.hass, verify_ssl=False),
+            data[CONF_HOST],
+            data[CONF_CLIENT_CERT],
+        )
 
         return data
 

@@ -62,6 +62,7 @@ custom_components/eaton_ups_mqtt/    # Main integration code
 ├── const.py                         # Constants and configuration
 ├── coordinator.py                   # Data update coordinator
 ├── data.py                          # Runtime data types
+├── enrolment.py                     # Client certificate enrolment (REST)
 ├── sensor.py                        # Sensor entities
 ├── binary_sensor.py                 # Binary sensor entities
 ├── manifest.json                    # Integration manifest

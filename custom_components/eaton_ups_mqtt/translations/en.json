@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "Set up your Eaton UPS with Network-M2 or Network-M3 card. Certificates will be generated automatically.\n\nAfter setup, check **Settings → System → Repairs** for instructions to upload the client certificate to your UPS.",
+                "description": "Set up your Eaton UPS with Network-M2 or Network-M3 card. Certificates will be generated automatically.\n\nThe client certificate is uploaded to your UPS automatically while pairing with clients is started in its web interface (**Settings → Certificate**). Otherwise, check **Settings → System → Repairs** after setup for instructions.",
                 "data": {
                     "host": "Host",
                     "port": "Port"

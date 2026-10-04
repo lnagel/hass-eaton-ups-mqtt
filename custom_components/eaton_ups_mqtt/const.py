@@ -32,6 +32,22 @@ CERT_UPLOAD_INSTRUCTIONS = (
     " is uploaded. You may need to reload the integration after uploading."
 )
 
+CERT_PAIRING_INSTRUCTIONS = (
+    "The Eaton UPS at **{host}** does not trust the client certificate yet."
+    "\n\nTo let Home Assistant upload it automatically:"
+    "\n1. Open the UPS web interface at [https://{host}](https://{host})"
+    "\n2. Navigate to **Settings \u2192 Certificate**"
+    " \u2192 **Pairing with clients**"
+    "\n3. Click **Start**"
+    "\n\nThe certificate is uploaded on the next connection attempt."
+    " Reload the integration to retry immediately."
+    "\n\nAlternatively, import it manually:"
+    "\n1. {download_step}"
+    "\n2. Under **Settings \u2192 Certificate**"
+    " \u2192 **Trusted remote certificates**, click **Import**"
+    "\n3. Select **Protected applications (MQTT)** and import the downloaded file"
+)
+
 CERT_DOWNLOAD_STEP_LINK = (
     "Right-click [this link]({download_url}) and **Save link as** to"
     " download the client certificate"
@@ -39,6 +55,9 @@ CERT_DOWNLOAD_STEP_LINK = (
 CERT_DOWNLOAD_STEP_REPAIRS = (
     "Check **Settings \u2192 System \u2192 Repairs** to download the client certificate"
 )
+
+# Seconds to wait for each request to the certificate enrolment API
+ENROLMENT_TIMEOUT = 10
 
 MQTT_TIMEOUT = 5
 MQTT_CONNECTION_ATTEMPTS = 10

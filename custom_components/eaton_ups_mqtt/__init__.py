@@ -8,7 +8,7 @@ https://github.com/lnagel/hass-eaton-ups
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import (
     CONF_HOST,
@@ -36,6 +36,7 @@ from .certificates import (
 )
 from .const import (
     CERT_DOWNLOAD_STEP_LINK,
+    CERT_PAIRING_INSTRUCTIONS,
     CERT_UPLOAD_INSTRUCTIONS,
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
@@ -47,6 +48,7 @@ from .const import (
 )
 from .coordinator import EatonUPSDataUpdateCoordinator
 from .data import EatonUpsData
+from .enrolment import EnrolmentResult, async_enrol_client_certificate
 
 if TYPE_CHECKING:
     from homeassistant.core import Event, HomeAssistant
@@ -104,11 +106,13 @@ async def async_setup_entry(
     host = data[CONF_HOST]
 
     if certs_generated:
-        # Don't attempt MQTT connection — user needs to upload the client
-        # cert to the UPS first. HA will retry automatically.
-        _create_cert_upload_issue(hass, entry, host, issue_id)
-        msg = "Waiting for client certificate to be uploaded to UPS"
-        raise ConfigEntryNotReady(msg)
+        enrolment = await _async_enrol_client_certificate(hass, data)
+        if enrolment not in (EnrolmentResult.ACCEPTED, EnrolmentResult.ENROLLED):
+            # Don't attempt MQTT connection — the UPS does not trust the
+            # client cert yet. HA will retry automatically.
+            _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
+            msg = "Waiting for client certificate to be uploaded to UPS"
+            raise ConfigEntryNotReady(msg)
 
     coordinator = EatonUPSDataUpdateCoordinator(
         hass=hass,
@@ -143,7 +147,11 @@ async def async_setup_entry(
         # Only show cert upload instructions for authentication/TLS errors
         cause = err.__cause__ or err
         if isinstance(cause, EatonUpsClientAuthenticationError):
-            _create_cert_upload_issue(hass, entry, host, issue_id)
+            enrolment = await _async_enrol_client_certificate(hass, data)
+            if enrolment is EnrolmentResult.ENROLLED:
+                msg = "Client certificate uploaded to UPS, retrying connection"
+                raise ConfigEntryNotReady(msg) from err
+            _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
         else:
             LOGGER.error("Failed to connect to UPS at %s: %s", host, err)
         raise
@@ -199,13 +207,30 @@ def _write_cert_file(config_path: str, entry_id: str, client_cert: str) -> None:
     cert_path.write_text(client_cert)
 
 
+async def _async_enrol_client_certificate(
+    hass: HomeAssistant, data: dict[str, Any]
+) -> EnrolmentResult:
+    """Enrol the client certificate with the UPS."""
+    return await async_enrol_client_certificate(
+        async_get_clientsession(hass, verify_ssl=False),
+        data[CONF_HOST],
+        data[CONF_CLIENT_CERT],
+    )
+
+
 def _create_cert_upload_issue(
     hass: HomeAssistant,
     entry: EatonUpsConfigEntry,
     host: str,
     issue_id: str,
+    enrolment: EnrolmentResult,
 ) -> None:
     """Create a repairs issue with client certificate upload instructions."""
+    instructions = (
+        CERT_PAIRING_INSTRUCTIONS
+        if enrolment is EnrolmentResult.PAIRING_CLOSED
+        else CERT_UPLOAD_INSTRUCTIONS
+    )
     download_url = f"/local/{DOMAIN}/{_get_cert_filename(entry.entry_id)}"
     async_create_issue(
         hass,
@@ -215,7 +240,7 @@ def _create_cert_upload_issue(
         severity=IssueSeverity.WARNING,
         translation_key="cert_upload_required",
         translation_placeholders={
-            "instructions": CERT_UPLOAD_INSTRUCTIONS.format(
+            "instructions": instructions.format(
                 host=host,
                 download_step=CERT_DOWNLOAD_STEP_LINK.format(
                     download_url=download_url,

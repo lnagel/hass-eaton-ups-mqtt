@@ -16,6 +16,7 @@ from custom_components.eaton_ups_mqtt.certificates import (
     fetch_server_certificate,
     generate_client_certificate,
     get_common_name,
+    get_subject_hash,
 )
 from custom_components.eaton_ups_mqtt.const import CERT_VALIDITY_YEARS
 
@@ -79,6 +80,21 @@ class TestGenerateClientCertificate:
         expected_days = 365 * CERT_VALIDITY_YEARS
         # Allow 1 day tolerance
         assert abs(delta.days - expected_days) <= 1
+
+
+class TestGetSubjectHash:
+    """Tests for get_subject_hash."""
+
+    def test_matches_openssl_subject_hash(self):
+        """Test the hash against `openssl x509 -subject_hash` for the same subject."""
+        cert_pem, _key_pem = generate_client_certificate("test-host")
+
+        assert get_subject_hash(cert_pem) == "e61bb764"
+
+    def test_rejects_invalid_pem(self):
+        """Test that an unparsable certificate raises ValueError."""
+        with pytest.raises(ValueError, match="PEM"):
+            get_subject_hash("not a certificate")
 
 
 class TestFetchServerCertificate:

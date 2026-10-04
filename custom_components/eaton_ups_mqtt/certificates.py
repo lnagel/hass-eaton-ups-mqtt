@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
+from OpenSSL import crypto
 
 from .const import CERT_DEFAULT_CN, CERT_VALIDITY_YEARS
 
@@ -56,6 +57,12 @@ def generate_client_certificate(common_name: str) -> tuple[str, str]:
     ).decode()
 
     return cert_pem, key_pem
+
+
+def get_subject_hash(cert_pem: str) -> str:
+    """Return the OpenSSL subject name hash of a certificate as 8 hex digits."""
+    cert = x509.load_pem_x509_certificate(cert_pem.encode())
+    return f"{crypto.X509.from_cryptography(cert).subject_name_hash():08x}"
 
 
 def get_common_name(hass: HomeAssistant) -> str:

@@ -183,6 +183,10 @@ class TestReauthFlow:
                 "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._test_credentials",
                 new_callable=AsyncMock,
             ),
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.async_enrol_client_certificate",
+                new_callable=AsyncMock,
+            ) as mock_enrol,
         ):
             result = await entry.start_reauth_flow(hass)
             result = await hass.config_entries.flow.async_configure(
@@ -192,6 +196,7 @@ class TestReauthFlow:
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reauth_successful"
+        assert mock_enrol.call_args.args[1:] == ("ups.example.local", generated_cert)
         assert entry.data[CONF_SERVER_CERT] == server_cert
         assert entry.data[CONF_CLIENT_CERT] == generated_cert
         assert entry.data[CONF_CLIENT_KEY] == generated_key
