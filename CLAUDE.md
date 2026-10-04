@@ -73,6 +73,7 @@ tests/                               # Test suite
 
 docs/                                # Documentation
 ├── MQTT.md                          # MQTT communication documentation
+├── control-api/README.md            # Research brief: protected app, shutdown, outlet control
 └── eaton-network-m2-openapi.yaml    # Network-M2 OpenAPI spec
 ```
 

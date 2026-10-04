@@ -29,3 +29,6 @@ config/*
 # Local development and test data (contains PII from real UPS)
 certs/
 tests/fixtures/raw_ups_data.json
+
+# Vendor documents downloaded by scripts/fetch_eaton_docs.sh
+docs/vendor/
