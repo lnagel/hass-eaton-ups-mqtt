@@ -6,7 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from cryptography import x509
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
 from custom_components.eaton_ups_mqtt.certificates import (
@@ -16,7 +17,7 @@ from custom_components.eaton_ups_mqtt.certificates import (
     generate_client_certificate,
     get_common_name,
 )
-from custom_components.eaton_ups_mqtt.const import CERT_KEY_SIZE, CERT_VALIDITY_YEARS
+from custom_components.eaton_ups_mqtt.const import CERT_VALIDITY_YEARS
 
 
 class TestGenerateClientCertificate:
@@ -28,16 +29,31 @@ class TestGenerateClientCertificate:
 
         assert cert_pem.startswith("-----BEGIN CERTIFICATE-----")
         assert cert_pem.strip().endswith("-----END CERTIFICATE-----")
-        assert key_pem.startswith("-----BEGIN RSA PRIVATE KEY-----")
-        assert key_pem.strip().endswith("-----END RSA PRIVATE KEY-----")
+        assert key_pem.startswith("-----BEGIN EC PRIVATE KEY-----")
+        assert key_pem.strip().endswith("-----END EC PRIVATE KEY-----")
 
-    def test_correct_key_size(self):
-        """Test that the generated key has the correct size."""
+    def test_correct_key_type(self):
+        """Test that the generated key is an EC key on the P-256 curve."""
         _cert_pem, key_pem = generate_client_certificate("test-host")
 
         key = load_pem_private_key(key_pem.encode(), password=None)
-        assert isinstance(key, rsa.RSAPrivateKey)
-        assert key.key_size == CERT_KEY_SIZE
+        assert isinstance(key, ec.EllipticCurvePrivateKey)
+        assert isinstance(key.curve, ec.SECP256R1)
+
+    def test_certificate_matches_key(self):
+        """Test that the certificate carries the generated key's public key."""
+        cert_pem, key_pem = generate_client_certificate("test-host")
+
+        cert = x509.load_pem_x509_certificate(cert_pem.encode())
+        key = load_pem_private_key(key_pem.encode(), password=None)
+        assert cert.public_key() == key.public_key()
+
+    def test_signed_with_sha512(self):
+        """Test that the certificate is signed with ECDSA using SHA-512."""
+        cert_pem, _key_pem = generate_client_certificate("test-host")
+
+        cert = x509.load_pem_x509_certificate(cert_pem.encode())
+        assert isinstance(cert.signature_hash_algorithm, hashes.SHA512)
 
     def test_correct_subject_cn(self):
         """Test that the certificate has the correct common name."""
@@ -158,4 +174,4 @@ class TestAsyncWrappers:
         cert_pem, key_pem = await async_generate_client_certificate(hass)
 
         assert "BEGIN CERTIFICATE" in cert_pem
-        assert "BEGIN RSA PRIVATE KEY" in key_pem
+        assert "BEGIN EC PRIVATE KEY" in key_pem
