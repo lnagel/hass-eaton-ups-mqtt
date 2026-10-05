@@ -23,6 +23,7 @@ from homeassistant.helpers.issue_registry import (
     async_create_issue,
     async_delete_issue,
 )
+from homeassistant.helpers.issue_registry import async_get as async_get_issue_registry
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import (
@@ -105,11 +106,13 @@ async def async_setup_entry(
     issue_id = ISSUE_ID_CERT_UPLOAD.format(entry_id=entry.entry_id)
     host = data[CONF_HOST]
 
-    if certs_generated:
+    upload_pending = async_get_issue_registry(hass).async_get_issue(DOMAIN, issue_id)
+    if certs_generated or upload_pending:
         enrolment = await _async_enrol_client_certificate(hass, data)
-        if enrolment not in (EnrolmentResult.ACCEPTED, EnrolmentResult.ENROLLED):
-            # Don't attempt MQTT connection — the UPS does not trust the
-            # client cert yet. HA will retry automatically.
+        if enrolment is EnrolmentResult.PAIRING_CLOSED or (
+            certs_generated and not enrolment.trusted
+        ):
+            # Skip MQTT until the UPS trusts the client cert; HA retries
             _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
             msg = "Waiting for client certificate to be uploaded to UPS"
             raise ConfigEntryNotReady(msg)
@@ -148,15 +151,12 @@ async def async_setup_entry(
         if enrolment is EnrolmentResult.ENROLLED:
             msg = "Client certificate uploaded to UPS, retrying connection"
             raise ConfigEntryNotReady(msg) from err
-        # Only show cert upload instructions when the UPS does not trust the
-        # client cert or for authentication/TLS errors
+        # Show upload instructions only for an untrusted cert or TLS errors
         cause = err.__cause__ or err
         if enrolment is EnrolmentResult.PAIRING_CLOSED or isinstance(
             cause, EatonUpsClientAuthenticationError
         ):
             _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
-        else:
-            LOGGER.error("Failed to connect to UPS at %s: %s", host, err)
         raise
 
     # Connection succeeded — delete any pending cert upload issue

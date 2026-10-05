@@ -60,6 +60,7 @@ class EatonUpsMqttClient:
 
     _mqtt_client: Client | None
     _mqtt_connected: bool
+    _mqtt_rejected: bool
     _mqtt_data: dict[str, Any]
     _mqtt_prefix: str | None
     _temp_files: list[str]
@@ -78,6 +79,7 @@ class EatonUpsMqttClient:
         self._session = session
         self._mqtt_client = None
         self._mqtt_connected = False
+        self._mqtt_rejected = False
         self._mqtt_data = {}
         self._mqtt_prefix = None
         self._temp_files = []
@@ -158,19 +160,27 @@ class EatonUpsMqttClient:
             raise EatonUpsClientAuthenticationError(msg) from e
 
         # Connect to MQTT broker
+        self._mqtt_rejected = False
         self._mqtt_client.connect_async(host=self._host, port=self._port)
         self._mqtt_client.loop_start()
 
         # Wait for connection to establish
         attempts = 0
-        while not self._mqtt_connected and attempts < MQTT_CONNECTION_ATTEMPTS:
+        while (
+            not self._mqtt_connected
+            and not self._mqtt_rejected
+            and attempts < MQTT_CONNECTION_ATTEMPTS
+        ):
             await asyncio.sleep(1)
             attempts += 1
 
         if not self._mqtt_connected:
-            self._cleanup_temp_files()
+            rejected = self._mqtt_rejected
+            await self.async_disconnect()
             error_msg = (
-                f"Failed to connect to MQTT broker at {self._host}:{self._port}"
+                f"MQTT broker at {self._host}:{self._port} rejected the connection"
+                if rejected
+                else f"Failed to connect to MQTT broker at {self._host}:{self._port}"
                 f" after {MQTT_CONNECTION_ATTEMPTS} attempts"
             )
             raise EatonUpsClientCommunicationError(error_msg)
@@ -276,6 +286,9 @@ class EatonUpsMqttClient:
         _properties: mqtt.Properties | None = None,
     ) -> None:
         """Handle disconnection."""
+        if not self._mqtt_connected:
+            self._mqtt_rejected = True
+            return
         logger.warning(
             "MQTT disconnected from %s:%s (reason: %s, server_sent=%s)",
             self._host,

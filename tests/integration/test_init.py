@@ -487,6 +487,53 @@ class TestCertificateEnrolment:
         assert issue is not None
         assert "Pairing with clients" in issue.translation_placeholders["instructions"]
 
+    async def _setup_then_retry(
+        self, hass: HomeAssistant, entry: MockConfigEntry, mock_enrol, enrolment
+    ):
+        """Set up with pairing closed, then retry with the given enrolment."""
+        mock_enrol.return_value = EnrolmentResult.PAIRING_CLOSED
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        mock_enrol.return_value = enrolment
+        await hass.config_entries.async_reload(entry.entry_id)
+        await hass.async_block_till_done()
+
+    @pytest.mark.usefixtures("mock_generated_certs")
+    async def test_retry_skips_mqtt_while_pairing_closed(
+        self,
+        hass: HomeAssistant,
+        mock_entry_no_certs,
+        mock_mqtt_setup,
+        mock_enrol,
+    ):
+        """Test that retries do not connect while the UPS refuses the cert."""
+        await self._setup_then_retry(
+            hass, mock_entry_no_certs, mock_enrol, EnrolmentResult.PAIRING_CLOSED
+        )
+
+        assert mock_entry_no_certs.state == ConfigEntryState.SETUP_RETRY
+        mock_mqtt_setup.async_setup.assert_not_called()
+        assert self._get_issue(hass, mock_entry_no_certs) is not None
+
+    @pytest.mark.usefixtures("mock_generated_certs", "mock_mqtt_setup")
+    @pytest.mark.parametrize(
+        "enrolment", [EnrolmentResult.ENROLLED, EnrolmentResult.UNAVAILABLE]
+    )
+    async def test_retry_connects_after_pending_upload(
+        self,
+        hass: HomeAssistant,
+        mock_entry_no_certs,
+        mock_enrol,
+        enrolment,
+    ):
+        """Test that a retry connects once the UPS may trust the cert."""
+        await self._setup_then_retry(hass, mock_entry_no_certs, mock_enrol, enrolment)
+
+        assert mock_entry_no_certs.state == ConfigEntryState.LOADED
+        assert self._get_issue(hass, mock_entry_no_certs) is None
+
     @pytest.mark.usefixtures("mock_auth_failure")
     async def test_auth_failure_enrols_and_retries(
         self,

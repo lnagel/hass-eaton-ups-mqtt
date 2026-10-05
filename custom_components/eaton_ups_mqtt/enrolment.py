@@ -31,6 +31,11 @@ class EnrolmentResult(StrEnum):
     UNAVAILABLE = "unavailable"
     """The enrolment API could not be used."""
 
+    @property
+    def trusted(self) -> bool:
+        """Return whether the card trusts the certificate."""
+        return self in (EnrolmentResult.ACCEPTED, EnrolmentResult.ENROLLED)
+
 
 async def async_enrol_client_certificate(
     session: aiohttp.ClientSession, host: str, cert_pem: str
@@ -53,6 +58,7 @@ async def async_enrol_client_certificate(
             response.raise_for_status()
 
         if await _async_is_accepted(session, status_url):
+            LOGGER.info("Client certificate uploaded to UPS at %s", host)
             return EnrolmentResult.ENROLLED
     except (aiohttp.ClientError, TimeoutError, ValueError) as err:
         LOGGER.debug("Client certificate enrolment unavailable on %s: %s", host, err)
