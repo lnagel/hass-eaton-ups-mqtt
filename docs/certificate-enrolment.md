@@ -10,7 +10,11 @@ over HTTPS (port 443).
 | POST | `/etn/v1/comm/certificates/mqtt/clients` | Upload a client certificate |
 
 `<subject_hash>` is the OpenSSL subject name hash of the certificate, as printed by
-`openssl x509 -noout -subject_hash`.
+`openssl x509 -noout -subject_hash`. The card therefore identifies a certificate by
+its subject only. So that a regenerated certificate is not mistaken for an older
+trusted one, the integration appends the first 8 hex digits of the public key hash
+to the common name of every certificate it generates, e.g.
+`homeassistant.local-3fa91c07`.
 
 The status request returns `404` for an unknown certificate, and for a trusted one:
 

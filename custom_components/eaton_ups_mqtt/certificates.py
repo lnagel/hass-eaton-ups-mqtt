@@ -12,7 +12,12 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from OpenSSL import crypto
 
-from .const import CERT_DEFAULT_CN, CERT_VALIDITY_YEARS
+from .const import (
+    CERT_CN_MAX_LENGTH,
+    CERT_DEFAULT_CN,
+    CERT_KEY_HASH_LENGTH,
+    CERT_VALIDITY_YEARS,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -27,11 +32,18 @@ def generate_client_certificate(common_name: str) -> tuple[str, str]:
     """
     Generate a self-signed client certificate and EC (P-256) private key.
 
+    The common name is suffixed with the start of the public key hash, so
+    every generated certificate has its own subject.
+
     Returns:
         Tuple of (certificate PEM, private key PEM).
 
     """
     key = ec.generate_private_key(ec.SECP256R1())
+
+    key_hash = x509.SubjectKeyIdentifier.from_public_key(key.public_key()).digest.hex()
+    suffix = f"-{key_hash[:CERT_KEY_HASH_LENGTH]}"
+    common_name = common_name[: CERT_CN_MAX_LENGTH - len(suffix)] + suffix
 
     subject = issuer = x509.Name(
         [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
