@@ -17,9 +17,7 @@ DEFAULT_PORT = 8883
 CERT_VALIDITY_YEARS = 15
 CERT_DEFAULT_CN = "Home Assistant"
 
-CERT_UPLOAD_INSTRUCTIONS = (
-    "A client certificate was auto-generated for your Eaton UPS at **{host}**."
-    "\n\nTo complete setup:"
+CERT_IMPORT_STEPS = (
     "\n1. {download_step}"
     "\n2. Open the UPS web interface at [https://{host}](https://{host})"
     "\n3. Navigate to **Settings \u2192 Certificate**"
@@ -28,8 +26,13 @@ CERT_UPLOAD_INSTRUCTIONS = (
     "\n5. Select **Protected applications (MQTT)**"
     "\n6. Click **Browse** and select the downloaded file"
     "\n7. Click **Import**"
-    "\n\nThe integration will automatically connect once the certificate"
-    " is uploaded. You may need to reload the integration after uploading."
+)
+
+CERT_UPLOAD_INSTRUCTIONS = (
+    "A client certificate was auto-generated for your Eaton UPS at **{host}**."
+    "\n\nTo complete setup:" + CERT_IMPORT_STEPS + "\n\nThe integration will"
+    " automatically connect once the certificate is uploaded."
+    " You may need to reload the integration after uploading."
 )
 
 CERT_PAIRING_INSTRUCTIONS = (
@@ -41,11 +44,7 @@ CERT_PAIRING_INSTRUCTIONS = (
     " certificates and click **Start**"
     "\n\nThe certificate is uploaded on the next connection attempt."
     " Reload the integration to retry immediately."
-    "\n\nAlternatively, import it manually:"
-    "\n1. {download_step}"
-    "\n2. On the same page, under **Trusted remote certificates**,"
-    " click **Import**"
-    "\n3. Select **Protected applications (MQTT)** and import the downloaded file"
+    "\n\nAlternatively, import it manually:" + CERT_IMPORT_STEPS
 )
 
 CERT_DOWNLOAD_STEP_LINK = (

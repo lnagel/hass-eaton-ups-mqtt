@@ -108,12 +108,10 @@ async def async_setup_entry(
 
     upload_pending = async_get_issue_registry(hass).async_get_issue(DOMAIN, issue_id)
     if certs_generated or upload_pending:
-        enrolment = await _async_enrol_client_certificate(hass, data)
-        if enrolment is EnrolmentResult.PAIRING_CLOSED or (
-            certs_generated and not enrolment.trusted
-        ):
-            # Skip MQTT until the UPS trusts the client cert; HA retries
-            _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
+        enrolment = await _async_enrol_client_certificate(hass, entry, data)
+        if certs_generated and not enrolment.trusted:
+            # Skip MQTT until the generated cert is imported; HA retries
+            _create_cert_upload_issue(hass, entry, host, issue_id)
             msg = "Waiting for client certificate to be uploaded to UPS"
             raise ConfigEntryNotReady(msg)
 
@@ -147,16 +145,14 @@ async def async_setup_entry(
     try:
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
-        enrolment = await _async_enrol_client_certificate(hass, data)
+        enrolment = await _async_enrol_client_certificate(hass, entry, data)
         if enrolment is EnrolmentResult.ENROLLED:
             msg = "Client certificate uploaded to UPS, retrying connection"
             raise ConfigEntryNotReady(msg) from err
-        # Show upload instructions only for an untrusted cert or TLS errors
+        # Only show cert upload instructions for authentication/TLS errors
         cause = err.__cause__ or err
-        if enrolment is EnrolmentResult.PAIRING_CLOSED or isinstance(
-            cause, EatonUpsClientAuthenticationError
-        ):
-            _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
+        if isinstance(cause, EatonUpsClientAuthenticationError):
+            _create_cert_upload_issue(hass, entry, host, issue_id)
         raise
 
     # Connection succeeded — delete any pending cert upload issue
@@ -211,14 +207,21 @@ def _write_cert_file(config_path: str, entry_id: str, client_cert: str) -> None:
 
 
 async def _async_enrol_client_certificate(
-    hass: HomeAssistant, data: dict[str, Any]
+    hass: HomeAssistant, entry: EatonUpsConfigEntry, data: dict[str, Any]
 ) -> EnrolmentResult:
-    """Enrol the client certificate with the UPS."""
-    return await async_enrol_client_certificate(
-        async_get_clientsession(hass, verify_ssl=False),
-        data[CONF_HOST],
-        data[CONF_CLIENT_CERT],
+    """Enrol the client certificate with the UPS, waiting for pairing if refused."""
+    host = data[CONF_HOST]
+    enrolment = await async_enrol_client_certificate(
+        async_get_clientsession(hass, verify_ssl=False), host, data[CONF_CLIENT_CERT]
     )
+    if enrolment is EnrolmentResult.PAIRING_CLOSED:
+        issue_id = ISSUE_ID_CERT_UPLOAD.format(entry_id=entry.entry_id)
+        _create_cert_upload_issue(
+            hass, entry, host, issue_id, CERT_PAIRING_INSTRUCTIONS
+        )
+        msg = "Waiting for pairing with clients to be started on UPS"
+        raise ConfigEntryNotReady(msg)
+    return enrolment
 
 
 def _create_cert_upload_issue(
@@ -226,14 +229,9 @@ def _create_cert_upload_issue(
     entry: EatonUpsConfigEntry,
     host: str,
     issue_id: str,
-    enrolment: EnrolmentResult,
+    instructions: str = CERT_UPLOAD_INSTRUCTIONS,
 ) -> None:
     """Create a repairs issue with client certificate upload instructions."""
-    instructions = (
-        CERT_PAIRING_INSTRUCTIONS
-        if enrolment is EnrolmentResult.PAIRING_CLOSED
-        else CERT_UPLOAD_INSTRUCTIONS
-    )
     download_url = f"/local/{DOMAIN}/{_get_cert_filename(entry.entry_id)}"
     async_create_issue(
         hass,
