@@ -186,6 +186,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
+                await self._enrol_client_cert(final_data)
                 try:
                     await self._test_credentials(
                         host=final_data[CONF_HOST],
@@ -261,6 +262,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
+                await self._enrol_client_cert(final_data)
                 conn_result = await self.hass.async_add_executor_job(
                     try_connection,
                     final_data,
@@ -316,8 +318,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """
         Auto-fill empty certificate fields.
 
-        Fetches server cert and generates client cert/key for empty fields,
-        then enrols the client cert with the UPS when it allows that.
+        Fetches server cert and generates client cert/key for empty fields.
         """
         if not data.get(CONF_SERVER_CERT):
             data[CONF_SERVER_CERT] = await async_fetch_server_certificate(
@@ -331,13 +332,15 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             if not data.get(CONF_CLIENT_KEY):
                 data[CONF_CLIENT_KEY] = key_pem
 
+        return data
+
+    async def _enrol_client_cert(self, data: dict[str, Any]) -> None:
+        """Enrol the client certificate with the UPS when it allows that."""
         await async_enrol_client_certificate(
             async_get_clientsession(self.hass, verify_ssl=False),
             data[CONF_HOST],
             data[CONF_CLIENT_CERT],
         )
-
-        return data
 
     async def _test_credentials(
         self, host: str, port: int, server_cert: str, client_cert: str, client_key: str
