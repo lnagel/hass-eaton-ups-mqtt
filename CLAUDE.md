@@ -74,6 +74,7 @@ tests/                               # Test suite
 
 docs/                                # Documentation
 ├── MQTT.md                          # MQTT communication documentation
+├── certificate-enrolment.md         # Client certificate enrolment API
 └── eaton-network-m2-openapi.yaml    # Network-M2 OpenAPI spec
 ```
 
