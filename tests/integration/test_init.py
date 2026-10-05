@@ -420,15 +420,6 @@ class TestCertificateEnrolment:
         ):
             yield
 
-    @pytest.fixture
-    def mock_enrol(self):
-        """Mock the certificate enrolment."""
-        with patch(
-            "custom_components.eaton_ups_mqtt.async_enrol_client_certificate",
-            new_callable=AsyncMock,
-        ) as mock:
-            yield mock
-
     def _get_issue(self, hass: HomeAssistant, entry: MockConfigEntry):
         return async_get_issue_registry(hass).async_get_issue(
             DOMAIN, f"cert_upload_{entry.entry_id}"

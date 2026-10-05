@@ -10,6 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from custom_components.eaton_ups_mqtt.const import DOMAIN
+from custom_components.eaton_ups_mqtt.enrolment import EnrolmentResult
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -22,6 +23,20 @@ pytest_plugins = "pytest_homeassistant_custom_component"
 def auto_enable_custom_integrations(enable_custom_integrations):
     """Enable custom integrations for all tests."""
     return
+
+
+@pytest.fixture(autouse=True)
+def mock_enrol() -> Generator[AsyncMock]:
+    """Mock client certificate enrolment to prevent actual network connections."""
+    mock = AsyncMock(return_value=EnrolmentResult.UNAVAILABLE)
+    with (
+        patch("custom_components.eaton_ups_mqtt.async_enrol_client_certificate", mock),
+        patch(
+            "custom_components.eaton_ups_mqtt.config_flow.async_enrol_client_certificate",
+            mock,
+        ),
+    ):
+        yield mock
 
 
 # Path to fixtures directory

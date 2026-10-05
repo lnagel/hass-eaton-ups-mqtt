@@ -144,7 +144,7 @@ class TestReauthFlow:
         assert entry.data[CONF_CLIENT_KEY] == updated_input[CONF_CLIENT_KEY]
 
     async def test_reauth_auto_generates_cleared_certs(
-        self, hass: HomeAssistant, full_entry_data
+        self, hass: HomeAssistant, full_entry_data, mock_enrol
     ):
         """Test that clearing cert fields triggers auto-generation."""
         entry = MockConfigEntry(
@@ -183,10 +183,6 @@ class TestReauthFlow:
                 "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._test_credentials",
                 new_callable=AsyncMock,
             ),
-            patch(
-                "custom_components.eaton_ups_mqtt.config_flow.async_enrol_client_certificate",
-                new_callable=AsyncMock,
-            ) as mock_enrol,
         ):
             result = await entry.start_reauth_flow(hass)
             result = await hass.config_entries.flow.async_configure(
@@ -357,7 +353,7 @@ class TestReconfigureFlow:
         assert result["errors"]["base"] == error_key
 
     async def test_reconfigure_auto_generates_cleared_certs(
-        self, hass: HomeAssistant, full_entry_data, mock_identification
+        self, hass: HomeAssistant, full_entry_data, mock_identification, mock_enrol
     ):
         """Test that clearing cert fields in reconfigure triggers auto-generation."""
         entry = MockConfigEntry(
@@ -399,10 +395,6 @@ class TestReconfigureFlow:
                 "custom_components.eaton_ups_mqtt.async_setup_entry",
                 return_value=True,
             ),
-            patch(
-                "custom_components.eaton_ups_mqtt.config_flow.async_enrol_client_certificate",
-                new_callable=AsyncMock,
-            ) as mock_enrol,
         ):
             result = await entry.start_reconfigure_flow(hass)
             result = await hass.config_entries.flow.async_configure(
