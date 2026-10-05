@@ -119,6 +119,18 @@ class TestMqttCallbacks:
             reason_code=MagicMock(),
         )
         assert mqtt_client._mqtt_connected is False
+        assert mqtt_client._mqtt_rejected is False
+
+    def test_on_disconnect_before_connect(self, mqtt_client, caplog):
+        """Test a disconnect before connecting is recorded as a rejection."""
+        mqtt_client._on_disconnect(
+            _client=MagicMock(),
+            _userdata=None,
+            disconnect_flags=MagicMock(),
+            reason_code=MagicMock(),
+        )
+        assert mqtt_client._mqtt_rejected is True
+        assert "MQTT disconnected" not in caplog.text
 
     def test_on_message_valid_json(self, mqtt_client):
         """Test on_message parses valid JSON messages."""
@@ -488,6 +500,36 @@ class TestAsyncSetupErrors:
                 match=f"after {1} attempts",
             ):
                 await mqtt_client.async_setup()
+
+        mock_client.loop_stop.assert_called_once()
+        assert mqtt_client._mqtt_client is None
+
+    @pytest.mark.asyncio
+    async def test_setup_rejected_connection_fails_fast(self, mqtt_client):
+        """Test that a rejected connection stops waiting and the MQTT loop."""
+        mock_client = MagicMock()
+
+        async def reject(_delay):
+            mqtt_client._mqtt_rejected = True
+
+        with (
+            patch("paho.mqtt.client.Client", return_value=mock_client),
+            patch.object(
+                mqtt_client,
+                "_create_temp_cert_files",
+                new_callable=AsyncMock,
+                return_value=["/tmp/ca", "/tmp/cert", "/tmp/key"],
+            ),
+            patch.object(mqtt_client, "_cleanup_temp_files"),
+            patch("asyncio.sleep", side_effect=reject) as mock_sleep,
+            pytest.raises(
+                EatonUpsClientCommunicationError, match="rejected the connection"
+            ),
+        ):
+            await mqtt_client.async_setup()
+
+        mock_sleep.assert_awaited_once()
+        mock_client.loop_stop.assert_called_once()
 
 
 class TestPrefixDetection:

@@ -17,7 +17,10 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
 from homeassistant.helpers import selector
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from homeassistant.helpers.aiohttp_client import (
+    async_create_clientsession,
+    async_get_clientsession,
+)
 
 from .api import (
     EatonUpsClientAuthenticationError,
@@ -44,6 +47,7 @@ from .const import (
     MQTT_TIMEOUT,
     STEP_DEBOUNCE_INTERVAL,
 )
+from .enrolment import async_enrol_client_certificate
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +186,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
+                await self._enrol_client_cert(final_data)
                 try:
                     await self._test_credentials(
                         host=final_data[CONF_HOST],
@@ -257,6 +262,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             except OSError, TimeoutError:
                 _errors["base"] = "cert_fetch_failed"
             else:
+                await self._enrol_client_cert(final_data)
                 conn_result = await self.hass.async_add_executor_job(
                     try_connection,
                     final_data,
@@ -327,6 +333,14 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 data[CONF_CLIENT_KEY] = key_pem
 
         return data
+
+    async def _enrol_client_cert(self, data: dict[str, Any]) -> None:
+        """Enrol the client certificate with the UPS when it allows that."""
+        await async_enrol_client_certificate(
+            async_get_clientsession(self.hass, verify_ssl=False),
+            data[CONF_HOST],
+            data[CONF_CLIENT_CERT],
+        )
 
     async def _test_credentials(
         self, host: str, port: int, server_cert: str, client_cert: str, client_key: str

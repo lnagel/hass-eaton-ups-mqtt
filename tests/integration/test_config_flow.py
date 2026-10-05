@@ -144,7 +144,7 @@ class TestReauthFlow:
         assert entry.data[CONF_CLIENT_KEY] == updated_input[CONF_CLIENT_KEY]
 
     async def test_reauth_auto_generates_cleared_certs(
-        self, hass: HomeAssistant, full_entry_data
+        self, hass: HomeAssistant, full_entry_data, mock_enrol
     ):
         """Test that clearing cert fields triggers auto-generation."""
         entry = MockConfigEntry(
@@ -192,6 +192,7 @@ class TestReauthFlow:
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reauth_successful"
+        assert mock_enrol.call_args.args[1:] == ("ups.example.local", generated_cert)
         assert entry.data[CONF_SERVER_CERT] == server_cert
         assert entry.data[CONF_CLIENT_CERT] == generated_cert
         assert entry.data[CONF_CLIENT_KEY] == generated_key
@@ -352,7 +353,7 @@ class TestReconfigureFlow:
         assert result["errors"]["base"] == error_key
 
     async def test_reconfigure_auto_generates_cleared_certs(
-        self, hass: HomeAssistant, full_entry_data, mock_identification
+        self, hass: HomeAssistant, full_entry_data, mock_identification, mock_enrol
     ):
         """Test that clearing cert fields in reconfigure triggers auto-generation."""
         entry = MockConfigEntry(
@@ -403,6 +404,7 @@ class TestReconfigureFlow:
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reconfigure_successful"
+        assert mock_enrol.call_args.args[1:] == ("ups.example.local", generated_cert)
         assert entry.data[CONF_SERVER_CERT] == server_cert
         assert entry.data[CONF_CLIENT_CERT] == generated_cert
         assert entry.data[CONF_CLIENT_KEY] == generated_key

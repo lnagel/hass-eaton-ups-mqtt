@@ -12,17 +12,25 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.issue_registry import async_get as async_get_issue_registry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.eaton_ups_mqtt.api import EatonUpsClientCommunicationError
+from custom_components.eaton_ups_mqtt.api import (
+    EatonUpsClientAuthenticationError,
+    EatonUpsClientCommunicationError,
+)
 from custom_components.eaton_ups_mqtt.const import (
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
     CONF_SERVER_CERT,
     DOMAIN,
 )
+from custom_components.eaton_ups_mqtt.enrolment import EnrolmentResult
 
 MOCK_SERVER_CERT = "-----BEGIN CERTIFICATE-----\nSERVER\n-----END CERTIFICATE-----"
 MOCK_CLIENT_CERT = "-----BEGIN CERTIFICATE-----\nCLIENT\n-----END CERTIFICATE-----"
 MOCK_CLIENT_KEY = "-----BEGIN PRIVATE KEY-----\nKEY\n-----END PRIVATE KEY-----"
+
+AUTHENTICATION_FAILURE = EatonUpsClientAuthenticationError("TLS rejected")
+COMMUNICATION_FAILURE = EatonUpsClientCommunicationError("Failed to connect")
+CONNECTION_FAILURES = [AUTHENTICATION_FAILURE, COMMUNICATION_FAILURE]
 
 
 @pytest.fixture
@@ -392,3 +400,202 @@ class TestClientCertFile:
         )
         assert cert_path.exists()
         assert cert_path.read_text() == generated_cert
+
+
+class TestCertificateEnrolment:
+    """Tests for client certificate enrolment during setup."""
+
+    @pytest.fixture
+    def mock_generated_certs(self):
+        """Mock certificate fetching and generation."""
+        with (
+            patch(
+                "custom_components.eaton_ups_mqtt.async_fetch_server_certificate",
+                return_value=MOCK_SERVER_CERT,
+            ),
+            patch(
+                "custom_components.eaton_ups_mqtt.async_generate_client_certificate",
+                return_value=(MOCK_CLIENT_CERT, MOCK_CLIENT_KEY),
+            ),
+        ):
+            yield
+
+    def _get_issue(self, hass: HomeAssistant, entry: MockConfigEntry):
+        return async_get_issue_registry(hass).async_get_issue(
+            DOMAIN, f"cert_upload_{entry.entry_id}"
+        )
+
+    @pytest.mark.usefixtures("mock_mqtt_setup", "mock_generated_certs")
+    @pytest.mark.parametrize(
+        "enrolment", [EnrolmentResult.ENROLLED, EnrolmentResult.ACCEPTED]
+    )
+    async def test_generated_cert_enrolled_connects(
+        self,
+        hass: HomeAssistant,
+        mock_entry_no_certs,
+        mock_enrol,
+        enrolment,
+    ):
+        """Test that setup connects right away once the UPS trusts the new cert."""
+        mock_enrol.return_value = enrolment
+        mock_entry_no_certs.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry_no_certs.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry_no_certs.state == ConfigEntryState.LOADED
+        assert mock_enrol.call_args.args[1:] == ("ups.example.local", MOCK_CLIENT_CERT)
+        assert self._get_issue(hass, mock_entry_no_certs) is None
+
+    @pytest.mark.usefixtures("mock_generated_certs")
+    async def test_generated_cert_pairing_closed(
+        self,
+        hass: HomeAssistant,
+        mock_entry_no_certs,
+        mock_mqtt_setup,
+        mock_enrol,
+    ):
+        """Test that a closed pairing window raises pairing instructions."""
+        mock_enrol.return_value = EnrolmentResult.PAIRING_CLOSED
+        mock_entry_no_certs.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry_no_certs.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry_no_certs.state == ConfigEntryState.SETUP_RETRY
+        mock_mqtt_setup.async_setup.assert_not_called()
+        issue = self._get_issue(hass, mock_entry_no_certs)
+        assert issue is not None
+        assert "Pairing with clients" in issue.translation_placeholders["instructions"]
+
+    async def _setup_then_retry(
+        self, hass: HomeAssistant, entry: MockConfigEntry, mock_enrol, enrolment
+    ):
+        """Set up with pairing closed, then retry with the given enrolment."""
+        mock_enrol.return_value = EnrolmentResult.PAIRING_CLOSED
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        mock_enrol.return_value = enrolment
+        await hass.config_entries.async_reload(entry.entry_id)
+        await hass.async_block_till_done()
+
+    @pytest.mark.usefixtures("mock_generated_certs")
+    async def test_retry_skips_mqtt_while_pairing_closed(
+        self,
+        hass: HomeAssistant,
+        mock_entry_no_certs,
+        mock_mqtt_setup,
+        mock_enrol,
+    ):
+        """Test that retries do not connect while the UPS refuses the cert."""
+        await self._setup_then_retry(
+            hass, mock_entry_no_certs, mock_enrol, EnrolmentResult.PAIRING_CLOSED
+        )
+
+        assert mock_entry_no_certs.state == ConfigEntryState.SETUP_RETRY
+        mock_mqtt_setup.async_setup.assert_not_called()
+        assert self._get_issue(hass, mock_entry_no_certs) is not None
+
+    @pytest.mark.usefixtures("mock_generated_certs", "mock_mqtt_setup")
+    @pytest.mark.parametrize(
+        "enrolment", [EnrolmentResult.ENROLLED, EnrolmentResult.UNAVAILABLE]
+    )
+    async def test_retry_connects_after_pending_upload(
+        self,
+        hass: HomeAssistant,
+        mock_entry_no_certs,
+        mock_enrol,
+        enrolment,
+    ):
+        """Test that a retry connects once the UPS may trust the cert."""
+        await self._setup_then_retry(hass, mock_entry_no_certs, mock_enrol, enrolment)
+
+        assert mock_entry_no_certs.state == ConfigEntryState.LOADED
+        assert self._get_issue(hass, mock_entry_no_certs) is None
+
+    @pytest.mark.parametrize("failure", CONNECTION_FAILURES)
+    async def test_failed_connection_uploads_and_retries(
+        self,
+        hass: HomeAssistant,
+        mock_entry,
+        mock_mqtt_setup,
+        mock_enrol,
+        failure,
+    ):
+        """Test that the cert is uploaded and the connection retried."""
+        mock_mqtt_setup.async_setup.side_effect = failure
+        mock_enrol.return_value = EnrolmentResult.ENROLLED
+        mock_entry.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.SETUP_RETRY
+        assert self._get_issue(hass, mock_entry) is None
+
+    @pytest.mark.parametrize("failure", CONNECTION_FAILURES)
+    async def test_failed_connection_waits_for_pairing(
+        self,
+        hass: HomeAssistant,
+        mock_entry,
+        mock_mqtt_setup,
+        mock_enrol,
+        failure,
+    ):
+        """Test that a refused upload raises pairing instructions and retries."""
+        mock_mqtt_setup.async_setup.side_effect = failure
+        mock_enrol.return_value = EnrolmentResult.PAIRING_CLOSED
+        mock_entry.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.SETUP_RETRY
+        issue = self._get_issue(hass, mock_entry)
+        assert issue is not None
+        assert "Pairing with clients" in issue.translation_placeholders["instructions"]
+
+    @pytest.mark.parametrize(
+        "enrolment", [EnrolmentResult.ACCEPTED, EnrolmentResult.UNAVAILABLE]
+    )
+    async def test_connection_failure_without_issue(
+        self,
+        hass: HomeAssistant,
+        mock_entry,
+        mock_mqtt_setup,
+        mock_enrol,
+        enrolment,
+    ):
+        """Test that an unrelated connection failure raises no instructions."""
+        mock_mqtt_setup.async_setup.side_effect = COMMUNICATION_FAILURE
+        mock_enrol.return_value = enrolment
+        mock_entry.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.SETUP_RETRY
+        assert self._get_issue(hass, mock_entry) is None
+
+    async def test_auth_failure_creates_issue(
+        self,
+        hass: HomeAssistant,
+        mock_entry,
+        mock_mqtt_setup,
+        mock_enrol,
+    ):
+        """Test that a rejected cert that cannot be uploaded raises instructions."""
+        mock_mqtt_setup.async_setup.side_effect = AUTHENTICATION_FAILURE
+        mock_enrol.return_value = EnrolmentResult.UNAVAILABLE
+        mock_entry.add_to_hass(hass)
+
+        await hass.config_entries.async_setup(mock_entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert mock_entry.state == ConfigEntryState.SETUP_ERROR
+        issue = self._get_issue(hass, mock_entry)
+        assert issue is not None
+        instructions = issue.translation_placeholders["instructions"]
+        assert "Pairing with clients" not in instructions

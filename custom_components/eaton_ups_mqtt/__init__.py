@@ -8,7 +8,7 @@ https://github.com/lnagel/hass-eaton-ups
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import (
     CONF_HOST,
@@ -23,6 +23,7 @@ from homeassistant.helpers.issue_registry import (
     async_create_issue,
     async_delete_issue,
 )
+from homeassistant.helpers.issue_registry import async_get as async_get_issue_registry
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import (
@@ -36,6 +37,7 @@ from .certificates import (
 )
 from .const import (
     CERT_DOWNLOAD_STEP_LINK,
+    CERT_PAIRING_INSTRUCTIONS,
     CERT_UPLOAD_INSTRUCTIONS,
     CONF_CLIENT_CERT,
     CONF_CLIENT_KEY,
@@ -47,6 +49,7 @@ from .const import (
 )
 from .coordinator import EatonUPSDataUpdateCoordinator
 from .data import EatonUpsData
+from .enrolment import EnrolmentResult, async_enrol_client_certificate
 
 if TYPE_CHECKING:
     from homeassistant.core import Event, HomeAssistant
@@ -103,12 +106,14 @@ async def async_setup_entry(
     issue_id = ISSUE_ID_CERT_UPLOAD.format(entry_id=entry.entry_id)
     host = data[CONF_HOST]
 
-    if certs_generated:
-        # Don't attempt MQTT connection — user needs to upload the client
-        # cert to the UPS first. HA will retry automatically.
-        _create_cert_upload_issue(hass, entry, host, issue_id)
-        msg = "Waiting for client certificate to be uploaded to UPS"
-        raise ConfigEntryNotReady(msg)
+    upload_pending = async_get_issue_registry(hass).async_get_issue(DOMAIN, issue_id)
+    if certs_generated or upload_pending:
+        enrolment = await _async_enrol_client_certificate(hass, entry, data)
+        if certs_generated and not enrolment.trusted:
+            # Skip MQTT until the generated cert is imported; HA retries
+            _create_cert_upload_issue(hass, entry, host, issue_id)
+            msg = "Waiting for client certificate to be uploaded to UPS"
+            raise ConfigEntryNotReady(msg)
 
     coordinator = EatonUPSDataUpdateCoordinator(
         hass=hass,
@@ -140,12 +145,14 @@ async def async_setup_entry(
     try:
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
+        enrolment = await _async_enrol_client_certificate(hass, entry, data)
+        if enrolment is EnrolmentResult.ENROLLED:
+            msg = "Client certificate uploaded to UPS, retrying connection"
+            raise ConfigEntryNotReady(msg) from err
         # Only show cert upload instructions for authentication/TLS errors
         cause = err.__cause__ or err
         if isinstance(cause, EatonUpsClientAuthenticationError):
             _create_cert_upload_issue(hass, entry, host, issue_id)
-        else:
-            LOGGER.error("Failed to connect to UPS at %s: %s", host, err)
         raise
 
     # Connection succeeded — delete any pending cert upload issue
@@ -199,11 +206,30 @@ def _write_cert_file(config_path: str, entry_id: str, client_cert: str) -> None:
     cert_path.write_text(client_cert)
 
 
+async def _async_enrol_client_certificate(
+    hass: HomeAssistant, entry: EatonUpsConfigEntry, data: dict[str, Any]
+) -> EnrolmentResult:
+    """Enrol the client certificate with the UPS, waiting for pairing if refused."""
+    host = data[CONF_HOST]
+    enrolment = await async_enrol_client_certificate(
+        async_get_clientsession(hass, verify_ssl=False), host, data[CONF_CLIENT_CERT]
+    )
+    if enrolment is EnrolmentResult.PAIRING_CLOSED:
+        issue_id = ISSUE_ID_CERT_UPLOAD.format(entry_id=entry.entry_id)
+        _create_cert_upload_issue(
+            hass, entry, host, issue_id, CERT_PAIRING_INSTRUCTIONS
+        )
+        msg = "Waiting for pairing with clients to be started on UPS"
+        raise ConfigEntryNotReady(msg)
+    return enrolment
+
+
 def _create_cert_upload_issue(
     hass: HomeAssistant,
     entry: EatonUpsConfigEntry,
     host: str,
     issue_id: str,
+    instructions: str = CERT_UPLOAD_INSTRUCTIONS,
 ) -> None:
     """Create a repairs issue with client certificate upload instructions."""
     download_url = f"/local/{DOMAIN}/{_get_cert_filename(entry.entry_id)}"
@@ -215,7 +241,7 @@ def _create_cert_upload_issue(
         severity=IssueSeverity.WARNING,
         translation_key="cert_upload_required",
         translation_placeholders={
-            "instructions": CERT_UPLOAD_INSTRUCTIONS.format(
+            "instructions": instructions.format(
                 host=host,
                 download_step=CERT_DOWNLOAD_STEP_LINK.format(
                     download_url=download_url,

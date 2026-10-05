@@ -43,7 +43,7 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 2. Restart Home Assistant.
 3. Add the integration through the Home Assistant UI.
 4. Enter your UPS hostname/IP and MQTT port (certificates are auto-generated).
-5. Check **Settings > System > Repairs** to download the client certificate and upload it to your UPS web interface.
+5. Start **Pairing with clients** under **Settings > Certificate** in your UPS web interface, and the client certificate is uploaded automatically. Otherwise, check **Settings > System > Repairs** to download the client certificate and import it in the UPS web interface.
 
 ## Configuration
 

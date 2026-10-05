@@ -16,8 +16,24 @@ from custom_components.eaton_ups_mqtt.certificates import (
     fetch_server_certificate,
     generate_client_certificate,
     get_common_name,
+    get_subject_hash,
 )
 from custom_components.eaton_ups_mqtt.const import CERT_VALIDITY_YEARS
+
+TEST_HOST_CERT = """-----BEGIN CERTIFICATE-----
+MIIBFTCBu6ADAgECAgEBMAoGCCqGSM49BAMEMBQxEjAQBgNVBAMMCXRlc3QtaG9z
+dDAeFw0yNjAxMDEwMDAwMDBaFw00MDEyMjgwMDAwMDBaMBQxEjAQBgNVBAMMCXRl
+c3QtaG9zdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABAiOcDL5nL8zjSm7KvM2
+gD0pEamtaL6J7ebIuSTd0XNosnm+hs61O63NnImnYSGL58u3LbaDiIqFpPnEvpB6
+jxEwCgYIKoZIzj0EAwQDSQAwRgIhAJsWHOAg0/ehfNZ3t77laUFdWWs7wadoA9Wn
+lmK9giWuAiEA53Cl+B0cCXeMShf0dJPKI7Q7fOrGOJjCNB8bRfC9S2c=
+-----END CERTIFICATE-----
+"""
+
+
+def _get_cn(cert: x509.Certificate) -> str:
+    """Return the common name of a certificate."""
+    return cert.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME)[0].value
 
 
 class TestGenerateClientCertificate:
@@ -55,13 +71,28 @@ class TestGenerateClientCertificate:
         cert = x509.load_pem_x509_certificate(cert_pem.encode())
         assert isinstance(cert.signature_hash_algorithm, hashes.SHA512)
 
-    def test_correct_subject_cn(self):
-        """Test that the certificate has the correct common name."""
+    def test_subject_cn_has_public_key_hash(self):
+        """Test that the common name ends with the start of the public key hash."""
         cert_pem, _key_pem = generate_client_certificate("my-ha-instance")
 
         cert = x509.load_pem_x509_certificate(cert_pem.encode())
-        cn = cert.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME)[0].value
-        assert cn == "my-ha-instance"
+        key_hash = x509.SubjectKeyIdentifier.from_public_key(cert.public_key()).digest
+        assert _get_cn(cert) == f"my-ha-instance-{key_hash.hex()[:8]}"
+
+    def test_long_common_name_is_truncated(self):
+        """Test that a long name is cut to fit the key hash in 64 characters."""
+        cert_pem, _key_pem = generate_client_certificate("a" * 70)
+
+        cn = _get_cn(x509.load_pem_x509_certificate(cert_pem.encode()))
+        assert len(cn) == 64
+        assert cn.startswith("a" * 55 + "-")
+
+    def test_regenerated_certificate_has_own_subject_hash(self):
+        """Test that two certificates for the same name differ in subject hash."""
+        first, _key_pem = generate_client_certificate("test-host")
+        second, _key_pem = generate_client_certificate("test-host")
+
+        assert get_subject_hash(first) != get_subject_hash(second)
 
     def test_self_signed(self):
         """Test that the certificate is self-signed (issuer == subject)."""
@@ -79,6 +110,19 @@ class TestGenerateClientCertificate:
         expected_days = 365 * CERT_VALIDITY_YEARS
         # Allow 1 day tolerance
         assert abs(delta.days - expected_days) <= 1
+
+
+class TestGetSubjectHash:
+    """Tests for get_subject_hash."""
+
+    def test_matches_openssl_subject_hash(self):
+        """Test the hash against `openssl x509 -subject_hash` for the same cert."""
+        assert get_subject_hash(TEST_HOST_CERT) == "e61bb764"
+
+    def test_rejects_invalid_pem(self):
+        """Test that an unparsable certificate raises ValueError."""
+        with pytest.raises(ValueError, match="PEM"):
+            get_subject_hash("not a certificate")
 
 
 class TestFetchServerCertificate:

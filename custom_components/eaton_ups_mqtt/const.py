@@ -16,10 +16,10 @@ DEFAULT_PORT = 8883
 
 CERT_VALIDITY_YEARS = 15
 CERT_DEFAULT_CN = "Home Assistant"
+CERT_CN_MAX_LENGTH = 64
+CERT_KEY_HASH_LENGTH = 8
 
-CERT_UPLOAD_INSTRUCTIONS = (
-    "A client certificate was auto-generated for your Eaton UPS at **{host}**."
-    "\n\nTo complete setup:"
+CERT_IMPORT_STEPS = (
     "\n1. {download_step}"
     "\n2. Open the UPS web interface at [https://{host}](https://{host})"
     "\n3. Navigate to **Settings \u2192 Certificate**"
@@ -28,8 +28,25 @@ CERT_UPLOAD_INSTRUCTIONS = (
     "\n5. Select **Protected applications (MQTT)**"
     "\n6. Click **Browse** and select the downloaded file"
     "\n7. Click **Import**"
-    "\n\nThe integration will automatically connect once the certificate"
-    " is uploaded. You may need to reload the integration after uploading."
+)
+
+CERT_UPLOAD_INSTRUCTIONS = (
+    "A client certificate was auto-generated for your Eaton UPS at **{host}**."
+    "\n\nTo complete setup:" + CERT_IMPORT_STEPS + "\n\nThe integration will"
+    " automatically connect once the certificate is uploaded."
+    " You may need to reload the integration after uploading."
+)
+
+CERT_PAIRING_INSTRUCTIONS = (
+    "The Eaton UPS at **{host}** does not trust the client certificate yet."
+    "\n\nTo let Home Assistant upload it automatically:"
+    "\n1. Open **Settings \u2192 Certificate** in the UPS web interface at"
+    " [https://{host}/settings/certificate](https://{host}/settings/certificate)"
+    "\n2. Under **Pairing with clients**, choose how long to trust new client"
+    " certificates and click **Start**"
+    "\n\nThe certificate is uploaded on the next connection attempt."
+    " Reload the integration to retry immediately."
+    "\n\nAlternatively, import it manually:" + CERT_IMPORT_STEPS
 )
 
 CERT_DOWNLOAD_STEP_LINK = (
@@ -39,6 +56,9 @@ CERT_DOWNLOAD_STEP_LINK = (
 CERT_DOWNLOAD_STEP_REPAIRS = (
     "Check **Settings \u2192 System \u2192 Repairs** to download the client certificate"
 )
+
+# Seconds to wait for each request to the certificate enrolment API
+ENROLMENT_TIMEOUT = 10
 
 MQTT_TIMEOUT = 5
 MQTT_CONNECTION_ATTEMPTS = 10
