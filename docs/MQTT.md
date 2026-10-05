@@ -614,7 +614,7 @@ It needs no authentication, but the card only accepts it (`200`) while pairing w
 clients is started in the web interface; otherwise it answers `401`.
 
 The integration checks the status of its client certificate and uploads it when
-needed: after generating a certificate, when the card rejects the MQTT connection,
+needed: after generating a certificate, when the MQTT connection cannot be set up,
 and in the reauthentication and reconfiguration flows. If the upload is refused or
 the API is not reachable, a repair issue explains how to start pairing or import the
 certificate manually.

@@ -144,13 +144,16 @@ async def async_setup_entry(
     try:
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
-        # Only show cert upload instructions for authentication/TLS errors
+        enrolment = await _async_enrol_client_certificate(hass, data)
+        if enrolment is EnrolmentResult.ENROLLED:
+            msg = "Client certificate uploaded to UPS, retrying connection"
+            raise ConfigEntryNotReady(msg) from err
+        # Only show cert upload instructions when the UPS does not trust the
+        # client cert or for authentication/TLS errors
         cause = err.__cause__ or err
-        if isinstance(cause, EatonUpsClientAuthenticationError):
-            enrolment = await _async_enrol_client_certificate(hass, data)
-            if enrolment is EnrolmentResult.ENROLLED:
-                msg = "Client certificate uploaded to UPS, retrying connection"
-                raise ConfigEntryNotReady(msg) from err
+        if enrolment is EnrolmentResult.PAIRING_CLOSED or isinstance(
+            cause, EatonUpsClientAuthenticationError
+        ):
             _create_cert_upload_issue(hass, entry, host, issue_id, enrolment)
         else:
             LOGGER.error("Failed to connect to UPS at %s: %s", host, err)
