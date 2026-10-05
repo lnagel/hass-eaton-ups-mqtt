@@ -35,16 +35,16 @@ CERT_UPLOAD_INSTRUCTIONS = (
 CERT_PAIRING_INSTRUCTIONS = (
     "The Eaton UPS at **{host}** does not trust the client certificate yet."
     "\n\nTo let Home Assistant upload it automatically:"
-    "\n1. Open the UPS web interface at [https://{host}](https://{host})"
-    "\n2. Navigate to **Settings \u2192 Certificate**"
-    " \u2192 **Pairing with clients**"
-    "\n3. Click **Start**"
+    "\n1. Open **Settings \u2192 Certificate** in the UPS web interface at"
+    " [https://{host}/settings/certificate](https://{host}/settings/certificate)"
+    "\n2. Under **Pairing with clients**, choose how long to trust new client"
+    " certificates and click **Start**"
     "\n\nThe certificate is uploaded on the next connection attempt."
     " Reload the integration to retry immediately."
     "\n\nAlternatively, import it manually:"
     "\n1. {download_step}"
-    "\n2. Under **Settings \u2192 Certificate**"
-    " \u2192 **Trusted remote certificates**, click **Import**"
+    "\n2. On the same page, under **Trusted remote certificates**,"
+    " click **Import**"
     "\n3. Select **Protected applications (MQTT)** and import the downloaded file"
 )
 
