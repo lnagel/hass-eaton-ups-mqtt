@@ -399,6 +399,10 @@ class TestReconfigureFlow:
                 "custom_components.eaton_ups_mqtt.async_setup_entry",
                 return_value=True,
             ),
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.async_enrol_client_certificate",
+                new_callable=AsyncMock,
+            ) as mock_enrol,
         ):
             result = await entry.start_reconfigure_flow(hass)
             result = await hass.config_entries.flow.async_configure(
@@ -408,6 +412,7 @@ class TestReconfigureFlow:
 
         assert result["type"] == FlowResultType.ABORT
         assert result["reason"] == "reconfigure_successful"
+        assert mock_enrol.call_args.args[1:] == ("ups.example.local", generated_cert)
         assert entry.data[CONF_SERVER_CERT] == server_cert
         assert entry.data[CONF_CLIENT_CERT] == generated_cert
         assert entry.data[CONF_CLIENT_KEY] == generated_key
