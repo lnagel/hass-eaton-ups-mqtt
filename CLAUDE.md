@@ -62,7 +62,7 @@ custom_components/eaton_ups_mqtt/    # Main integration code
 ├── const.py                         # Constants and configuration
 ├── coordinator.py                   # Data update coordinator
 ├── data.py                          # Runtime data types
-├── enrolment.py                     # Client certificate enrolment (REST)
+├── enrolment.py                     # Client certificate enrolment
 ├── sensor.py                        # Sensor entities
 ├── binary_sensor.py                 # Binary sensor entities
 ├── manifest.json                    # Integration manifest
@@ -74,7 +74,7 @@ tests/                               # Test suite
 
 docs/                                # Documentation
 ├── MQTT.md                          # MQTT communication documentation
-├── certificate-enrolment.md         # Client certificate enrolment API
+├── certificate-enrolment.md         # Client certificate enrolment
 └── eaton-network-m2-openapi.yaml    # Network-M2 OpenAPI spec
 ```
 
