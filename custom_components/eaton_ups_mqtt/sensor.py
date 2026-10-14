@@ -802,9 +802,13 @@ class EatonUpsSensor(EatonUpsEntity, SensorEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._update_attrs()
 
-    @property
-    def native_value(self) -> Any:
+    def _update_attrs(self) -> None:
+        """Set the sensor value from coordinator data."""
+        self._attr_native_value = self._get_native_value()
+
+    def _get_native_value(self) -> Any:
         """Return the native value of the sensor."""
         if not self.coordinator.data:
             return None
