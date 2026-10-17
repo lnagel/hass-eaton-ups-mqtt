@@ -17,6 +17,7 @@ from custom_components.eaton_ups_mqtt.certificates import (
     generate_client_certificate,
     get_subject_hash,
 )
+from custom_components.eaton_ups_mqtt.const import USER_AGENT
 from custom_components.eaton_ups_mqtt.enrolment import (
     EnrolmentResult,
     async_enrol_client_certificate,
@@ -77,10 +78,11 @@ class TestEnrolClientCertificate:
         aioclient_mock.post(CLIENTS_URL)
 
         assert await enrol() is EnrolmentResult.ENROLLED
-        method, url, data, _headers = aioclient_mock.mock_calls[1]
+        method, url, data, headers = aioclient_mock.mock_calls[1]
         assert method == "POST"
         assert str(url) == CLIENTS_URL
         assert data == {"format": "PEM", "certificate": cert_pem}
+        assert headers["User-Agent"] == USER_AGENT
 
     async def test_pairing_closed(self, aioclient_mock, enrol, status_url):
         """Test that a refused upload reports the pairing window as closed."""

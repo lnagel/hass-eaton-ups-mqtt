@@ -9,11 +9,12 @@ import aiohttp
 from yarl import URL
 
 from .certificates import get_subject_hash
-from .const import ENROLMENT_TIMEOUT, LOGGER
+from .const import ENROLMENT_TIMEOUT, LOGGER, USER_AGENT
 
 CLIENTS_PATH = "/etn/v1/comm/certificates/mqtt/clients"
 STATUS_ACCEPTED = "accepted"
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=ENROLMENT_TIMEOUT)
+HEADERS = {"User-Agent": USER_AGENT}
 
 
 class EnrolmentResult(StrEnum):
@@ -51,6 +52,7 @@ async def async_enrol_client_certificate(
         async with session.post(
             clients_url,
             json={"format": "PEM", "certificate": cert_pem},
+            headers=HEADERS,
             timeout=REQUEST_TIMEOUT,
         ) as response:
             if response.status == HTTPStatus.UNAUTHORIZED:
@@ -67,7 +69,9 @@ async def async_enrol_client_certificate(
 
 async def _async_is_accepted(session: aiohttp.ClientSession, status_url: URL) -> bool:
     """Return whether the card reports the client certificate as accepted."""
-    async with session.get(status_url, timeout=REQUEST_TIMEOUT) as response:
+    async with session.get(
+        status_url, headers=HEADERS, timeout=REQUEST_TIMEOUT
+    ) as response:
         if response.status == HTTPStatus.NOT_FOUND:
             return False
         response.raise_for_status()

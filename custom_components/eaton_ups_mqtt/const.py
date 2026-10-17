@@ -1,12 +1,20 @@
 """Constants for eaton_ups_mqtt."""
 
+import json
 from logging import Logger, getLogger
+from pathlib import Path
 from typing import Final
+
+from homeassistant.helpers.aiohttp_client import SERVER_SOFTWARE
 
 LOGGER: Logger = getLogger(__package__)
 
 DOMAIN = "eaton_ups_mqtt"
 ATTRIBUTION = "Data provided by Eaton UPS"
+
+_MANIFEST = json.loads((Path(__file__).parent / "manifest.json").read_text())
+VERSION = _MANIFEST["version"]
+USER_AGENT = f"hass-eaton-ups-mqtt/{VERSION} {SERVER_SOFTWARE}"
 
 CONF_SERVER_CERT: Final = "server_cert"
 CONF_CLIENT_KEY: Final = "client_key"
