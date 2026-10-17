@@ -289,7 +289,8 @@ class EatonUpsMqttClient:
         if not self._mqtt_connected:
             self._mqtt_rejected = True
             return
-        logger.warning(
+        log = logger.warning if reason_code.is_failure else logger.debug
+        log(
             "MQTT disconnected from %s:%s (reason: %s, server_sent=%s)",
             self._host,
             self._port,

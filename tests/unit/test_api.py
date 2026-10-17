@@ -7,6 +7,8 @@ import ssl
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.reasoncodes import ReasonCode
 
 from custom_components.eaton_ups_mqtt.api import (
     EatonUpsClientAuthenticationError,
@@ -120,6 +122,32 @@ class TestMqttCallbacks:
         )
         assert mqtt_client._mqtt_connected is False
         assert mqtt_client._mqtt_rejected is False
+
+    def test_on_disconnect_requested_logs_debug(self, mqtt_client, caplog):
+        """Test a disconnect we requested is not reported as a warning."""
+        mqtt_client._mqtt_connected = True
+        with caplog.at_level("DEBUG"):
+            mqtt_client._on_disconnect(
+                _client=MagicMock(),
+                _userdata=None,
+                disconnect_flags=MagicMock(),
+                reason_code=ReasonCode(PacketTypes.DISCONNECT, "Success"),
+            )
+        assert [r.levelname for r in caplog.records] == ["DEBUG"]
+        assert mqtt_client._mqtt_connected is False
+
+    def test_on_disconnect_lost_logs_warning(self, mqtt_client, caplog):
+        """Test a lost connection is reported as a warning."""
+        mqtt_client._mqtt_connected = True
+        with caplog.at_level("DEBUG"):
+            mqtt_client._on_disconnect(
+                _client=MagicMock(),
+                _userdata=None,
+                disconnect_flags=MagicMock(),
+                reason_code=ReasonCode(PacketTypes.DISCONNECT, "Unspecified error"),
+            )
+        assert [r.levelname for r in caplog.records] == ["WARNING"]
+        assert mqtt_client._mqtt_connected is False
 
     def test_on_disconnect_before_connect(self, mqtt_client, caplog):
         """Test a disconnect before connecting is recorded as a rejection."""
