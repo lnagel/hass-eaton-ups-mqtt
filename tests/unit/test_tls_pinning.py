@@ -12,7 +12,7 @@ entirely in memory, testing real OpenSSL certificate validation logic.
 from __future__ import annotations
 
 import contextlib
-import datetime
+import datetime as dt
 import ssl
 import tempfile
 from pathlib import Path
@@ -29,7 +29,7 @@ def _generate_self_signed_cert(cn: str) -> tuple[str, str]:
     """Generate a self-signed certificate with the given CN."""
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     subject = issuer = x509.Name([x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, cn)])
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -37,7 +37,7 @@ def _generate_self_signed_cert(cn: str) -> tuple[str, str]:
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=1))
+        .not_valid_after(now + dt.timedelta(days=1))
         .sign(key, hashes.SHA256())
     )
     cert_pem = cert.public_bytes(serialization.Encoding.PEM).decode()
