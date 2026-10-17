@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import ssl
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
@@ -49,7 +49,7 @@ def generate_client_certificate(common_name: str) -> tuple[str, str]:
         [x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, common_name)]
     )
 
-    now = datetime.datetime.now(datetime.UTC)
+    now = dt.datetime.now(dt.UTC)
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -57,7 +57,7 @@ def generate_client_certificate(common_name: str) -> tuple[str, str]:
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=365 * CERT_VALIDITY_YEARS))
+        .not_valid_after(now + dt.timedelta(days=365 * CERT_VALIDITY_YEARS))
         .sign(key, hashes.SHA512())
     )
 
