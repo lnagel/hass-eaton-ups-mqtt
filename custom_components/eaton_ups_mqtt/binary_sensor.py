@@ -397,9 +397,13 @@ class EatonUpsBinarySensor(EatonUpsEntity, BinarySensorEntity):
         self._attr_unique_id = (
             f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         )
+        self._update_attrs()
 
-    @property
-    def is_on(self) -> bool | None:
+    def _update_attrs(self) -> None:
+        """Set the binary_sensor state from coordinator data."""
+        self._attr_is_on = self._compute_is_on()
+
+    def _compute_is_on(self) -> bool | None:
         """Return true if the binary_sensor is on."""
         if not self.coordinator.data:
             return None
