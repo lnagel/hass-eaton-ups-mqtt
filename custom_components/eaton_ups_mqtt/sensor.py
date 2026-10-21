@@ -13,12 +13,12 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    PERCENTAGE,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
     UnitOfFrequency,
     UnitOfPower,
+    UnitOfRatio,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -244,7 +244,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/backupSystem/powerBank/measures$stateOfCharge",
         name="Backup State of Charge",
         translation_key="backup_state_of_charge",
-        native_unit_of_measurement=PERCENTAGE,
+        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
         device_class=SensorDeviceClass.BATTERY,
         state_class=SensorStateClass.MEASUREMENT,
     ),
@@ -269,7 +269,7 @@ BASE_ENTITY_DESCRIPTIONS = (
         key="powerDistributions/1/backupSystem/powerBank/settings$lowStateOfChargeThreshold",
         name="Backup Low Charge Threshold",
         translation_key="backup_low_charge_threshold",
-        native_unit_of_measurement=PERCENTAGE,
+        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
     ),
     # Backup System - Power Bank Specifications
     SensorEntityDescription(
@@ -478,7 +478,7 @@ def _generate_output_descriptions(
             key=f"powerDistributions/1/outputs/{output_num}/measures$percentLoad",
             name=f"Output {output_num} Load",
             translation_key="output_load",
-            native_unit_of_measurement=PERCENTAGE,
+            native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
             state_class=SensorStateClass.MEASUREMENT,
         ),
         SensorEntityDescription(
@@ -492,7 +492,7 @@ def _generate_output_descriptions(
             key=f"powerDistributions/1/outputs/{output_num}/measures$efficiency",
             name=f"Output {output_num} Efficiency",
             translation_key="output_efficiency",
-            native_unit_of_measurement=PERCENTAGE,
+            native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
             state_class=SensorStateClass.MEASUREMENT,
         ),
         SensorEntityDescription(
@@ -666,7 +666,7 @@ def _generate_sensor_humidity_description(
         key=f"sensors/devices/{device_id}/channels/humidities/{channel_id}/measures$current",
         name=f"{channel_name} Humidity",
         translation_key="sensor_humidity",
-        native_unit_of_measurement=PERCENTAGE,
+        native_unit_of_measurement=UnitOfRatio.PERCENTAGE,
         suggested_display_precision=1,
         device_class=SensorDeviceClass.HUMIDITY,
         state_class=SensorStateClass.MEASUREMENT,
