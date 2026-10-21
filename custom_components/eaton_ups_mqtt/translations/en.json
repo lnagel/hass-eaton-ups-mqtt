@@ -45,7 +45,6 @@
         },
         "abort": {
             "already_configured": "This entry is already configured.",
-            "reauth_successful": "Re-authentication was successful.",
             "reconfigure_successful": "Reconfiguration was successful."
         }
     },

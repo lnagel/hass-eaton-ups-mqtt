@@ -44,8 +44,7 @@
             "invalid_response": "Connected to the UPS but received an invalid response."
         },
         "abort": {
-            "already_configured": "This entry is already configured.",
-            "reauth_successful": "Re-authentication was successful."
+            "already_configured": "This entry is already configured."
         }
     },
     "issues": {
