@@ -133,6 +133,7 @@ async def async_setup_entry(
         client=EatonUpsMqttClient(config=config, session=async_get_clientsession(hass)),
         integration=async_get_loaded_integration(hass, entry.domain),
         coordinator=coordinator,
+        config_data=dict(entry.data),
     )
 
     async def _async_disconnect_on_stop(_event: Event) -> None:
@@ -178,16 +179,21 @@ async def async_unload_entry(
 
 
 async def async_update_entry(
-    hass: HomeAssistant,  # noqa: ARG001
+    hass: HomeAssistant,
     entry: EatonUpsConfigEntry,
 ) -> None:
     """
-    Apply updated options without reloading.
+    Reload on connection changes, apply updated options in place.
 
-    Reloading would tear down the MQTT connection and reconnect, which is
-    needless for a tuning option. Connection changes are reloaded separately
-    by the reauth and reconfigure flows.
+    Reauth and reconfigure save new connection data, which needs a reload.
+    Options are applied without reloading, since tearing down the MQTT
+    connection and reconnecting is needless for a tuning option.
     """
+    if entry.data != entry.runtime_data.config_data:
+        LOGGER.debug("Config entry data changed, reloading entry")
+        await hass.config_entries.async_reload(entry.entry_id)
+        return
+
     coordinator = entry.runtime_data.coordinator
     coordinator.debounce_interval = _get_debounce_interval(entry)
     LOGGER.debug("Debounce interval set to %s seconds", coordinator.debounce_interval)

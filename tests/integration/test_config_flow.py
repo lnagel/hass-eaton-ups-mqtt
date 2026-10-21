@@ -26,6 +26,7 @@ from custom_components.eaton_ups_mqtt.const import (
     DEFAULT_DEBOUNCE_INTERVAL,
     DOMAIN,
 )
+from custom_components.eaton_ups_mqtt.enrolment import EnrolmentResult
 
 MOCK_SERVER_CERT = "-----BEGIN CERTIFICATE-----\nSERVER\n-----END CERTIFICATE-----"
 MOCK_CLIENT_CERT = "-----BEGIN CERTIFICATE-----\nCLIENT\n-----END CERTIFICATE-----"
@@ -532,3 +533,129 @@ class TestOptionsFlow:
             await hass.config_entries.options.async_configure(
                 result["flow_id"], {CONF_DEBOUNCE_INTERVAL: interval}
             )
+
+
+class TestFlowReload:
+    """Tests for reloading the entry after reauth and reconfigure."""
+
+    async def test_reconfigure_reloads_via_update_listener(
+        self,
+        hass: HomeAssistant,
+        full_entry_data,
+        mock_identification,
+        mock_mqtt_setup,
+    ):
+        """Test a loaded entry is reloaded by its listener, not by the flow."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        coordinator = entry.runtime_data.coordinator
+
+        updated_input = {**full_entry_data, CONF_HOST: "new-ups.example.local"}
+        with (
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.try_connection",
+                return_value=ConnectionResult(identification=mock_identification),
+            ),
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._enrol_client_cert",
+                new_callable=AsyncMock,
+            ),
+            patch("homeassistant.config_entries.report_usage") as mock_report_usage,
+        ):
+            result = await entry.start_reconfigure_flow(hass)
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"], updated_input
+            )
+            await hass.async_block_till_done()
+
+        # No deprecation for combining an update listener with a flow reload
+        mock_report_usage.assert_not_called()
+        assert result["type"] == FlowResultType.ABORT
+        assert result["reason"] == "reconfigure_successful"
+        assert entry.state == config_entries.ConfigEntryState.LOADED
+        # New coordinator instance: the entry was reloaded
+        assert entry.runtime_data.coordinator is not coordinator
+        assert entry.runtime_data.config_data[CONF_HOST] == "new-ups.example.local"
+
+    async def test_reconfigure_unchanged_data_keeps_entry(
+        self,
+        hass: HomeAssistant,
+        full_entry_data,
+        mock_identification,
+        mock_mqtt_setup,
+    ):
+        """Test reconfigure with unchanged data does not reload the entry."""
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+        coordinator = entry.runtime_data.coordinator
+
+        with (
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.try_connection",
+                return_value=ConnectionResult(identification=mock_identification),
+            ),
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._enrol_client_cert",
+                new_callable=AsyncMock,
+            ),
+        ):
+            result = await entry.start_reconfigure_flow(hass)
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"], dict(full_entry_data)
+            )
+            await hass.async_block_till_done()
+
+        assert result["reason"] == "reconfigure_successful"
+        assert entry.runtime_data.coordinator is coordinator
+
+    async def test_reauth_reloads_entry_that_failed_setup(
+        self,
+        hass: HomeAssistant,
+        full_entry_data,
+        mock_mqtt_setup,
+    ):
+        """Test reauth reloads an entry with no update listener registered."""
+        mock_mqtt_setup.async_setup.side_effect = EatonUpsClientAuthenticationError(
+            "TLS rejected"
+        )
+        entry = MockConfigEntry(domain=DOMAIN, data=full_entry_data)
+        entry.add_to_hass(hass)
+        with patch(
+            "custom_components.eaton_ups_mqtt.async_enrol_client_certificate",
+            new_callable=AsyncMock,
+            return_value=EnrolmentResult.UNAVAILABLE,
+        ):
+            await hass.config_entries.async_setup(entry.entry_id)
+            await hass.async_block_till_done()
+
+        assert entry.state == config_entries.ConfigEntryState.SETUP_ERROR
+        assert not entry.update_listeners
+
+        mock_mqtt_setup.async_setup.side_effect = None
+        updated_input = {
+            **full_entry_data,
+            CONF_CLIENT_KEY: "-----BEGIN PRIVATE KEY-----\nNEWKEY\n-----END PRIVATE KEY-----",
+        }
+        with (
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._test_credentials",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "custom_components.eaton_ups_mqtt.config_flow.EatonUpsFlowHandler._enrol_client_cert",
+                new_callable=AsyncMock,
+            ),
+        ):
+            result = await entry.start_reauth_flow(hass)
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"], updated_input
+            )
+            await hass.async_block_till_done()
+
+        assert result["reason"] == "reauth_successful"
+        assert entry.state == config_entries.ConfigEntryState.LOADED
+        assert entry.runtime_data.config_data == updated_input

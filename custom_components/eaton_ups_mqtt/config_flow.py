@@ -208,10 +208,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     LOGGER.exception(exception)
                     _errors["base"] = "unknown"
                 else:
-                    return self.async_update_reload_and_abort(
-                        reauth_entry,
-                        data=final_data,
-                    )
+                    return self._async_save_and_abort(reauth_entry, final_data)
 
         current_state = user_input or reauth_entry.data
 
@@ -275,10 +272,7 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     conn_result.identification
                     and "macAddress" in conn_result.identification
                 ):
-                    return self.async_update_reload_and_abort(
-                        reconfigure_entry,
-                        data=final_data,
-                    )
+                    return self._async_save_and_abort(reconfigure_entry, final_data)
 
                 logger.error(
                     "Reconfigure connection test failed: %s",
@@ -316,6 +310,19 @@ class EatonUpsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=_errors,
         )
+
+    @callback
+    def _async_save_and_abort(
+        self,
+        entry: config_entries.ConfigEntry,
+        data: dict[str, Any],
+    ) -> config_entries.ConfigFlowResult:
+        """Save the new connection data and finish the flow."""
+        if entry.update_listeners:
+            # Loaded entry: the update listener reloads when the data changed
+            return self.async_update_and_abort(entry, data=data)
+        # Setup never completed, so no listener is registered to reload it
+        return self.async_update_reload_and_abort(entry, data=data)
 
     async def _auto_fill_certs(self, data: dict[str, Any]) -> dict[str, Any]:
         """
