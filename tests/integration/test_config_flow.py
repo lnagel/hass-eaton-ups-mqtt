@@ -10,7 +10,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.eaton_ups_mqtt.api import (
     EatonUpsClientAuthenticationError,
@@ -301,7 +301,7 @@ class TestReconfigureFlow:
             ),
             patch(
                 "custom_components.eaton_ups_mqtt.async_setup_entry",
-                return_value=True,
+                return_value=None,
             ),
         ):
             result = await entry.start_reconfigure_flow(hass)
@@ -394,7 +394,7 @@ class TestReconfigureFlow:
             ),
             patch(
                 "custom_components.eaton_ups_mqtt.async_setup_entry",
-                return_value=True,
+                return_value=None,
             ),
         ):
             result = await entry.start_reconfigure_flow(hass)

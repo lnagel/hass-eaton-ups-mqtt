@@ -15,14 +15,11 @@ from custom_components.eaton_ups_mqtt.enrolment import EnrolmentResult
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-# Register pytest-homeassistant-custom-component plugin
-pytest_plugins = "pytest_homeassistant_custom_component"
 
-
-@pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations):
-    """Enable custom integrations for all tests."""
-    return
+@pytest.fixture
+def hass_config_dir(hass_tmp_config_dir: str) -> str:
+    """Use a temporary config directory, setup writes certificates into it."""
+    return hass_tmp_config_dir
 
 
 @pytest.fixture(autouse=True)
