@@ -1,5 +1,4 @@
 {
     "name": "Eaton UPS MQTT",
-    "homeassistant": "2026.7.0",
-    "hacs": "2.0.5"
+    "homeassistant": "2026.11.0"
 }

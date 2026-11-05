@@ -68,7 +68,7 @@ ISSUE_ID_CERT_UPLOAD = "cert_upload_{entry_id}"
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: EatonUpsConfigEntry,
-) -> bool:
+) -> None:
     """Set up this integration using UI."""
     # Auto-generate certificates if missing
     data = dict(entry.data)
@@ -162,8 +162,6 @@ async def async_setup_entry(
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_update_entry))
 
-    return True
-
 
 def _get_debounce_interval(entry: EatonUpsConfigEntry) -> float:
     """Return the configured debounce interval in seconds."""
@@ -173,9 +171,9 @@ def _get_debounce_interval(entry: EatonUpsConfigEntry) -> float:
 async def async_unload_entry(
     hass: HomeAssistant,
     entry: EatonUpsConfigEntry,
-) -> bool:
+) -> None:
     """Handle removal of an entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_unload_platforms_or_raise(entry, PLATFORMS)
 
 
 async def async_update_entry(

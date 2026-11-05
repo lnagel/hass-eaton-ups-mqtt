@@ -32,8 +32,7 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 ## Requirements
 
 - An Eaton UPS device with Network-M2 or Network-M3 management card
-- Home Assistant 2026.7.0 or newer
-- HACS 2.0.1 or newer
+- Home Assistant 2026.11.0 or newer
 
 ## Installation
 
@@ -89,7 +88,7 @@ This repository contains multiple files, here is an overview:
 ## Next steps
 
 These are some next steps you may want to look into:
-- Add tests to your integration, [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component) can help you get started.
+- Add tests to your integration, [`pytest-homeassistant`](https://github.com/home-assistant/core/tree/dev/packages/pytest-homeassistant) can help you get started.
 - Add brand images (logo/icon) to https://github.com/home-assistant/brands.
 - Create your first release.
 - Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
