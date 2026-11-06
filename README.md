@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/lnagel/hass-eaton-ups-mqtt)](https://github.com/lnagel/hass-eaton-ups-mqtt/releases)
 [![License](https://img.shields.io/github/license/lnagel/hass-eaton-ups-mqtt)](https://github.com/lnagel/hass-eaton-ups-mqtt/blob/main/LICENSE)
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
+[![Marketplace](https://img.shields.io/badge/Home_Assistant-Marketplace-41BDF5.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
 [![CI](https://img.shields.io/github/actions/workflow/status/lnagel/hass-eaton-ups-mqtt/checks.yml?branch=main&label=tests)](https://github.com/lnagel/hass-eaton-ups-mqtt/actions)
 [![codecov](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt/branch/main/graph/badge.svg)](https://codecov.io/gh/lnagel/hass-eaton-ups-mqtt)
 
@@ -36,11 +36,11 @@ A Home Assistant integration that connects to Eaton UPS devices through their Ne
 
 ## Installation
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
+[![Open your Home Assistant instance and open a repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=lnagel&repository=hass-eaton-ups-mqtt&category=integration)
 
-1. Add this repository to HACS or copy the `custom_components/eaton_ups_mqtt` folder to your Home Assistant configuration directory.
-2. Restart Home Assistant.
-3. Add the integration through the Home Assistant UI.
+1. Open **Settings > Marketplace** in Home Assistant, or use the button above.
+2. Search for "Eaton UPS MQTT" and select **Install**.
+3. Continue with the integration setup when prompted.
 4. Enter your UPS hostname/IP and MQTT port (certificates are auto-generated).
 5. Start **Pairing with clients** under **Settings > Certificate** in your UPS web interface, and the client certificate is uploaded automatically. Otherwise, check **Settings > System > Repairs** to download the client certificate and import it in the UPS web interface.
 
@@ -92,4 +92,4 @@ These are some next steps you may want to look into:
 - Add brand images (logo/icon) to https://github.com/home-assistant/brands.
 - Create your first release.
 - Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
-- Submit your integration to [HACS](https://hacs.xyz/docs/publish/start).
+- Submit your integration to the [Marketplace catalog](https://contributors.home-assistant.io/marketplace/guides/catalog/).
