@@ -1,4 +1,6 @@
 {
     "name": "Eaton UPS MQTT",
-    "homeassistant": "2026.11.0"
+    "homeassistant": "2026.11.0",
+    "zip_release": true,
+    "filename": "eaton_ups_mqtt.zip"
 }
